@@ -73,7 +73,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         // Only handle token refresh if already authenticated
         if (state.isAuthenticated && event.session?.user.email != null) {
           final appUser = await _authRepo.getAppUser(
-            event.session!.user!.email!,
+            event.session!.user.email!,
           );
           if (appUser != null && appUser.isActive == true) {
             state = AuthState(isAuthenticated: true, user: appUser);
