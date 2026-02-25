@@ -6,8 +6,9 @@ part 'room.g.dart';
 @JsonSerializable()
 class Room {
   final int id;
-  @JsonKey(name: 'room_number')
+  @JsonKey(name: 'room_number', fromJson: Room._stringFromAny)
   final String? roomNumber;
+  @JsonKey(fromJson: Room._stringFromAny)
   final String? floor;
   @JsonKey(name: 'room_type_id')
   final int? roomTypeId;
@@ -36,6 +37,13 @@ class Room {
     this.updatedAt,
     this.roomType,
   });
+
+  static String? _stringFromAny(dynamic value) {
+    if (value == null) return null;
+    if (value is String) return value;
+    if (value is int || value is double) return value.toString();
+    return value.toString();
+  }
 
   factory Room.fromJson(Map<String, dynamic> json) => _$RoomFromJson(json);
   Map<String, dynamic> toJson() => _$RoomToJson(this);

@@ -8,8 +8,8 @@ part of 'room.dart';
 
 Room _$RoomFromJson(Map<String, dynamic> json) => Room(
   id: (json['id'] as num).toInt(),
-  roomNumber: json['room_number'] as String?,
-  floor: json['floor'] as String?,
+  roomNumber: Room._stringFromAny(json['room_number']),
+  floor: Room._stringFromAny(json['floor']),
   roomTypeId: (json['room_type_id'] as num?)?.toInt(),
   status: json['status'] as String?,
   features: json['features'] as Map<String, dynamic>?,
