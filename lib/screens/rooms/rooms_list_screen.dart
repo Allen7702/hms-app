@@ -319,7 +319,7 @@ class _RoomListItem extends StatelessWidget {
           child: Center(
             child: Text(
               room.roomNumber ?? '-',
-              style: TextStyle(
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w700,
                 color: status.color,
               ),
@@ -328,7 +328,7 @@ class _RoomListItem extends StatelessWidget {
         ),
         title: Text(
           '${room.roomType?.name ?? 'Room'} · Floor ${room.floor ?? '-'}',
-          style: const TextStyle(fontWeight: FontWeight.w500),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
         ),
         subtitle: room.roomType?.price != null
             ? Text('${Formatters.currency(room.roomType!.price!)} /night')
