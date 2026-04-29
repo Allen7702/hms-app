@@ -1,69 +1,86 @@
+import 'dart:convert';
+import 'package:drift/drift.dart';
 import 'package:hms_app/config/supabase_config.dart';
+import 'package:hms_app/local_db/app_database.dart';
+import 'package:hms_app/local_db/extensions/local_to_model.dart';
+import 'package:hms_app/local_db/mappers/local_mappers.dart';
 import 'package:hms_app/models/housekeeping.dart';
+import 'package:hms_app/services/connectivity_service.dart';
 
 class HousekeepingRepository {
+  final AppDatabase _db;
+  final ConnectivityService _connectivity;
   final _client = SupabaseConfig.client;
 
-  /// Get all housekeeping tasks
+  HousekeepingRepository(this._db, this._connectivity);
+
   Future<List<Housekeeping>> getAll({String? status}) async {
-    var query = _client.from('housekeepings').select();
-
-    if (status != null) {
-      query = query.eq('status', status);
-    }
-
-    final response = await query.order('created_at', ascending: false);
-    return (response as List).map((e) => Housekeeping.fromJson(e)).toList();
+    var rows = status != null
+        ? await _db.operationsDao.getHousekeepingByStatus(status)
+        : await _db.operationsDao.getAllHousekeeping();
+    rows.sort((a, b) => (b.createdAt ?? '').compareTo(a.createdAt ?? ''));
+    return rows.map((r) => r.toModel()).toList();
   }
 
-  /// Create housekeeping task
   Future<Housekeeping> create(Map<String, dynamic> data) async {
-    final response = await _client
-        .from('housekeepings')
-        .insert(data)
-        .select()
-        .single();
-
+    _requireOnline();
+    final response =
+        await _client.from('housekeepings').insert(data).select().single();
+    await _db.operationsDao.upsertHousekeeping(housekeepingFromMap(response));
     return Housekeeping.fromJson(response);
   }
 
-  /// Update housekeeping task
   Future<Housekeeping> update(int id, Map<String, dynamic> data) async {
-    final response = await _client
-        .from('housekeepings')
-        .update(data)
-        .eq('id', id)
-        .select()
-        .single();
+    final now = DateTime.now().toIso8601String();
+    final payload = {...data, 'id': id, 'updated_at': now};
 
-    return Housekeeping.fromJson(response);
+    await _db.operationsDao.upsertHousekeeping(housekeepingFromMap(payload));
+
+    if (_connectivity.isOnline) {
+      final response = await _client
+          .from('housekeepings')
+          .update(data)
+          .eq('id', id)
+          .select()
+          .single();
+      return Housekeeping.fromJson(response);
+    } else {
+      await _enqueue('housekeepings', 'update', id, payload);
+      final row = await _db.operationsDao.getHousekeepingByRoom(id);
+      return row.first.toModel();
+    }
   }
 
-  /// Mark task as complete
-  Future<Housekeeping> complete(int id) async {
-    return update(id, {
-      'status': 'Completed',
-      'completed_at': DateTime.now().toIso8601String(),
-    });
-  }
+  Future<Housekeeping> complete(int id) => update(id, {
+        'status': 'Completed',
+        'completed_at': DateTime.now().toIso8601String(),
+      });
 
-  /// Get status counts
   Future<Map<String, int>> getStatusCounts() async {
-    final response = await _client.from('housekeepings').select('status');
-    final tasks = response as List;
+    final rows = await _db.operationsDao.getAllHousekeeping();
     final counts = <String, int>{};
-    for (final task in tasks) {
-      final status = task['status'] as String;
-      counts[status] = (counts[status] ?? 0) + 1;
+    for (final r in rows) {
+      final s = r.status ?? 'Unknown';
+      counts[s] = (counts[s] ?? 0) + 1;
     }
     return counts;
   }
 
-  /// Subscribe to housekeeping changes
-  Stream<List<Map<String, dynamic>>> subscribe() {
-    return _client
-        .from('housekeepings')
-        .stream(primaryKey: ['id'])
-        .order('created_at', ascending: false);
+  Stream<List<Map<String, dynamic>>> subscribe() =>
+      _client.from('housekeepings').stream(primaryKey: ['id']).order('created_at', ascending: false);
+
+  Future<void> _enqueue(String table, String op, int id, Map<String, dynamic> payload) =>
+      _db.syncDao.enqueue(SyncQueueTableCompanion(
+        entityTable: Value(table),
+        operation: Value(op),
+        recordId: Value(id),
+        payload: Value(jsonEncode(payload)),
+        createdAt: Value(DateTime.now().toIso8601String()),
+      ));
+
+  void _requireOnline() {
+    if (!_connectivity.isOnline) {
+      throw Exception('This action requires an internet connection.');
+    }
   }
 }

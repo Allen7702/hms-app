@@ -1,9 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hms_app/models/room.dart';
 import 'package:hms_app/models/room_type.dart';
+import 'package:hms_app/providers/sync_provider.dart';
 import 'package:hms_app/repositories/room_repository.dart';
+import 'package:hms_app/services/connectivity_service.dart';
 
-final roomRepositoryProvider = Provider((ref) => RoomRepository());
+final roomRepositoryProvider = Provider((ref) =>
+    RoomRepository(ref.watch(appDatabaseProvider), ConnectivityService()));
 
 final roomsProvider = FutureProvider<List<Room>>((ref) async {
   final repo = ref.read(roomRepositoryProvider);

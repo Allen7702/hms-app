@@ -11,6 +11,7 @@ import 'package:hms_app/shared/loading_skeleton.dart';
 import 'package:hms_app/shared/status_badge.dart';
 import 'package:hms_app/utils/constants.dart';
 import 'package:hms_app/utils/formatters.dart';
+import 'package:hms_app/config/theme.dart';
 
 // ─── Guest Bookings Provider ─────────────────────────────────────────────────
 
@@ -244,14 +245,15 @@ class _GuestsListScreenState extends ConsumerState<GuestsListScreen> {
                     padding: const EdgeInsets.all(7),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF7950F2), Color(0xFF228BE6)],
+                        colors: [AppTheme.navyMid, AppTheme.navyLight],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: AppTheme.gold, width: 0.8),
                     ),
                     child: const Icon(Icons.people_rounded,
-                        color: Colors.white, size: 18),
+                        color: AppTheme.gold, size: 18),
                   ),
                   const SizedBox(width: 10),
                   const Text('Guests'),
@@ -293,7 +295,7 @@ class _GuestCard extends StatelessWidget {
         LoyaltyTier.bronze => [const Color(0xFFCD7F32), const Color(0xFFE8A87C)],
         LoyaltyTier.silver => [const Color(0xFF9E9E9E), const Color(0xFFBDBDBD)],
         LoyaltyTier.gold => [const Color(0xFFFCC419), const Color(0xFFFFD43B)],
-        _ => [const Color(0xFF228BE6), const Color(0xFF7950F2)],
+        _ => [AppTheme.navyMid, AppTheme.navyLight],
       };
 
   @override
@@ -489,7 +491,7 @@ class GuestDetailScreen extends ConsumerWidget {
         LoyaltyTier.bronze => [const Color(0xFFCD7F32), const Color(0xFFE8A87C)],
         LoyaltyTier.silver => [const Color(0xFF9E9E9E), const Color(0xFFBDBDBD)],
         LoyaltyTier.gold => [const Color(0xFFFCC419), const Color(0xFFFFD43B)],
-        _ => [const Color(0xFF228BE6), const Color(0xFF7950F2)],
+        _ => [AppTheme.navyMid, AppTheme.navyLight],
       };
 
   String _initials(String? name) {
@@ -874,7 +876,7 @@ class _ProfileHero extends StatelessWidget {
                 end: Alignment.bottomRight,
               )
             : const LinearGradient(
-                colors: [Color(0xFF7950F2), Color(0xFF228BE6)],
+                colors: [AppTheme.navyDeep, AppTheme.navyMid],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),

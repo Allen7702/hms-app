@@ -20,6 +20,15 @@ class Guest {
   final String? loyaltyTier;
   @JsonKey(name: 'gdpr_consent')
   final bool? gdprConsent;
+  @JsonKey(name: 'total_stays')
+  final int? totalStays;
+  @JsonKey(name: 'total_spent')
+  final int? totalSpent;
+  @JsonKey(name: 'last_stay_date')
+  final String? lastStayDate;
+  @JsonKey(name: 'preferred_room_type')
+  final String? preferredRoomType;
+  final String? notes;
   @JsonKey(name: 'user_id')
   final int? userId;
   @JsonKey(name: 'created_at')
@@ -39,6 +48,11 @@ class Guest {
     this.loyaltyPoints,
     this.loyaltyTier,
     this.gdprConsent,
+    this.totalStays,
+    this.totalSpent,
+    this.lastStayDate,
+    this.preferredRoomType,
+    this.notes,
     this.userId,
     this.createdAt,
     this.updatedAt,

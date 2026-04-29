@@ -1,8 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hms_app/models/booking.dart';
+import 'package:hms_app/providers/sync_provider.dart';
 import 'package:hms_app/repositories/booking_repository.dart';
+import 'package:hms_app/services/connectivity_service.dart';
 
-final bookingRepositoryProvider = Provider((ref) => BookingRepository());
+final bookingRepositoryProvider = Provider((ref) =>
+    BookingRepository(ref.watch(appDatabaseProvider), ConnectivityService()));
 
 final bookingsProvider = FutureProvider.family<List<Booking>, String?>((ref, status) async {
   final repo = ref.read(bookingRepositoryProvider);

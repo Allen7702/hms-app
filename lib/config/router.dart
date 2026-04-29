@@ -21,6 +21,7 @@ import 'package:hms_app/screens/notifications/notifications_screen.dart';
 import 'package:hms_app/screens/settings/settings_screen.dart';
 import 'package:hms_app/screens/more/more_screen.dart';
 import 'package:hms_app/screens/shell/app_shell.dart';
+import 'package:hms_app/screens/shell/seeding_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -46,8 +47,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       // Main app with bottom navigation
       StatefulShellRoute.indexedStack(
-        builder: (context, state, navigationShell) =>
-            AppShell(navigationShell: navigationShell),
+        builder: (context, state, navigationShell) => SeedingWrapper(
+          child: AppShell(navigationShell: navigationShell),
+        ),
         branches: [
           // Dashboard tab
           StatefulShellBranch(

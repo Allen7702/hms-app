@@ -1,125 +1,115 @@
+import 'dart:convert';
+import 'package:drift/drift.dart';
 import 'package:hms_app/config/supabase_config.dart';
+import 'package:hms_app/local_db/app_database.dart';
+import 'package:hms_app/local_db/extensions/local_to_model.dart';
+import 'package:hms_app/local_db/mappers/local_mappers.dart';
 import 'package:hms_app/models/booking.dart';
+import 'package:hms_app/services/connectivity_service.dart';
 
 class BookingRepository {
+  final AppDatabase _db;
+  final ConnectivityService _connectivity;
   final _client = SupabaseConfig.client;
 
-  static const _selectWithRelations = '''
-    *, 
-    guests(*), 
-    rooms(*, room_types(*))
-  ''';
+  BookingRepository(this._db, this._connectivity);
 
-  /// Get all bookings with guest and room data
+  static const _selectWithRelations = '*, guests(*), rooms(*, room_types(*))';
+
   Future<List<Booking>> getAll({String? status, String? search}) async {
-    var query = _client.from('bookings').select(_selectWithRelations);
-
+    var rows = await _db.bookingDao.getAllBookings();
     if (status != null && status != 'All') {
-      query = query.eq('status', status);
+      rows = rows.where((b) => b.status == status).toList();
     }
-
     if (search != null && search.isNotEmpty) {
-      query = query.or('id.eq.${int.tryParse(search) ?? 0},guests.full_name.ilike.%$search%');
+      final q = search.toLowerCase();
+      rows = rows.where((b) =>
+          b.id.toString().contains(q) ||
+          (b.notes?.toLowerCase().contains(q) ?? false)).toList();
     }
-
-    final response = await query.order('created_at', ascending: false);
-    return (response as List).map((e) => Booking.fromJson(e)).toList();
+    rows.sort((a, b) => (b.createdAt ?? '').compareTo(a.createdAt ?? ''));
+    return rows.map((r) => r.toModel()).toList();
   }
 
-  /// Get booking by ID
   Future<Booking?> getById(int id) async {
-    final response = await _client
-        .from('bookings')
-        .select(_selectWithRelations)
-        .eq('id', id)
-        .maybeSingle();
-
-    if (response == null) return null;
-    return Booking.fromJson(response);
+    final row = await _db.bookingDao.getBookingById(id);
+    return row?.toModel();
   }
 
-  /// Get today's arrivals
   Future<List<Booking>> getTodayArrivals() async {
     final today = DateTime.now().toIso8601String().split('T')[0];
-    final response = await _client
-        .from('bookings')
-        .select(_selectWithRelations)
-        .gte('check_in', '${today}T00:00:00')
-        .lt('check_in', '${today}T23:59:59')
-        .inFilter('status', ['Confirmed', 'Pending'])
-        .order('check_in');
-
-    return (response as List).map((e) => Booking.fromJson(e)).toList();
+    final rows = await _db.bookingDao.getTodayArrivals(today);
+    return rows.map((r) => r.toModel()).toList();
   }
 
-  /// Get today's departures
   Future<List<Booking>> getTodayDepartures() async {
     final today = DateTime.now().toIso8601String().split('T')[0];
-    final response = await _client
-        .from('bookings')
-        .select(_selectWithRelations)
-        .gte('check_out', '${today}T00:00:00')
-        .lt('check_out', '${today}T23:59:59')
-        .eq('status', 'CheckedIn')
-        .order('check_out');
-
-    return (response as List).map((e) => Booking.fromJson(e)).toList();
+    final rows = await _db.bookingDao.getAllBookings();
+    return rows
+        .where((b) =>
+            (b.checkOut?.startsWith(today) ?? false) && b.status == 'CheckedIn')
+        .map((r) => r.toModel())
+        .toList();
   }
 
-  /// Create a new booking
   Future<Booking> create(Map<String, dynamic> data) async {
+    _requireOnline();
     final response = await _client
         .from('bookings')
         .insert(data)
         .select(_selectWithRelations)
         .single();
-
+    await _db.bookingDao.upsertBooking(bookingFromMap(response));
     return Booking.fromJson(response);
   }
 
-  /// Update a booking
   Future<Booking> update(int id, Map<String, dynamic> data) async {
-    final response = await _client
-        .from('bookings')
-        .update(data)
-        .eq('id', id)
-        .select(_selectWithRelations)
-        .single();
+    final now = DateTime.now().toIso8601String();
+    final payload = {...data, 'id': id, 'updated_at': now};
 
-    return Booking.fromJson(response);
+    await _db.bookingDao.upsertBooking(bookingFromMap(payload));
+
+    if (_connectivity.isOnline) {
+      final response = await _client
+          .from('bookings')
+          .update(data)
+          .eq('id', id)
+          .select(_selectWithRelations)
+          .single();
+      return Booking.fromJson(response);
+    } else {
+      await _enqueue('bookings', 'update', id, payload);
+      return (await _db.bookingDao.getBookingById(id))!.toModel();
+    }
   }
 
-  /// Check in a booking
-  Future<Booking> checkIn(int id) async {
-    return update(id, {'status': 'CheckedIn'});
-  }
+  Future<Booking> checkIn(int id) => update(id, {'status': 'CheckedIn'});
+  Future<Booking> checkOut(int id) => update(id, {'status': 'CheckedOut'});
+  Future<Booking> cancel(int id) => update(id, {'status': 'Cancelled'});
 
-  /// Check out a booking
-  Future<Booking> checkOut(int id) async {
-    return update(id, {'status': 'CheckedOut'});
-  }
-
-  /// Cancel a booking
-  Future<Booking> cancel(int id) async {
-    return update(id, {'status': 'Cancelled'});
-  }
-
-  /// Get bookings by guest ID
   Future<List<Booking>> getByGuestId(int guestId) async {
-    final response = await _client
-        .from('bookings')
-        .select(_selectWithRelations)
-        .eq('guest_id', guestId)
-        .order('created_at', ascending: false);
-
-    return (response as List).map((e) => Booking.fromJson(e)).toList();
+    final rows = await _db.bookingDao.getAllBookings();
+    return rows
+        .where((b) => b.guestId == guestId)
+        .map((r) => r.toModel())
+        .toList();
   }
 
-  /// Subscribe to booking changes
-  Stream<List<Map<String, dynamic>>> subscribe() {
-    return _client
-        .from('bookings')
-        .stream(primaryKey: ['id'])
-        .order('created_at', ascending: false);
+  Stream<List<Map<String, dynamic>>> subscribe() =>
+      _client.from('bookings').stream(primaryKey: ['id']).order('created_at', ascending: false);
+
+  Future<void> _enqueue(String table, String op, int id, Map<String, dynamic> payload) =>
+      _db.syncDao.enqueue(SyncQueueTableCompanion(
+        entityTable: Value(table),
+        operation: Value(op),
+        recordId: Value(id),
+        payload: Value(jsonEncode(payload)),
+        createdAt: Value(DateTime.now().toIso8601String()),
+      ));
+
+  void _requireOnline() {
+    if (!_connectivity.isOnline) {
+      throw Exception('This action requires an internet connection.');
+    }
   }
 }

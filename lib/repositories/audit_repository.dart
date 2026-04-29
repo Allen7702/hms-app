@@ -1,10 +1,15 @@
-import 'package:hms_app/config/supabase_config.dart';
+import 'package:hms_app/local_db/app_database.dart';
+import 'package:hms_app/local_db/extensions/local_to_model.dart';
 import 'package:hms_app/models/audit_log.dart';
+import 'package:hms_app/services/connectivity_service.dart';
 
 class AuditRepository {
-  final _client = SupabaseConfig.client;
+  final AppDatabase _db;
+  // ignore: unused_field
+  final ConnectivityService _connectivity;
 
-  /// Get audit logs
+  AuditRepository(this._db, this._connectivity);
+
   Future<List<AuditLog>> getAll({
     String? entityType,
     String? action,
@@ -12,22 +17,11 @@ class AuditRepository {
     int limit = 50,
     int offset = 0,
   }) async {
-    var query = _client.from('audit_logs').select();
-
-    if (entityType != null) {
-      query = query.eq('entity_type', entityType);
-    }
-    if (action != null) {
-      query = query.eq('action', action);
-    }
-    if (userId != null) {
-      query = query.eq('user_id', userId);
-    }
-
-    final response = await query
-        .order('created_at', ascending: false)
-        .range(offset, offset + limit - 1);
-
-    return (response as List).map((e) => AuditLog.fromJson(e)).toList();
+    var rows = await _db.notificationDao.getAllAuditLogs();
+    if (entityType != null) rows = rows.where((r) => r.entityType == entityType).toList();
+    if (action != null) rows = rows.where((r) => r.action == action).toList();
+    if (userId != null) rows = rows.where((r) => r.userId == userId).toList();
+    rows.sort((a, b) => (b.createdAt ?? '').compareTo(a.createdAt ?? ''));
+    return rows.skip(offset).take(limit).map((r) => r.toModel()).toList();
   }
 }

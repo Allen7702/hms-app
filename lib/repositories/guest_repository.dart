@@ -1,64 +1,82 @@
+import 'dart:convert';
+import 'package:drift/drift.dart';
 import 'package:hms_app/config/supabase_config.dart';
+import 'package:hms_app/local_db/app_database.dart';
+import 'package:hms_app/local_db/extensions/local_to_model.dart';
+import 'package:hms_app/local_db/mappers/local_mappers.dart';
 import 'package:hms_app/models/guest.dart';
+import 'package:hms_app/services/connectivity_service.dart';
 
 class GuestRepository {
+  final AppDatabase _db;
+  final ConnectivityService _connectivity;
   final _client = SupabaseConfig.client;
 
-  /// Get all guests
+  GuestRepository(this._db, this._connectivity);
+
   Future<List<Guest>> getAll({String? search}) async {
-    var query = _client.from('guests').select();
-
+    var rows = await _db.coreDao.getAllGuests();
     if (search != null && search.isNotEmpty) {
-      query = query.or('name.ilike.%$search%,email.ilike.%$search%,phone.ilike.%$search%');
+      final q = search.toLowerCase();
+      rows = rows.where((g) =>
+          (g.name?.toLowerCase().contains(q) ?? false) ||
+          (g.email?.toLowerCase().contains(q) ?? false) ||
+          (g.phone?.contains(q) ?? false)).toList();
     }
-
-    final response = await query.order('created_at', ascending: false);
-    return (response as List).map((e) => Guest.fromJson(e)).toList();
+    rows.sort((a, b) => (b.createdAt ?? '').compareTo(a.createdAt ?? ''));
+    return rows.map((r) => r.toModel()).toList();
   }
 
-  /// Get guest by ID
   Future<Guest?> getById(int id) async {
-    final response = await _client
-        .from('guests')
-        .select()
-        .eq('id', id)
-        .maybeSingle();
-
-    if (response == null) return null;
-    return Guest.fromJson(response);
+    final row = await _db.coreDao.getGuestById(id);
+    return row?.toModel();
   }
 
-  /// Create guest
   Future<Guest> create(Map<String, dynamic> data) async {
-    final response = await _client
-        .from('guests')
-        .insert(data)
-        .select()
-        .single();
-
+    _requireOnline();
+    final response = await _client.from('guests').insert(data).select().single();
+    await _db.coreDao.upsertGuest(guestFromMap(response));
     return Guest.fromJson(response);
   }
 
-  /// Update guest
   Future<Guest> update(int id, Map<String, dynamic> data) async {
-    final response = await _client
-        .from('guests')
-        .update(data)
-        .eq('id', id)
-        .select()
-        .single();
+    final now = DateTime.now().toIso8601String();
+    final payload = {...data, 'id': id, 'updated_at': now};
 
-    return Guest.fromJson(response);
+    await _db.coreDao.upsertGuest(guestFromMap(payload));
+
+    if (_connectivity.isOnline) {
+      final response =
+          await _client.from('guests').update(data).eq('id', id).select().single();
+      return Guest.fromJson(response);
+    } else {
+      await _enqueue('guests', 'update', id, payload);
+      return (await _db.coreDao.getGuestById(id))!.toModel();
+    }
   }
 
-  /// Search guests by name
   Future<List<Guest>> searchByName(String name) async {
-    final response = await _client
-        .from('guests')
-        .select()
-        .ilike('name', '%$name%')
-        .limit(10);
+    final rows = await _db.coreDao.getAllGuests();
+    final q = name.toLowerCase();
+    return rows
+        .where((g) => g.name?.toLowerCase().contains(q) ?? false)
+        .take(10)
+        .map((r) => r.toModel())
+        .toList();
+  }
 
-    return (response as List).map((e) => Guest.fromJson(e)).toList();
+  Future<void> _enqueue(String table, String op, int id, Map<String, dynamic> payload) =>
+      _db.syncDao.enqueue(SyncQueueTableCompanion(
+        entityTable: Value(table),
+        operation: Value(op),
+        recordId: Value(id),
+        payload: Value(jsonEncode(payload)),
+        createdAt: Value(DateTime.now().toIso8601String()),
+      ));
+
+  void _requireOnline() {
+    if (!_connectivity.isOnline) {
+      throw Exception('This action requires an internet connection.');
+    }
   }
 }

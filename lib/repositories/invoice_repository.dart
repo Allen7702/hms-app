@@ -1,152 +1,148 @@
+import 'dart:convert';
+import 'package:drift/drift.dart';
 import 'package:hms_app/config/supabase_config.dart';
-import 'package:hms_app/models/invoice.dart';
+import 'package:hms_app/local_db/app_database.dart';
+import 'package:hms_app/local_db/extensions/local_to_model.dart';
+import 'package:hms_app/local_db/mappers/local_mappers.dart';
 import 'package:hms_app/models/charge.dart';
+import 'package:hms_app/models/invoice.dart';
 import 'package:hms_app/models/payment.dart';
+import 'package:hms_app/services/connectivity_service.dart';
 
 class InvoiceRepository {
+  final AppDatabase _db;
+  final ConnectivityService _connectivity;
   final _client = SupabaseConfig.client;
 
-  /// Get all invoices
+  InvoiceRepository(this._db, this._connectivity);
+
   Future<List<Invoice>> getAll({String? status}) async {
-    var query = _client.from('invoices').select();
-
-    if (status != null) {
-      query = query.eq('status', status);
-    }
-
-    final response = await query.order('created_at', ascending: false);
-    return (response as List).map((e) => Invoice.fromJson(e)).toList();
+    var rows = await _db.billingDao.getAllInvoices();
+    if (status != null) rows = rows.where((r) => r.status == status).toList();
+    rows.sort((a, b) => (b.createdAt ?? '').compareTo(a.createdAt ?? ''));
+    return rows.map((r) => r.toModel()).toList();
   }
 
-  /// Get invoice by ID
   Future<Invoice?> getById(int id) async {
-    final response = await _client
-        .from('invoices')
-        .select()
-        .eq('id', id)
-        .maybeSingle();
-
-    if (response == null) return null;
-    return Invoice.fromJson(response);
+    final row = await _db.billingDao.getInvoiceById(id);
+    return row?.toModel();
   }
 
-  /// Get invoices by booking ID
   Future<List<Invoice>> getByBookingId(int bookingId) async {
-    final response = await _client
-        .from('invoices')
-        .select()
-        .eq('booking_id', bookingId)
-        .order('created_at', ascending: false);
-
-    return (response as List).map((e) => Invoice.fromJson(e)).toList();
+    final rows = await _db.billingDao.getInvoicesByBooking(bookingId);
+    return rows.map((r) => r.toModel()).toList();
   }
 
-  /// Create invoice
   Future<Invoice> create(Map<String, dynamic> data) async {
-    final response = await _client
-        .from('invoices')
-        .insert(data)
-        .select()
-        .single();
-
+    _requireOnline();
+    final response = await _client.from('invoices').insert(data).select().single();
+    await _db.billingDao.upsertInvoice(invoiceFromMap(response));
     return Invoice.fromJson(response);
   }
 
-  /// Update invoice
   Future<Invoice> update(int id, Map<String, dynamic> data) async {
-    final response = await _client
-        .from('invoices')
-        .update(data)
-        .eq('id', id)
-        .select()
-        .single();
+    final now = DateTime.now().toIso8601String();
+    final payload = {...data, 'id': id, 'updated_at': now};
 
-    return Invoice.fromJson(response);
+    await _db.billingDao.upsertInvoice(invoiceFromMap(payload));
+
+    if (_connectivity.isOnline) {
+      final response =
+          await _client.from('invoices').update(data).eq('id', id).select().single();
+      return Invoice.fromJson(response);
+    } else {
+      await _enqueue('invoices', 'update', id, payload);
+      return (await _db.billingDao.getInvoiceById(id))!.toModel();
+    }
   }
 
-  /// Get unpaid invoices for a booking
   Future<List<Invoice>> getUnpaidByBookingId(int bookingId) async {
-    final response = await _client
-        .from('invoices')
-        .select()
-        .eq('booking_id', bookingId)
-        .inFilter('status', ['Unpaid', 'Draft']);
+    final rows = await _db.billingDao.getInvoicesByBooking(bookingId);
+    return rows
+        .where((r) => r.status == 'Unpaid' || r.status == 'Draft')
+        .map((r) => r.toModel())
+        .toList();
+  }
 
-    return (response as List).map((e) => Invoice.fromJson(e)).toList();
+  Future<void> _enqueue(String table, String op, int id, Map<String, dynamic> payload) =>
+      _db.syncDao.enqueue(SyncQueueTableCompanion(
+        entityTable: Value(table),
+        operation: Value(op),
+        recordId: Value(id),
+        payload: Value(jsonEncode(payload)),
+        createdAt: Value(DateTime.now().toIso8601String()),
+      ));
+
+  void _requireOnline() {
+    if (!_connectivity.isOnline) {
+      throw Exception('This action requires an internet connection.');
+    }
   }
 }
 
 class ChargeRepository {
+  final AppDatabase _db;
+  final ConnectivityService _connectivity;
   final _client = SupabaseConfig.client;
 
-  /// Get charges by booking ID
+  ChargeRepository(this._db, this._connectivity);
+
   Future<List<Charge>> getByBookingId(int bookingId) async {
-    final response = await _client
-        .from('charges')
-        .select()
-        .eq('booking_id', bookingId)
-        .order('created_at', ascending: false);
-
-    return (response as List).map((e) => Charge.fromJson(e)).toList();
+    final rows = await _db.billingDao.getChargesByBooking(bookingId);
+    return rows.map((r) => r.toModel()).toList();
   }
 
-  /// Create charge
   Future<Charge> create(Map<String, dynamic> data) async {
-    final response = await _client
-        .from('charges')
-        .insert(data)
-        .select()
-        .single();
-
+    if (!_connectivity.isOnline) throw Exception('This action requires an internet connection.');
+    final response = await _client.from('charges').insert(data).select().single();
+    await _db.billingDao.upsertCharge(chargeFromMap(response));
     return Charge.fromJson(response);
   }
 
-  /// Update charge
   Future<Charge> update(int id, Map<String, dynamic> data) async {
-    final response = await _client
-        .from('charges')
-        .update(data)
-        .eq('id', id)
-        .select()
-        .single();
+    final now = DateTime.now().toIso8601String();
+    final payload = {...data, 'id': id, 'updated_at': now};
+    await _db.billingDao.upsertCharge(chargeFromMap(payload));
 
-    return Charge.fromJson(response);
+    if (_connectivity.isOnline) {
+      final response =
+          await _client.from('charges').update(data).eq('id', id).select().single();
+      return Charge.fromJson(response);
+    } else {
+      await _db.syncDao.enqueue(SyncQueueTableCompanion(
+        entityTable: const Value('charges'),
+        operation: const Value('update'),
+        recordId: Value(id),
+        payload: Value(jsonEncode(payload)),
+        createdAt: Value(now),
+      ));
+      final rows = await _db.billingDao.getChargesByBooking(payload['booking_id'] as int? ?? 0);
+      return rows.firstWhere((r) => r.id == id).toModel();
+    }
   }
 
-  /// Get pending charges for a booking
   Future<List<Charge>> getPendingByBookingId(int bookingId) async {
-    final response = await _client
-        .from('charges')
-        .select()
-        .eq('booking_id', bookingId)
-        .eq('status', 'Pending');
-
-    return (response as List).map((e) => Charge.fromJson(e)).toList();
+    final rows = await _db.billingDao.getChargesByBooking(bookingId);
+    return rows.where((r) => r.status == 'Pending').map((r) => r.toModel()).toList();
   }
 }
 
 class PaymentRepository {
+  final AppDatabase _db;
+  final ConnectivityService _connectivity;
   final _client = SupabaseConfig.client;
 
-  /// Get payments by invoice ID
-  Future<List<Payment>> getByInvoiceId(int invoiceId) async {
-    final response = await _client
-        .from('payments')
-        .select()
-        .eq('invoice_id', invoiceId)
-        .order('created_at', ascending: false);
+  PaymentRepository(this._db, this._connectivity);
 
-    return (response as List).map((e) => Payment.fromJson(e)).toList();
+  Future<List<Payment>> getByInvoiceId(int invoiceId) async {
+    final rows = await _db.billingDao.getPaymentsByInvoice(invoiceId);
+    return rows.map((r) => r.toModel()).toList();
   }
 
-  /// Create payment
   Future<Payment> create(Map<String, dynamic> data) async {
-    final response = await _client
-        .from('payments')
-        .insert(data)
-        .select()
-        .single();
-
+    if (!_connectivity.isOnline) throw Exception('This action requires an internet connection.');
+    final response = await _client.from('payments').insert(data).select().single();
+    await _db.billingDao.upsertPayment(paymentFromMap(response));
     return Payment.fromJson(response);
   }
 }

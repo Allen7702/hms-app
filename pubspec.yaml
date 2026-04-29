@@ -32,6 +32,10 @@ dependencies:
   flutter_local_notifications: ^18.0.1
   flutter_dotenv: ^5.2.1
   timeago: ^3.7.0
+  drift: ^2.22.1
+  sqlite3_flutter_libs: ^0.5.28
+  path_provider: ^2.1.5
+  path: ^1.9.1
 
 dev_dependencies:
   flutter_test:
@@ -41,6 +45,7 @@ dev_dependencies:
   json_serializable: ^6.9.4
   build_runner: ^2.4.15
   riverpod_generator: ^2.6.3
+  drift_dev: ^2.22.1
 
 flutter:
   uses-material-design: true

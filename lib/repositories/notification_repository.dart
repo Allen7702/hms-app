@@ -1,46 +1,38 @@
 import 'package:hms_app/config/supabase_config.dart';
+import 'package:hms_app/local_db/app_database.dart';
+import 'package:hms_app/local_db/extensions/local_to_model.dart';
+import 'package:hms_app/local_db/mappers/local_mappers.dart';
 import 'package:hms_app/models/app_notification.dart';
+import 'package:hms_app/services/connectivity_service.dart';
 
 class NotificationRepository {
+  final AppDatabase _db;
+  final ConnectivityService _connectivity;
   final _client = SupabaseConfig.client;
 
-  /// Get notifications for a user
+  NotificationRepository(this._db, this._connectivity);
+
   Future<List<AppNotification>> getByUserId(int userId) async {
-    final response = await _client
-        .from('notifications')
-        .select()
-        .eq('user_id', userId)
-        .order('created_at', ascending: false);
-
-    return (response as List).map((e) => AppNotification.fromJson(e)).toList();
+    final rows = await _db.notificationDao.getAll();
+    return rows
+        .where((r) => r.userId == userId)
+        .map((r) => r.toModel())
+        .toList();
   }
 
-  /// Get all notifications
   Future<List<AppNotification>> getAll() async {
-    final response = await _client
-        .from('notifications')
-        .select()
-        .order('created_at', ascending: false);
-
-    return (response as List).map((e) => AppNotification.fromJson(e)).toList();
+    final rows = await _db.notificationDao.getAll();
+    return rows.map((r) => r.toModel()).toList();
   }
 
-  /// Create notification
   Future<AppNotification> create(Map<String, dynamic> data) async {
-    final response = await _client
-        .from('notifications')
-        .insert(data)
-        .select()
-        .single();
-
+    if (!_connectivity.isOnline) throw Exception('This action requires an internet connection.');
+    final response =
+        await _client.from('notifications').insert(data).select().single();
+    await _db.notificationDao.upsertNotification(notificationFromMap(response));
     return AppNotification.fromJson(response);
   }
 
-  /// Subscribe to notification changes
-  Stream<List<Map<String, dynamic>>> subscribe() {
-    return _client
-        .from('notifications')
-        .stream(primaryKey: ['id'])
-        .order('created_at', ascending: false);
-  }
+  Stream<List<Map<String, dynamic>>> subscribe() =>
+      _client.from('notifications').stream(primaryKey: ['id']).order('created_at', ascending: false);
 }

@@ -21,8 +21,10 @@ class Charge {
   final String? paymentReference;
   @JsonKey(name: 'paid_at')
   final String? paidAt;
+  @JsonKey(name: 'paid_amount')
+  final int? paidAmount;
   @JsonKey(name: 'added_by')
-  final int? addedBy;
+  final String? addedBy;
   @JsonKey(name: 'service_date')
   final String? serviceDate;
   final String? notes;
@@ -41,6 +43,7 @@ class Charge {
     this.paymentMethod,
     this.paymentReference,
     this.paidAt,
+    this.paidAmount,
     this.addedBy,
     this.serviceDate,
     this.notes,

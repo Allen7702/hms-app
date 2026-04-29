@@ -3,27 +3,109 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hms_app/providers/auth_provider.dart';
+import 'package:hms_app/providers/sync_provider.dart';
 
-class AppShell extends ConsumerWidget {
+class AppShell extends ConsumerStatefulWidget {
   final StatefulNavigationShell navigationShell;
 
   const AppShell({super.key, required this.navigationShell});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AppShell> createState() => _AppShellState();
+}
+
+class _AppShellState extends ConsumerState<AppShell>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      ref.read(syncNotifierProvider.notifier).triggerSync();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Sync status toast
+    ref.listen<SyncState>(syncNotifierProvider, (prev, next) {
+      if (!mounted) return;
+      if (next.status == SyncStatus.success &&
+          prev?.status == SyncStatus.syncing) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Row(
+              children: [
+                Icon(Icons.check_circle_outline,
+                    color: Colors.white, size: 16),
+                SizedBox(width: 8),
+                Text('Sync complete'),
+              ],
+            ),
+            backgroundColor: Colors.green.shade700,
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        );
+      } else if (next.status == SyncStatus.error &&
+          prev?.status != SyncStatus.error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.sync_problem, color: Colors.white, size: 16),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Sync failed: ${next.errorMessage ?? 'Unknown error'}',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red.shade700,
+            duration: const Duration(seconds: 4),
+            behavior: SnackBarBehavior.floating,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            action: SnackBarAction(
+              label: 'Retry',
+              textColor: Colors.white,
+              onPressed: () =>
+                  ref.read(syncNotifierProvider.notifier).triggerSync(),
+            ),
+          ),
+        );
+      }
+    });
+
+    final isOnline = ref.watch(isOnlineProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final gradientColors = isDark
         ? [
-            const Color(0xFF0A0E21),
-            const Color(0xFF0D1B3E),
-            const Color(0xFF132043),
-            const Color(0xFF0A0E21),
+            const Color(0xFF070D1A),
+            const Color(0xFF0C1628),
+            const Color(0xFF0F1E38),
+            const Color(0xFF070D1A),
           ]
         : [
-            const Color(0xFFE8F4FD),
-            const Color(0xFFF0E6FF),
-            const Color(0xFFE6F7FF),
-            const Color(0xFFF5F0FF),
+            const Color(0xFFF7F4EF),
+            const Color(0xFFEDF2F8),
+            const Color(0xFFF4EFE8),
+            const Color(0xFFEEF2F8),
           ];
 
     return Container(
@@ -36,22 +118,27 @@ class AppShell extends ConsumerWidget {
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: navigationShell,
-        bottomNavigationBar: _GlassNavBar(
-          currentIndex: navigationShell.currentIndex,
+        body: Column(
+          children: [
+            _OfflineBanner(isOnline: isOnline),
+            Expanded(child: widget.navigationShell),
+          ],
+        ),
+        bottomNavigationBar: _SyncNavBar(
+          currentIndex: widget.navigationShell.currentIndex,
           onTap: (index) {
-            navigationShell.goBranch(
+            widget.navigationShell.goBranch(
               index,
-              initialLocation: index == navigationShell.currentIndex,
+              initialLocation: index == widget.navigationShell.currentIndex,
             );
           },
         ),
-        drawer: _buildGlassDrawer(context, ref),
+        drawer: _buildGlassDrawer(context),
       ),
     );
   }
 
-  Widget _buildGlassDrawer(BuildContext context, WidgetRef ref) {
+  Widget _buildGlassDrawer(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final user = ref.watch(currentUserProvider);
@@ -72,10 +159,15 @@ class AppShell extends ConsumerWidget {
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      theme.colorScheme.primary.withValues(alpha: 0.8),
-                      theme.colorScheme.secondary.withValues(alpha: 0.6),
-                    ],
+                    colors: isDark
+                        ? [
+                            const Color(0xFF0C1628),
+                            const Color(0xFF1B2A4A),
+                          ]
+                        : [
+                            const Color(0xFF1B2A4A),
+                            const Color(0xFF2C4170),
+                          ],
                   ),
                 ),
                 child: Column(
@@ -172,6 +264,7 @@ class AppShell extends ConsumerWidget {
                   context.push('/audit');
                 },
               ),
+              _SyncDrawerItem(),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Divider(
@@ -205,6 +298,40 @@ class AppShell extends ConsumerWidget {
     );
   }
 }
+
+// ─── Offline banner ───────────────────────────────────────────────────────────
+
+class _OfflineBanner extends StatelessWidget {
+  final bool isOnline;
+  const _OfflineBanner({required this.isOnline});
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      height: isOnline ? 0 : 36,
+      color: Colors.orange.shade800,
+      child: isOnline
+          ? const SizedBox.shrink()
+          : const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.wifi_off, color: Colors.white, size: 14),
+                SizedBox(width: 6),
+                Text(
+                  'You\'re offline — changes will sync when reconnected',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500),
+                ),
+              ],
+            ),
+    );
+  }
+}
+
+// ─── Drawer items ─────────────────────────────────────────────────────────────
 
 class _GlassDrawerItem extends StatelessWidget {
   final IconData icon;
@@ -241,6 +368,111 @@ class _GlassDrawerItem extends StatelessWidget {
     );
   }
 }
+
+// ─── Sync drawer item ─────────────────────────────────────────────────────────
+
+class _SyncDrawerItem extends ConsumerWidget {
+  const _SyncDrawerItem();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final syncState = ref.watch(syncNotifierProvider);
+    final isSyncing = syncState.status == SyncStatus.syncing;
+    final hasError = syncState.status == SyncStatus.error;
+    final theme = Theme.of(context);
+
+    final color = hasError
+        ? theme.colorScheme.error
+        : isSyncing
+            ? theme.colorScheme.primary
+            : null;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      child: ListTile(
+        leading: isSyncing
+            ? SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : Icon(
+                hasError ? Icons.sync_problem_outlined : Icons.sync_outlined,
+                color: color,
+                size: 22,
+              ),
+        title: Text(
+          isSyncing ? 'Syncing…' : 'Sync Now',
+          style: TextStyle(
+            color: color,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        subtitle: syncState.pendingCount > 0
+            ? Text('${syncState.pendingCount} pending',
+                style: const TextStyle(fontSize: 11))
+            : syncState.lastSyncedAt != null && !isSyncing
+                ? Text(
+                    'Last synced ${_formatTime(syncState.lastSyncedAt!)}',
+                    style: const TextStyle(fontSize: 11),
+                  )
+                : null,
+        onTap: isSyncing
+            ? null
+            : () => ref.read(syncNotifierProvider.notifier).triggerSync(),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        dense: true,
+      ),
+    );
+  }
+
+  String _formatTime(DateTime dt) {
+    final now = DateTime.now();
+    final diff = now.difference(dt);
+    if (diff.inSeconds < 60) return 'just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    return '${diff.inHours}h ago';
+  }
+}
+
+// ─── Sync-aware nav bar ───────────────────────────────────────────────────────
+
+class _SyncNavBar extends ConsumerWidget {
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+
+  const _SyncNavBar({
+    required this.currentIndex,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final status = ref.watch(syncStatusProvider);
+
+    final stripColor = switch (status) {
+      SyncStatus.syncing => Colors.blue,
+      SyncStatus.success => Colors.green,
+      SyncStatus.error => Colors.red,
+      SyncStatus.idle => Colors.transparent,
+    };
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 400),
+          height: 2,
+          color: stripColor,
+        ),
+        _GlassNavBar(currentIndex: currentIndex, onTap: onTap),
+      ],
+    );
+  }
+}
+
+// ─── Glass nav bar ────────────────────────────────────────────────────────────
 
 class _GlassNavBar extends StatelessWidget {
   final int currentIndex;

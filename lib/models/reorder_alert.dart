@@ -18,8 +18,12 @@ class ReorderAlert {
   final String? status;
   @JsonKey(name: 'acknowledged_by')
   final int? acknowledgedBy;
+  @JsonKey(name: 'acknowledged_at')
+  final String? acknowledgedAt;
   @JsonKey(name: 'resolved_by')
   final int? resolvedBy;
+  @JsonKey(name: 'resolved_at')
+  final String? resolvedAt;
   final String? notes;
   @JsonKey(name: 'created_at')
   final String? createdAt;
@@ -35,7 +39,9 @@ class ReorderAlert {
     this.suggestedQuantity,
     this.status,
     this.acknowledgedBy,
+    this.acknowledgedAt,
     this.resolvedBy,
+    this.resolvedAt,
     this.notes,
     this.createdAt,
     this.updatedAt,

@@ -16,6 +16,8 @@ class Maintenance {
   final num? estimatedCost;
   @JsonKey(name: 'actual_cost')
   final num? actualCost;
+  @JsonKey(name: 'cost_notes')
+  final String? costNotes;
   @JsonKey(name: 'labor_cost')
   final num? laborCost;
   @JsonKey(name: 'materials_cost')
@@ -43,6 +45,7 @@ class Maintenance {
     this.assigneeId,
     this.estimatedCost,
     this.actualCost,
+    this.costNotes,
     this.laborCost,
     this.materialsCost,
     this.contractorCost,

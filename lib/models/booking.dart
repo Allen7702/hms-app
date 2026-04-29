@@ -24,6 +24,8 @@ class Booking {
   @JsonKey(name: 'special_requests')
   final String? specialRequests;
   final String? notes;
+  @JsonKey(name: 'modification_reason')
+  final String? modificationReason;
   @JsonKey(name: 'payment_status')
   final String? paymentStatus;
   @JsonKey(name: 'created_at')
@@ -50,6 +52,7 @@ class Booking {
     this.children,
     this.specialRequests,
     this.notes,
+    this.modificationReason,
     this.paymentStatus,
     this.createdAt,
     this.updatedAt,

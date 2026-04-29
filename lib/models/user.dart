@@ -9,6 +9,7 @@ class User {
   final String? fullName;
   final String? username;
   final String? email;
+  final String? phone;
   final String? role;
   @JsonKey(name: 'is_active')
   final bool? isActive;
@@ -22,6 +23,7 @@ class User {
     this.fullName,
     this.username,
     this.email,
+    this.phone,
     this.role,
     this.isActive,
     this.createdAt,
