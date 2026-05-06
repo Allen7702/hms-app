@@ -7,6 +7,8 @@ part 'booking.g.dart';
 @JsonSerializable()
 class Booking {
   final int id;
+  @JsonKey(name: 'hotel_id')
+  final int? hotelId;
   @JsonKey(name: 'guest_id')
   final int? guestId;
   @JsonKey(name: 'room_id')
@@ -17,6 +19,8 @@ class Booking {
   final String? checkOut;
   final String? status;
   final String? source;
+  @JsonKey(name: 'created_by_user_id')
+  final int? createdByUserId;
   @JsonKey(name: 'rate_applied')
   final num? rateApplied;
   final int? adults;
@@ -26,6 +30,8 @@ class Booking {
   final String? notes;
   @JsonKey(name: 'modification_reason')
   final String? modificationReason;
+  @JsonKey(name: 'cancellation_reason')
+  final String? cancellationReason;
   @JsonKey(name: 'payment_status')
   final String? paymentStatus;
   @JsonKey(name: 'created_at')
@@ -41,18 +47,21 @@ class Booking {
 
   const Booking({
     required this.id,
+    this.hotelId,
     this.guestId,
     this.roomId,
     this.checkIn,
     this.checkOut,
     this.status,
     this.source,
+    this.createdByUserId,
     this.rateApplied,
     this.adults,
     this.children,
     this.specialRequests,
     this.notes,
     this.modificationReason,
+    this.cancellationReason,
     this.paymentStatus,
     this.createdAt,
     this.updatedAt,
@@ -60,6 +69,7 @@ class Booking {
     this.room,
   });
 
-  factory Booking.fromJson(Map<String, dynamic> json) => _$BookingFromJson(json);
+  factory Booking.fromJson(Map<String, dynamic> json) =>
+      _$BookingFromJson(json);
   Map<String, dynamic> toJson() => _$BookingToJson(this);
 }

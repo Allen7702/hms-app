@@ -8,6 +8,7 @@ part of 'maintenance.dart';
 
 Maintenance _$MaintenanceFromJson(Map<String, dynamic> json) => Maintenance(
   id: (json['id'] as num).toInt(),
+  hotelId: (json['hotel_id'] as num?)?.toInt(),
   roomId: (json['room_id'] as num?)?.toInt(),
   description: json['description'] as String?,
   status: json['status'] as String?,
@@ -30,6 +31,7 @@ Maintenance _$MaintenanceFromJson(Map<String, dynamic> json) => Maintenance(
 Map<String, dynamic> _$MaintenanceToJson(Maintenance instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'hotel_id': instance.hotelId,
       'room_id': instance.roomId,
       'description': instance.description,
       'status': instance.status,

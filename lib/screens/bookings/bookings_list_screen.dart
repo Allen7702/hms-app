@@ -10,7 +10,6 @@ import 'package:hms_app/shared/status_badge.dart';
 import 'package:hms_app/shared/currency_text.dart';
 import 'package:hms_app/utils/constants.dart';
 import 'package:hms_app/utils/formatters.dart';
-import 'package:hms_app/config/theme.dart';
 
 class BookingsListScreen extends ConsumerStatefulWidget {
   const BookingsListScreen({super.key});
@@ -51,15 +50,12 @@ class _BookingsListScreenState extends ConsumerState<BookingsListScreen>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final theme = Theme.of(context);
-    final topPadding = MediaQuery.of(context).padding.top + kToolbarHeight;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      extendBodyBehindAppBar: true,
-      appBar: _buildGlassAppBar(context, theme, isDark),
       body: Column(
         children: [
-          SizedBox(height: topPadding + 12),
+          const SizedBox(height: 12),
 
           // ── Glassmorphic search bar ──
           Padding(
@@ -87,12 +83,16 @@ class _BookingsListScreenState extends ConsumerState<BookingsListScreen>
                     decoration: InputDecoration(
                       hintText: 'Search by guest name, room or ID...',
                       hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.4,
+                        ),
                       ),
                       prefixIcon: Icon(
                         Icons.search_rounded,
                         size: 20,
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.5,
+                        ),
                       ),
                       suffixIcon: _searchQuery.isNotEmpty
                           ? IconButton(
@@ -108,7 +108,9 @@ class _BookingsListScreenState extends ConsumerState<BookingsListScreen>
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 14),
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
                     ),
                     onChanged: (v) => setState(() => _searchQuery = v.trim()),
                   ),
@@ -131,16 +133,18 @@ class _BookingsListScreenState extends ConsumerState<BookingsListScreen>
                 dividerColor: Colors.transparent,
                 splashBorderRadius: BorderRadius.circular(20),
                 tabs: _tabs
-                    .map((t) => Tab(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(t.$2, size: 14),
-                              const SizedBox(width: 5),
-                              Text(t.$1),
-                            ],
-                          ),
-                        ))
+                    .map(
+                      (t) => Tab(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(t.$2, size: 14),
+                            const SizedBox(width: 5),
+                            Text(t.$1),
+                          ],
+                        ),
+                      ),
+                    )
                     .toList(),
               ),
             ),
@@ -153,10 +157,12 @@ class _BookingsListScreenState extends ConsumerState<BookingsListScreen>
             child: TabBarView(
               controller: _tabController,
               children: _tabs
-                  .map((tab) => _BookingTabContent(
-                        status: tab.$3,
-                        searchQuery: _searchQuery,
-                      ))
+                  .map(
+                    (tab) => _BookingTabContent(
+                      status: tab.$3,
+                      searchQuery: _searchQuery,
+                    ),
+                  )
                   .toList(),
             ),
           ),
@@ -166,69 +172,6 @@ class _BookingsListScreenState extends ConsumerState<BookingsListScreen>
         onPressed: () => context.push('/bookings/create'),
         icon: const Icon(Icons.add_rounded),
         label: const Text('New Booking'),
-      ),
-    );
-  }
-
-  PreferredSizeWidget _buildGlassAppBar(
-      BuildContext context, ThemeData theme, bool isDark) {
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(kToolbarHeight),
-      child: ClipRRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            decoration: BoxDecoration(
-              color: isDark
-                  ? Colors.black.withValues(alpha: 0.3)
-                  : Colors.white.withValues(alpha: 0.5),
-              border: Border(
-                bottom: BorderSide(
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.08)
-                      : Colors.white.withValues(alpha: 0.6),
-                  width: 0.5,
-                ),
-              ),
-            ),
-            child: AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              scrolledUnderElevation: 0,
-              title: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(7),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [AppTheme.navyMid, AppTheme.navyLight],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: AppTheme.gold,
-                        width: 0.8,
-                      ),
-                    ),
-                    child: const Icon(Icons.book_online_rounded,
-                        color: AppTheme.gold, size: 18),
-                  ),
-                  const SizedBox(width: 10),
-                  const Text('Bookings'),
-                ],
-              ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.add_rounded),
-                  tooltip: 'New Booking',
-                  onPressed: () => context.push('/bookings/create'),
-                ),
-                const SizedBox(width: 4),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -259,16 +202,20 @@ class _BookingTabContent extends ConsumerWidget {
                 color: theme.colorScheme.errorContainer.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.error_outline_rounded,
-                  size: 40, color: theme.colorScheme.error),
+              child: Icon(
+                Icons.error_outline_rounded,
+                size: 40,
+                color: theme.colorScheme.error,
+              ),
             ),
             const SizedBox(height: 16),
-            Text('Failed to load bookings',
-                style: theme.textTheme.titleMedium),
+            Text('Failed to load bookings', style: theme.textTheme.titleMedium),
             const SizedBox(height: 4),
-            Text(err.toString(),
-                style: theme.textTheme.bodySmall,
-                textAlign: TextAlign.center),
+            Text(
+              err.toString(),
+              style: theme.textTheme.bodySmall,
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 16),
             FilledButton.tonalIcon(
               onPressed: () => ref.invalidate(bookingsProvider(status)),
@@ -344,21 +291,26 @@ class _BookingCard extends StatelessWidget {
     final guestName = booking.guest?.name ?? 'Unknown Guest';
     final roomNumber = booking.room?.roomNumber ?? '-';
     final roomTypeName = booking.room?.roomType?.name ?? '';
-    final checkIn =
-        booking.checkIn != null ? DateTime.tryParse(booking.checkIn!) : null;
-    final checkOut =
-        booking.checkOut != null ? DateTime.tryParse(booking.checkOut!) : null;
+    final checkIn = booking.checkIn != null
+        ? DateTime.tryParse(booking.checkIn!)
+        : null;
+    final checkOut = booking.checkOut != null
+        ? DateTime.tryParse(booking.checkOut!)
+        : null;
     final nights = (checkIn != null && checkOut != null)
         ? Formatters.nightCount(checkIn, checkOut)
         : 0;
 
-    final statusEnum =
-        BookingStatus.values.where((s) => s.label == booking.status);
-    final bookingStatus =
-        statusEnum.isNotEmpty ? statusEnum.first : BookingStatus.pending;
+    final statusEnum = BookingStatus.values.where(
+      (s) => s.label == booking.status,
+    );
+    final bookingStatus = statusEnum.isNotEmpty
+        ? statusEnum.first
+        : BookingStatus.pending;
 
-    final paymentStatusEnum =
-        PaymentStatus.values.where((s) => s.label == booking.paymentStatus);
+    final paymentStatusEnum = PaymentStatus.values.where(
+      (s) => s.label == booking.paymentStatus,
+    );
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
@@ -450,7 +402,9 @@ class _BookingCard extends StatelessWidget {
                     const SizedBox(height: 12),
                     Divider(
                       height: 1,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.08),
+                      color: theme.colorScheme.onSurface.withValues(
+                        alpha: 0.08,
+                      ),
                     ),
                     const SizedBox(height: 12),
 
@@ -461,9 +415,11 @@ class _BookingCard extends StatelessWidget {
                         Expanded(
                           child: Row(
                             children: [
-                              Icon(Icons.meeting_room_outlined,
-                                  size: 14,
-                                  color: theme.colorScheme.onSurfaceVariant),
+                              Icon(
+                                Icons.meeting_room_outlined,
+                                size: 14,
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
                               const SizedBox(width: 5),
                               Flexible(
                                 child: Text(
@@ -481,10 +437,13 @@ class _BookingCard extends StatelessWidget {
                         // Nights pill
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 3),
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.primary
-                                .withValues(alpha: 0.1),
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.1,
+                            ),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -502,9 +461,11 @@ class _BookingCard extends StatelessWidget {
                     // ── Dates ──
                     Row(
                       children: [
-                        Icon(Icons.calendar_today_outlined,
-                            size: 13,
-                            color: theme.colorScheme.onSurfaceVariant),
+                        Icon(
+                          Icons.calendar_today_outlined,
+                          size: 13,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                         const SizedBox(width: 5),
                         Text(
                           '${Formatters.date(checkIn)}  →  ${Formatters.date(checkOut)}',
@@ -528,10 +489,7 @@ class _BookingCard extends StatelessWidget {
                                   color: theme.colorScheme.primary,
                                 ),
                               ),
-                              Text(
-                                '/night',
-                                style: theme.textTheme.bodySmall,
-                              ),
+                              Text('/night', style: theme.textTheme.bodySmall),
                             ],
                           ),
                         if (paymentStatusEnum.isNotEmpty)

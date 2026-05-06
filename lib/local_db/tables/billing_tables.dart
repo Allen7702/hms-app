@@ -10,6 +10,7 @@ class InvoicesTable extends Table {
   Set<Column> get primaryKey => {id};
 
   IntColumn get id => integer()();
+  IntColumn get hotelId => integer().nullable().named('hotel_id')();
   IntColumn get bookingId => integer().nullable().named('booking_id')();
   IntColumn get amount => integer().nullable()();
   IntColumn get tax => integer().nullable()();
@@ -33,6 +34,7 @@ class PaymentsTable extends Table {
   Set<Column> get primaryKey => {id};
 
   IntColumn get id => integer()();
+  IntColumn get hotelId => integer().nullable().named('hotel_id')();
   IntColumn get invoiceId => integer().nullable().named('invoice_id')();
   IntColumn get amount => integer().nullable()();
   TextColumn get status => text().nullable()();
@@ -40,6 +42,7 @@ class PaymentsTable extends Table {
   TextColumn get transactionId => text().nullable().named('transaction_id')();
   TextColumn get processedAt => text().nullable().named('processed_at')();
   TextColumn get createdAt => text().nullable().named('created_at')();
+  TextColumn get updatedAt => text().nullable().named('updated_at')();
 }
 
 // ─── Charges ──────────────────────────────────────────────────────────────────
@@ -52,6 +55,7 @@ class ChargesTable extends Table {
   Set<Column> get primaryKey => {id};
 
   IntColumn get id => integer()();
+  IntColumn get hotelId => integer().nullable().named('hotel_id')();
   IntColumn get bookingId => integer().nullable().named('booking_id')();
   IntColumn get invoiceId => integer().nullable().named('invoice_id')();
   TextColumn get chargeType => text().nullable().named('charge_type')();
@@ -60,7 +64,8 @@ class ChargesTable extends Table {
   IntColumn get quantity => integer().nullable()();
   TextColumn get status => text().nullable()();
   TextColumn get paymentMethod => text().nullable().named('payment_method')();
-  TextColumn get paymentReference => text().nullable().named('payment_reference')();
+  TextColumn get paymentReference =>
+      text().nullable().named('payment_reference')();
   TextColumn get paidAt => text().nullable().named('paid_at')();
   IntColumn get paidAmount => integer().nullable().named('paid_amount')();
   TextColumn get addedBy => text().nullable().named('added_by')();

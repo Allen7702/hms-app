@@ -141,8 +141,7 @@ class SyncNotifier extends StateNotifier<SyncState> {
           _db.bookingDao.upsertAllOtaReservations),
       _pullTable(
           'invoices', invoiceFromMap, _db.billingDao.upsertAllInvoices),
-      _pullTable('payments', paymentFromMap, _db.billingDao.upsertAllPayments,
-          timestampColumn: 'created_at'),
+      _pullTable('payments', paymentFromMap, _db.billingDao.upsertAllPayments),
       _pullTable('charges', chargeFromMap, _db.billingDao.upsertAllCharges),
       _pullTable('housekeepings', housekeepingFromMap,
           _db.operationsDao.upsertAllHousekeeping),
@@ -171,12 +170,10 @@ class SyncNotifier extends StateNotifier<SyncState> {
           'pos_products', posProductFromMap, _db.posDao.upsertAllProducts),
       _pullTable(
           'pos_tables', posTableFromMap, _db.posDao.upsertAllTables),
-      _pullTable('pos_shifts', posShiftFromMap, _db.posDao.upsertAllShifts,
-          timestampColumn: 'created_at'),
+      _pullTable('pos_shifts', posShiftFromMap, _db.posDao.upsertAllShifts),
       _pullTable('pos_orders', posOrderFromMap, _db.posDao.upsertAllOrders),
       _pullTable('pos_order_items', posOrderItemFromMap,
-          _db.posDao.upsertAllOrderItems,
-          timestampColumn: 'created_at'),
+          _db.posDao.upsertAllOrderItems),
       _pullTable('pos_payments', posPaymentFromMap,
           _db.posDao.upsertAllPosPayments,
           timestampColumn: 'created_at'),
@@ -192,6 +189,8 @@ class SyncNotifier extends StateNotifier<SyncState> {
           _db.notificationDao.upsertAllNotifications),
       _pullTable('audit_logs', auditLogFromMap,
           _db.notificationDao.upsertAllAuditLogs),
+      _pullTable('device_tokens', deviceTokenFromMap,
+          _db.notificationDao.upsertAllDeviceTokens),
     ]);
   }
 

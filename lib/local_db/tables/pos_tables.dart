@@ -93,6 +93,7 @@ class PosShiftsTable extends Table {
   TextColumn get notes => text().nullable()();
   TextColumn get status => text().nullable()();
   TextColumn get createdAt => text().nullable().named('created_at')();
+  TextColumn get updatedAt => text().nullable().named('updated_at')();
 }
 
 // ─── POS Orders ───────────────────────────────────────────────────────────────
@@ -141,6 +142,7 @@ class PosOrderItemsTable extends Table {
   Set<Column> get primaryKey => {id};
 
   IntColumn get id => integer()();
+  IntColumn get hotelId => integer().nullable().named('hotel_id')();
   IntColumn get orderId => integer().nullable().named('order_id')();
   IntColumn get productId => integer().nullable().named('product_id')();
   TextColumn get productName => text().nullable().named('product_name')();
@@ -155,6 +157,7 @@ class PosOrderItemsTable extends Table {
   TextColumn get voidedAt => text().nullable().named('voided_at')();
   TextColumn get sentAt => text().nullable().named('sent_at')();
   TextColumn get createdAt => text().nullable().named('created_at')();
+  TextColumn get updatedAt => text().nullable().named('updated_at')();
 }
 
 // ─── POS Payments ─────────────────────────────────────────────────────────────
@@ -167,6 +170,7 @@ class PosPaymentsTable extends Table {
   Set<Column> get primaryKey => {id};
 
   IntColumn get id => integer()();
+  IntColumn get hotelId => integer().nullable().named('hotel_id')();
   IntColumn get orderId => integer().nullable().named('order_id')();
   IntColumn get shiftId => integer().nullable().named('shift_id')();
   TextColumn get method => text().nullable()();

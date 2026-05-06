@@ -5,6 +5,8 @@ part 'pos_payment.g.dart';
 @JsonSerializable()
 class PosPayment {
   final int id;
+  @JsonKey(name: 'hotel_id')
+  final int? hotelId;
   @JsonKey(name: 'order_id')
   final int? orderId;
   @JsonKey(name: 'shift_id')
@@ -19,6 +21,7 @@ class PosPayment {
 
   const PosPayment({
     required this.id,
+    this.hotelId,
     this.orderId,
     this.shiftId,
     this.method,

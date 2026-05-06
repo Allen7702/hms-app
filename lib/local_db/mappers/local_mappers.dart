@@ -10,18 +10,18 @@ double? _d(dynamic v) => v == null ? null : (v as num).toDouble();
 
 // ─── Core ─────────────────────────────────────────────────────────────────────
 
-UsersTableCompanion userFromMap(Map<String, dynamic> m) =>
-    UsersTableCompanion(
-      id: Value(_i(m['id'])!),
-      fullName: Value(_s(m['full_name'])),
-      username: Value(_s(m['username'])),
-      email: Value(_s(m['email'])),
-      phone: Value(_s(m['phone'])),
-      role: Value(_s(m['role'])),
-      isActive: Value(_b(m['is_active'])),
-      createdAt: Value(_s(m['created_at'])),
-      updatedAt: Value(_s(m['updated_at'])),
-    );
+UsersTableCompanion userFromMap(Map<String, dynamic> m) => UsersTableCompanion(
+  id: Value(_i(m['id'])!),
+  hotelId: Value(_i(m['hotel_id'])),
+  fullName: Value(_s(m['full_name'])),
+  username: Value(_s(m['username'])),
+  email: Value(_s(m['email'])),
+  phone: Value(_s(m['phone'])),
+  role: Value(_s(m['role'])),
+  isActive: Value(_b(m['is_active'])),
+  createdAt: Value(_s(m['created_at'])),
+  updatedAt: Value(_s(m['updated_at'])),
+);
 
 HotelsTableCompanion hotelFromMap(Map<String, dynamic> m) =>
     HotelsTableCompanion(
@@ -42,6 +42,7 @@ HotelsTableCompanion hotelFromMap(Map<String, dynamic> m) =>
 RoomTypesTableCompanion roomTypeFromMap(Map<String, dynamic> m) =>
     RoomTypesTableCompanion(
       id: Value(_i(m['id'])!),
+      hotelId: Value(_i(m['hotel_id'])),
       name: Value(_s(m['name'])),
       description: Value(_s(m['description'])),
       capacity: Value(_i(m['capacity'])),
@@ -51,22 +52,23 @@ RoomTypesTableCompanion roomTypeFromMap(Map<String, dynamic> m) =>
       updatedAt: Value(_s(m['updated_at'])),
     );
 
-RoomsTableCompanion roomFromMap(Map<String, dynamic> m) =>
-    RoomsTableCompanion(
-      id: Value(_i(m['id'])!),
-      roomNumber: Value(_s(m['room_number'])),
-      floor: Value(_s(m['floor'])),
-      roomTypeId: Value(_i(m['room_type_id'])),
-      status: Value(_s(m['status'])),
-      features: Value(_s(m['features'])),
-      lastCleaned: Value(_s(m['last_cleaned'])),
-      createdAt: Value(_s(m['created_at'])),
-      updatedAt: Value(_s(m['updated_at'])),
-    );
+RoomsTableCompanion roomFromMap(Map<String, dynamic> m) => RoomsTableCompanion(
+  id: Value(_i(m['id'])!),
+  hotelId: Value(_i(m['hotel_id'])),
+  roomNumber: Value(_s(m['room_number'])),
+  floor: Value(_s(m['floor'])),
+  roomTypeId: Value(_i(m['room_type_id'])),
+  status: Value(_s(m['status'])),
+  features: Value(_s(m['features'])),
+  lastCleaned: Value(_s(m['last_cleaned'])),
+  createdAt: Value(_s(m['created_at'])),
+  updatedAt: Value(_s(m['updated_at'])),
+);
 
 GuestsTableCompanion guestFromMap(Map<String, dynamic> m) =>
     GuestsTableCompanion(
       id: Value(_i(m['id'])!),
+      hotelId: Value(_i(m['hotel_id'])),
       name: Value(_s(m['name'])),
       email: Value(_s(m['email'])),
       phone: Value(_s(m['phone'])),
@@ -92,18 +94,21 @@ GuestsTableCompanion guestFromMap(Map<String, dynamic> m) =>
 BookingsTableCompanion bookingFromMap(Map<String, dynamic> m) =>
     BookingsTableCompanion(
       id: Value(_i(m['id'])!),
+      hotelId: Value(_i(m['hotel_id'])),
       guestId: Value(_i(m['guest_id'])),
       roomId: Value(_i(m['room_id'])),
       checkIn: Value(_s(m['check_in'])),
       checkOut: Value(_s(m['check_out'])),
       status: Value(_s(m['status'])),
       source: Value(_s(m['source'])),
+      createdByUserId: Value(_i(m['created_by_user_id'])),
       rateApplied: Value(_i(m['rate_applied'])),
       adults: Value(_i(m['adults'])),
       children: Value(_i(m['children'])),
       specialRequests: Value(_s(m['special_requests'])),
       notes: Value(_s(m['notes'])),
       modificationReason: Value(_s(m['modification_reason'])),
+      cancellationReason: Value(_s(m['cancellation_reason'])),
       paymentStatus: Value(_s(m['payment_status'])),
       createdAt: Value(_s(m['created_at'])),
       updatedAt: Value(_s(m['updated_at'])),
@@ -112,6 +117,7 @@ BookingsTableCompanion bookingFromMap(Map<String, dynamic> m) =>
 OtaReservationsTableCompanion otaReservationFromMap(Map<String, dynamic> m) =>
     OtaReservationsTableCompanion(
       id: Value(_i(m['id'])!),
+      hotelId: Value(_i(m['hotel_id'])),
       bookingId: Value(_i(m['booking_id'])),
       otaId: Value(_s(m['ota_id'])),
       otaName: Value(_s(m['ota_name'])),
@@ -124,6 +130,7 @@ OtaReservationsTableCompanion otaReservationFromMap(Map<String, dynamic> m) =>
 InvoicesTableCompanion invoiceFromMap(Map<String, dynamic> m) =>
     InvoicesTableCompanion(
       id: Value(_i(m['id'])!),
+      hotelId: Value(_i(m['hotel_id'])),
       bookingId: Value(_i(m['booking_id'])),
       amount: Value(_i(m['amount'])),
       tax: Value(_i(m['tax'])),
@@ -140,6 +147,7 @@ InvoicesTableCompanion invoiceFromMap(Map<String, dynamic> m) =>
 PaymentsTableCompanion paymentFromMap(Map<String, dynamic> m) =>
     PaymentsTableCompanion(
       id: Value(_i(m['id'])!),
+      hotelId: Value(_i(m['hotel_id'])),
       invoiceId: Value(_i(m['invoice_id'])),
       amount: Value(_i(m['amount'])),
       status: Value(_s(m['status'])),
@@ -147,11 +155,13 @@ PaymentsTableCompanion paymentFromMap(Map<String, dynamic> m) =>
       transactionId: Value(_s(m['transaction_id'])),
       processedAt: Value(_s(m['processed_at'])),
       createdAt: Value(_s(m['created_at'])),
+      updatedAt: Value(_s(m['updated_at'])),
     );
 
 ChargesTableCompanion chargeFromMap(Map<String, dynamic> m) =>
     ChargesTableCompanion(
       id: Value(_i(m['id'])!),
+      hotelId: Value(_i(m['hotel_id'])),
       bookingId: Value(_i(m['booking_id'])),
       invoiceId: Value(_i(m['invoice_id'])),
       chargeType: Value(_s(m['charge_type'])),
@@ -175,6 +185,7 @@ ChargesTableCompanion chargeFromMap(Map<String, dynamic> m) =>
 HousekeepingsTableCompanion housekeepingFromMap(Map<String, dynamic> m) =>
     HousekeepingsTableCompanion(
       id: Value(_i(m['id'])!),
+      hotelId: Value(_i(m['hotel_id'])),
       roomId: Value(_i(m['room_id'])),
       status: Value(_s(m['status'])),
       assigneeId: Value(_i(m['assignee_id'])),
@@ -188,6 +199,7 @@ HousekeepingsTableCompanion housekeepingFromMap(Map<String, dynamic> m) =>
 MaintenancesTableCompanion maintenanceFromMap(Map<String, dynamic> m) =>
     MaintenancesTableCompanion(
       id: Value(_i(m['id'])!),
+      hotelId: Value(_i(m['hotel_id'])),
       roomId: Value(_i(m['room_id'])),
       description: Value(_s(m['description'])),
       status: Value(_s(m['status'])),
@@ -210,17 +222,17 @@ MaintenancesTableCompanion maintenanceFromMap(Map<String, dynamic> m) =>
 // ─── Inventory ────────────────────────────────────────────────────────────────
 
 InventoryCategoriesTableCompanion inventoryCategoryFromMap(
-        Map<String, dynamic> m) =>
-    InventoryCategoriesTableCompanion(
-      id: Value(_i(m['id'])!),
-      hotelId: Value(_i(m['hotel_id'])),
-      name: Value(_s(m['name'])),
-      categoryType: Value(_s(m['category_type'])),
-      description: Value(_s(m['description'])),
-      isActive: Value(_b(m['is_active'])),
-      createdAt: Value(_s(m['created_at'])),
-      updatedAt: Value(_s(m['updated_at'])),
-    );
+  Map<String, dynamic> m,
+) => InventoryCategoriesTableCompanion(
+  id: Value(_i(m['id'])!),
+  hotelId: Value(_i(m['hotel_id'])),
+  name: Value(_s(m['name'])),
+  categoryType: Value(_s(m['category_type'])),
+  description: Value(_s(m['description'])),
+  isActive: Value(_b(m['is_active'])),
+  createdAt: Value(_s(m['created_at'])),
+  updatedAt: Value(_s(m['updated_at'])),
+);
 
 InventoryItemsTableCompanion inventoryItemFromMap(Map<String, dynamic> m) =>
     InventoryItemsTableCompanion(
@@ -247,24 +259,24 @@ InventoryItemsTableCompanion inventoryItemFromMap(Map<String, dynamic> m) =>
     );
 
 InventoryTransactionsTableCompanion inventoryTransactionFromMap(
-        Map<String, dynamic> m) =>
-    InventoryTransactionsTableCompanion(
-      id: Value(_i(m['id'])!),
-      hotelId: Value(_i(m['hotel_id'])),
-      itemId: Value(_i(m['item_id'])),
-      transactionType: Value(_s(m['transaction_type'])),
-      quantity: Value(_i(m['quantity'])),
-      previousStock: Value(_i(m['previous_stock'])),
-      newStock: Value(_i(m['new_stock'])),
-      referenceType: Value(_s(m['reference_type'])),
-      referenceId: Value(_i(m['reference_id'])),
-      roomId: Value(_i(m['room_id'])),
-      bookingId: Value(_i(m['booking_id'])),
-      unitCostAtTime: Value(_i(m['unit_cost_at_time'])),
-      notes: Value(_s(m['notes'])),
-      performedBy: Value(_i(m['performed_by'])),
-      createdAt: Value(_s(m['created_at'])),
-    );
+  Map<String, dynamic> m,
+) => InventoryTransactionsTableCompanion(
+  id: Value(_i(m['id'])!),
+  hotelId: Value(_i(m['hotel_id'])),
+  itemId: Value(_i(m['item_id'])),
+  transactionType: Value(_s(m['transaction_type'])),
+  quantity: Value(_i(m['quantity'])),
+  previousStock: Value(_i(m['previous_stock'])),
+  newStock: Value(_i(m['new_stock'])),
+  referenceType: Value(_s(m['reference_type'])),
+  referenceId: Value(_i(m['reference_id'])),
+  roomId: Value(_i(m['room_id'])),
+  bookingId: Value(_i(m['booking_id'])),
+  unitCostAtTime: Value(_i(m['unit_cost_at_time'])),
+  notes: Value(_s(m['notes'])),
+  performedBy: Value(_i(m['performed_by'])),
+  createdAt: Value(_s(m['created_at'])),
+);
 
 RoomInventoryTableCompanion roomInventoryFromMap(Map<String, dynamic> m) =>
     RoomInventoryTableCompanion(
@@ -302,16 +314,16 @@ ReorderAlertsTableCompanion reorderAlertFromMap(Map<String, dynamic> m) =>
 // ─── Expenses ─────────────────────────────────────────────────────────────────
 
 ExpenseCategoriesTableCompanion expenseCategoryFromMap(
-        Map<String, dynamic> m) =>
-    ExpenseCategoriesTableCompanion(
-      id: Value(_i(m['id'])!),
-      hotelId: Value(_i(m['hotel_id'])),
-      name: Value(_s(m['name'])),
-      description: Value(_s(m['description'])),
-      color: Value(_s(m['color'])),
-      createdAt: Value(_s(m['created_at'])),
-      updatedAt: Value(_s(m['updated_at'])),
-    );
+  Map<String, dynamic> m,
+) => ExpenseCategoriesTableCompanion(
+  id: Value(_i(m['id'])!),
+  hotelId: Value(_i(m['hotel_id'])),
+  name: Value(_s(m['name'])),
+  description: Value(_s(m['description'])),
+  color: Value(_s(m['color'])),
+  createdAt: Value(_s(m['created_at'])),
+  updatedAt: Value(_s(m['updated_at'])),
+);
 
 ExpensesTableCompanion expenseFromMap(Map<String, dynamic> m) =>
     ExpensesTableCompanion(
@@ -333,25 +345,25 @@ ExpensesTableCompanion expenseFromMap(Map<String, dynamic> m) =>
     );
 
 RecurringExpensesTableCompanion recurringExpenseFromMap(
-        Map<String, dynamic> m) =>
-    RecurringExpensesTableCompanion(
-      id: Value(_i(m['id'])!),
-      hotelId: Value(_i(m['hotel_id'])),
-      categoryId: Value(_i(m['category_id'])),
-      title: Value(_s(m['title'])),
-      amount: Value(_i(m['amount'])),
-      frequency: Value(_s(m['frequency'])),
-      dayOfMonth: Value(_i(m['day_of_month'])),
-      paymentMethod: Value(_s(m['payment_method'])),
-      vendor: Value(_s(m['vendor'])),
-      notes: Value(_s(m['notes'])),
-      isActive: Value(_b(m['is_active'])),
-      lastApplied: Value(_s(m['last_applied'])),
-      startDate: Value(_s(m['start_date'])),
-      endDate: Value(_s(m['end_date'])),
-      createdAt: Value(_s(m['created_at'])),
-      updatedAt: Value(_s(m['updated_at'])),
-    );
+  Map<String, dynamic> m,
+) => RecurringExpensesTableCompanion(
+  id: Value(_i(m['id'])!),
+  hotelId: Value(_i(m['hotel_id'])),
+  categoryId: Value(_i(m['category_id'])),
+  title: Value(_s(m['title'])),
+  amount: Value(_i(m['amount'])),
+  frequency: Value(_s(m['frequency'])),
+  dayOfMonth: Value(_i(m['day_of_month'])),
+  paymentMethod: Value(_s(m['payment_method'])),
+  vendor: Value(_s(m['vendor'])),
+  notes: Value(_s(m['notes'])),
+  isActive: Value(_b(m['is_active'])),
+  lastApplied: Value(_s(m['last_applied'])),
+  startDate: Value(_s(m['start_date'])),
+  endDate: Value(_s(m['end_date'])),
+  createdAt: Value(_s(m['created_at'])),
+  updatedAt: Value(_s(m['updated_at'])),
+);
 
 // ─── POS ──────────────────────────────────────────────────────────────────────
 
@@ -420,6 +432,7 @@ PosShiftsTableCompanion posShiftFromMap(Map<String, dynamic> m) =>
       notes: Value(_s(m['notes'])),
       status: Value(_s(m['status'])),
       createdAt: Value(_s(m['created_at'])),
+      updatedAt: Value(_s(m['updated_at'])),
     );
 
 PosOrdersTableCompanion posOrderFromMap(Map<String, dynamic> m) =>
@@ -454,6 +467,7 @@ PosOrdersTableCompanion posOrderFromMap(Map<String, dynamic> m) =>
 PosOrderItemsTableCompanion posOrderItemFromMap(Map<String, dynamic> m) =>
     PosOrderItemsTableCompanion(
       id: Value(_i(m['id'])!),
+      hotelId: Value(_i(m['hotel_id'])),
       orderId: Value(_i(m['order_id'])),
       productId: Value(_i(m['product_id'])),
       productName: Value(_s(m['product_name'])),
@@ -468,11 +482,13 @@ PosOrderItemsTableCompanion posOrderItemFromMap(Map<String, dynamic> m) =>
       voidedAt: Value(_s(m['voided_at'])),
       sentAt: Value(_s(m['sent_at'])),
       createdAt: Value(_s(m['created_at'])),
+      updatedAt: Value(_s(m['updated_at'])),
     );
 
 PosPaymentsTableCompanion posPaymentFromMap(Map<String, dynamic> m) =>
     PosPaymentsTableCompanion(
       id: Value(_i(m['id'])!),
+      hotelId: Value(_i(m['hotel_id'])),
       orderId: Value(_i(m['order_id'])),
       shiftId: Value(_i(m['shift_id'])),
       method: Value(_s(m['method'])),
@@ -482,8 +498,7 @@ PosPaymentsTableCompanion posPaymentFromMap(Map<String, dynamic> m) =>
       createdAt: Value(_s(m['created_at'])),
     );
 
-PosCashMovementsTableCompanion posCashMovementFromMap(
-        Map<String, dynamic> m) =>
+PosCashMovementsTableCompanion posCashMovementFromMap(Map<String, dynamic> m) =>
     PosCashMovementsTableCompanion(
       id: Value(_i(m['id'])!),
       shiftId: Value(_i(m['shift_id'])),
@@ -528,6 +543,7 @@ PosWastageLogsTableCompanion posWastageLogFromMap(Map<String, dynamic> m) =>
 NotificationsTableCompanion notificationFromMap(Map<String, dynamic> m) =>
     NotificationsTableCompanion(
       id: Value(_i(m['id'])!),
+      hotelId: Value(_i(m['hotel_id'])),
       type: Value(_s(m['type'])),
       guestId: Value(_i(m['guest_id'])),
       userId: Value(_i(m['user_id'])),
@@ -536,6 +552,7 @@ NotificationsTableCompanion notificationFromMap(Map<String, dynamic> m) =>
       status: Value(_s(m['status'])),
       relatedEntityId: Value(_i(m['related_entity_id'])),
       entityType: Value(_s(m['entity_type'])),
+      readAt: Value(_s(m['read_at'])),
       createdAt: Value(_s(m['created_at'])),
       updatedAt: Value(_s(m['updated_at'])),
     );
@@ -543,6 +560,7 @@ NotificationsTableCompanion notificationFromMap(Map<String, dynamic> m) =>
 AuditLogsTableCompanion auditLogFromMap(Map<String, dynamic> m) =>
     AuditLogsTableCompanion(
       id: Value(_i(m['id'])!),
+      hotelId: Value(_i(m['hotel_id'])),
       action: Value(_s(m['action'])),
       userId: Value(_i(m['user_id'])),
       entityType: Value(_s(m['entity_type'])),
@@ -550,6 +568,17 @@ AuditLogsTableCompanion auditLogFromMap(Map<String, dynamic> m) =>
       details: Value(_s(m['details'])),
       dataBefore: Value(_s(m['data_before'])),
       dataAfter: Value(_s(m['data_after'])),
+      createdAt: Value(_s(m['created_at'])),
+      updatedAt: Value(_s(m['updated_at'])),
+    );
+
+DeviceTokensTableCompanion deviceTokenFromMap(Map<String, dynamic> m) =>
+    DeviceTokensTableCompanion(
+      id: Value(_i(m['id'])!),
+      hotelId: Value(_i(m['hotel_id'])),
+      userId: Value(_i(m['user_id'])),
+      token: Value(_s(m['token'])),
+      platform: Value(_s(m['platform'])),
       createdAt: Value(_s(m['created_at'])),
       updatedAt: Value(_s(m['updated_at'])),
     );

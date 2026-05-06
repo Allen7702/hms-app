@@ -5,6 +5,8 @@ part 'invoice.g.dart';
 @JsonSerializable()
 class Invoice {
   final int id;
+  @JsonKey(name: 'hotel_id')
+  final int? hotelId;
   @JsonKey(name: 'booking_id')
   final int? bookingId;
   final num? amount;
@@ -26,6 +28,7 @@ class Invoice {
 
   const Invoice({
     required this.id,
+    this.hotelId,
     this.bookingId,
     this.amount,
     this.tax,
@@ -39,6 +42,7 @@ class Invoice {
     this.updatedAt,
   });
 
-  factory Invoice.fromJson(Map<String, dynamic> json) => _$InvoiceFromJson(json);
+  factory Invoice.fromJson(Map<String, dynamic> json) =>
+      _$InvoiceFromJson(json);
   Map<String, dynamic> toJson() => _$InvoiceToJson(this);
 }

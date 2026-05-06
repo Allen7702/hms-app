@@ -3,7 +3,7 @@ import '../app_database.dart';
 
 part 'notification_dao.g.dart';
 
-@DriftAccessor(tables: [NotificationsTable, AuditLogsTable])
+@DriftAccessor(tables: [NotificationsTable, AuditLogsTable, DeviceTokensTable])
 class NotificationDao extends DatabaseAccessor<AppDatabase>
     with _$NotificationDaoMixin {
   NotificationDao(super.db);
@@ -45,4 +45,12 @@ class NotificationDao extends DatabaseAccessor<AppDatabase>
   Future<void> upsertAllAuditLogs(List<AuditLogsTableCompanion> rows) =>
       batch((b) => b.insertAllOnConflictUpdate(auditLogsTable, rows));
   Future<void> clearAuditLogs() => delete(auditLogsTable).go();
+
+  // ─── Device Tokens ─────────────────────────────────────────────────────────
+
+  Future<List<LocalDeviceToken>> getAllDeviceTokens() =>
+      select(deviceTokensTable).get();
+  Future<void> upsertAllDeviceTokens(List<DeviceTokensTableCompanion> rows) =>
+      batch((b) => b.insertAllOnConflictUpdate(deviceTokensTable, rows));
+  Future<void> clearDeviceTokens() => delete(deviceTokensTable).go();
 }

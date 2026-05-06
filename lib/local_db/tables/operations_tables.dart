@@ -10,6 +10,7 @@ class HousekeepingsTable extends Table {
   Set<Column> get primaryKey => {id};
 
   IntColumn get id => integer()();
+  IntColumn get hotelId => integer().nullable().named('hotel_id')();
   IntColumn get roomId => integer().nullable().named('room_id')();
   TextColumn get status => text().nullable()();
   IntColumn get assigneeId => integer().nullable().named('assignee_id')();
@@ -30,6 +31,7 @@ class MaintenancesTable extends Table {
   Set<Column> get primaryKey => {id};
 
   IntColumn get id => integer()();
+  IntColumn get hotelId => integer().nullable().named('hotel_id')();
   IntColumn get roomId => integer().nullable().named('room_id')();
   TextColumn get description => text().nullable()();
   TextColumn get status => text().nullable()();
@@ -41,9 +43,12 @@ class MaintenancesTable extends Table {
   RealColumn get laborCost => real().nullable().named('labor_cost')();
   RealColumn get materialsCost => real().nullable().named('materials_cost')();
   RealColumn get contractorCost => real().nullable().named('contractor_cost')();
-  TextColumn get costBreakdown => text().nullable().named('cost_breakdown')(); // JSON
-  IntColumn get costApprovedBy => integer().nullable().named('cost_approved_by')();
-  BoolColumn get requiresApproval => boolean().nullable().named('requires_approval')();
+  TextColumn get costBreakdown =>
+      text().nullable().named('cost_breakdown')(); // JSON
+  IntColumn get costApprovedBy =>
+      integer().nullable().named('cost_approved_by')();
+  BoolColumn get requiresApproval =>
+      boolean().nullable().named('requires_approval')();
   TextColumn get history => text().nullable()(); // JSON array
   TextColumn get createdAt => text().nullable().named('created_at')();
   TextColumn get updatedAt => text().nullable().named('updated_at')();

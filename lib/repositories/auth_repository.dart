@@ -55,6 +55,18 @@ class AuthRepository {
     return app.User.fromJson(response);
   }
 
+  /// Get a user's email by their username
+  Future<String?> getUserEmailByUsername(String username) async {
+    final response = await _client
+        .from('users')
+        .select('email')
+        .eq('username', username)
+        .maybeSingle();
+
+    if (response == null) return null;
+    return response['email'] as String?;
+  }
+
   /// Get app user by ID
   Future<app.User?> getAppUserById(int id) async {
     final response = await _client

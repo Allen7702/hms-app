@@ -1,7 +1,9 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hms_app/config/theme.dart';
 import 'package:hms_app/providers/auth_provider.dart';
 import 'package:hms_app/providers/sync_provider.dart';
 
@@ -35,106 +37,208 @@ class _AppShellState extends ConsumerState<AppShell>
     }
   }
 
+  static const _tabTitles = [
+    'Dashboard',
+    'Bookings',
+    'Rooms',
+    'Operations',
+    'More',
+  ];
+
+  static bool _isDesktop(BuildContext context) =>
+      MediaQuery.sizeOf(context).width >= 768;
+
+  void _listenSync(BuildContext context, SyncState? prev, SyncState next) {
+    if (!mounted) return;
+    if (next.status == SyncStatus.success &&
+        prev?.status == SyncStatus.syncing) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Row(
+            children: [
+              Icon(Icons.check_circle_outline, color: Colors.white, size: 16),
+              SizedBox(width: 8),
+              Text('Sync complete'),
+            ],
+          ),
+          backgroundColor: Colors.green.shade700,
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      );
+    } else if (next.status == SyncStatus.error &&
+        prev?.status != SyncStatus.error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.sync_problem, color: Colors.white, size: 16),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Sync failed: ${next.errorMessage ?? 'Unknown error'}',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.red.shade700,
+          duration: const Duration(seconds: 4),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          action: SnackBarAction(
+            label: 'Retry',
+            textColor: Colors.white,
+            onPressed: () =>
+                ref.read(syncNotifierProvider.notifier).triggerSync(),
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Sync status toast
-    ref.listen<SyncState>(syncNotifierProvider, (prev, next) {
-      if (!mounted) return;
-      if (next.status == SyncStatus.success &&
-          prev?.status == SyncStatus.syncing) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Row(
-              children: [
-                Icon(Icons.check_circle_outline,
-                    color: Colors.white, size: 16),
-                SizedBox(width: 8),
-                Text('Sync complete'),
-              ],
-            ),
-            backgroundColor: Colors.green.shade700,
-            duration: const Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ),
-        );
-      } else if (next.status == SyncStatus.error &&
-          prev?.status != SyncStatus.error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.sync_problem, color: Colors.white, size: 16),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Sync failed: ${next.errorMessage ?? 'Unknown error'}',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: Colors.red.shade700,
-            duration: const Duration(seconds: 4),
-            behavior: SnackBarBehavior.floating,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            action: SnackBarAction(
-              label: 'Retry',
-              textColor: Colors.white,
-              onPressed: () =>
-                  ref.read(syncNotifierProvider.notifier).triggerSync(),
-            ),
-          ),
-        );
-      }
-    });
+    ref.listen<SyncState>(
+      syncNotifierProvider,
+      (prev, next) => _listenSync(context, prev, next),
+    );
 
     final isOnline = ref.watch(isOnlineProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final gradientColors = isDark
-        ? [
-            const Color(0xFF070D1A),
-            const Color(0xFF0C1628),
-            const Color(0xFF0F1E38),
-            const Color(0xFF070D1A),
-          ]
-        : [
-            const Color(0xFFF7F4EF),
-            const Color(0xFFEDF2F8),
-            const Color(0xFFF4EFE8),
-            const Color(0xFFEEF2F8),
-          ];
+    final currentIndex = widget.navigationShell.currentIndex;
+    final isDesktop = _isDesktop(context);
 
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: gradientColors,
+    void onBranchTap(int index) => widget.navigationShell.goBranch(
+      index,
+      initialLocation: index == currentIndex,
+    );
+
+    final offlineBanner = _OfflineBanner(isOnline: isOnline);
+    final bgColor = isDark ? const Color(0xFF0A1628) : const Color(0xFFF4F7FB);
+
+    if (isDesktop) {
+      return AnnotatedRegion<SystemUiOverlayStyle>(
+        value: const SystemUiOverlayStyle(
+          statusBarColor: AppTheme.navyDeep,
+          statusBarIconBrightness: Brightness.light,
+          statusBarBrightness: Brightness.dark,
         ),
+        child: Scaffold(
+          backgroundColor: bgColor,
+          body: Row(
+            children: [
+              _DesktopSidebar(
+                currentIndex: currentIndex,
+                onBranchTap: onBranchTap,
+              ),
+              Expanded(
+                child: Column(
+                  children: [
+                    offlineBanner,
+                    Expanded(child: widget.navigationShell),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: AppTheme.navyMid,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: Colors.transparent,
+        backgroundColor: bgColor,
+        appBar: _buildShellAppBar(context, isDark, currentIndex),
         body: Column(
           children: [
-            _OfflineBanner(isOnline: isOnline),
+            offlineBanner,
             Expanded(child: widget.navigationShell),
           ],
         ),
         bottomNavigationBar: _SyncNavBar(
-          currentIndex: widget.navigationShell.currentIndex,
-          onTap: (index) {
-            widget.navigationShell.goBranch(
-              index,
-              initialLocation: index == widget.navigationShell.currentIndex,
-            );
-          },
+          currentIndex: currentIndex,
+          onTap: onBranchTap,
         ),
         drawer: _buildGlassDrawer(context),
       ),
+    );
+  }
+
+  PreferredSizeWidget _buildShellAppBar(
+    BuildContext context,
+    bool isDark,
+    int currentIndex,
+  ) {
+    return AppBar(
+      backgroundColor: AppTheme.navyMid,
+      foregroundColor: Colors.white,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      leading: Builder(
+        builder: (ctx) => IconButton(
+          icon: const Icon(Icons.menu_rounded, color: Colors.white),
+          onPressed: () => Scaffold.of(ctx).openDrawer(),
+        ),
+      ),
+      title: Row(
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(9),
+            ),
+            child: const Icon(
+              Icons.hotel_rounded,
+              color: Colors.white,
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'HMS Admin',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                  letterSpacing: 0.3,
+                ),
+              ),
+              Text(
+                _tabTitles[currentIndex],
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.white.withValues(alpha: 0.75),
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      actions: [
+        const _SyncStatusAction(),
+        Builder(
+          builder: (ctx) => IconButton(
+            icon: const Icon(Icons.notifications_outlined, color: Colors.white),
+            onPressed: () => ctx.push('/notifications'),
+          ),
+        ),
+        const SizedBox(width: 4),
+      ],
     );
   }
 
@@ -160,14 +264,8 @@ class _AppShellState extends ConsumerState<AppShell>
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: isDark
-                        ? [
-                            const Color(0xFF0C1628),
-                            const Color(0xFF1B2A4A),
-                          ]
-                        : [
-                            const Color(0xFF1B2A4A),
-                            const Color(0xFF2C4170),
-                          ],
+                        ? [const Color(0xFF0A1628), const Color(0xFF1A2E5A)]
+                        : [const Color(0xFF1A2E5A), const Color(0xFF2D4A8A)],
                   ),
                 ),
                 child: Column(
@@ -321,9 +419,10 @@ class _OfflineBanner extends StatelessWidget {
                 Text(
                   'You\'re offline — changes will sync when reconnected',
                   style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500),
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
@@ -356,10 +455,7 @@ class _GlassDrawerItem extends StatelessWidget {
         leading: Icon(icon, color: iconColor, size: 22),
         title: Text(
           text,
-          style: TextStyle(
-            color: textColor,
-            fontWeight: FontWeight.w500,
-          ),
+          style: TextStyle(color: textColor, fontWeight: FontWeight.w500),
         ),
         onTap: onTap,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -384,8 +480,8 @@ class _SyncDrawerItem extends ConsumerWidget {
     final color = hasError
         ? theme.colorScheme.error
         : isSyncing
-            ? theme.colorScheme.primary
-            : null;
+        ? theme.colorScheme.primary
+        : null;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
@@ -403,25 +499,23 @@ class _SyncDrawerItem extends ConsumerWidget {
               ),
         title: Text(
           isSyncing ? 'Syncing…' : 'Sync Now',
-          style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.w500,
-          ),
+          style: TextStyle(color: color, fontWeight: FontWeight.w500),
         ),
         subtitle: syncState.pendingCount > 0
-            ? Text('${syncState.pendingCount} pending',
-                style: const TextStyle(fontSize: 11))
+            ? Text(
+                '${syncState.pendingCount} pending',
+                style: const TextStyle(fontSize: 11),
+              )
             : syncState.lastSyncedAt != null && !isSyncing
-                ? Text(
-                    'Last synced ${_formatTime(syncState.lastSyncedAt!)}',
-                    style: const TextStyle(fontSize: 11),
-                  )
-                : null,
+            ? Text(
+                'Last synced ${_formatTime(syncState.lastSyncedAt!)}',
+                style: const TextStyle(fontSize: 11),
+              )
+            : null,
         onTap: isSyncing
             ? null
             : () => ref.read(syncNotifierProvider.notifier).triggerSync(),
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         dense: true,
       ),
     );
@@ -436,16 +530,56 @@ class _SyncDrawerItem extends ConsumerWidget {
   }
 }
 
+// ─── Sync status AppBar action ────────────────────────────────────────────────
+
+class _SyncStatusAction extends ConsumerWidget {
+  const _SyncStatusAction();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final status = ref.watch(syncStatusProvider);
+    final isSyncing = status == SyncStatus.syncing;
+    final isError = status == SyncStatus.error;
+
+    if (isSyncing) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Center(
+          child: SizedBox(
+            width: 18,
+            height: 18,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: Colors.white.withValues(alpha: 0.8),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (isError) {
+      return IconButton(
+        icon: const Icon(
+          Icons.sync_problem_outlined,
+          color: Colors.orangeAccent,
+          size: 22,
+        ),
+        tooltip: 'Sync failed — tap to retry',
+        onPressed: () => ref.read(syncNotifierProvider.notifier).triggerSync(),
+      );
+    }
+
+    return const SizedBox.shrink();
+  }
+}
+
 // ─── Sync-aware nav bar ───────────────────────────────────────────────────────
 
 class _SyncNavBar extends ConsumerWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
 
-  const _SyncNavBar({
-    required this.currentIndex,
-    required this.onTap,
-  });
+  const _SyncNavBar({required this.currentIndex, required this.onTap});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -478,15 +612,11 @@ class _GlassNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
 
-  const _GlassNavBar({
-    required this.currentIndex,
-    required this.onTap,
-  });
+  const _GlassNavBar({required this.currentIndex, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final theme = Theme.of(context);
 
     final items = [
       _NavItem(Icons.dashboard_outlined, Icons.dashboard, 'Dashboard'),
@@ -502,20 +632,20 @@ class _GlassNavBar extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             color: isDark
-                ? Colors.black.withValues(alpha: 0.35)
-                : Colors.white.withValues(alpha: 0.55),
+                ? const Color(0xFF0D1628).withValues(alpha: 0.95)
+                : Colors.white.withValues(alpha: 0.96),
             border: Border(
               top: BorderSide(
                 color: isDark
-                    ? Colors.white.withValues(alpha: 0.08)
-                    : Colors.white.withValues(alpha: 0.7),
-                width: 0.5,
+                    ? Colors.white.withValues(alpha: 0.10)
+                    : AppTheme.navyMid.withValues(alpha: 0.12),
+                width: 1,
               ),
             ),
           ),
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: List.generate(items.length, (index) {
@@ -530,8 +660,9 @@ class _GlassNavBar extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 6),
                         decoration: isSelected
                             ? BoxDecoration(
-                                color: theme.colorScheme.primary
-                                    .withValues(alpha: 0.12),
+                                color: AppTheme.navyMid.withValues(
+                                  alpha: isDark ? 0.35 : 0.10,
+                                ),
                                 borderRadius: BorderRadius.circular(12),
                               )
                             : null,
@@ -541,10 +672,10 @@ class _GlassNavBar extends StatelessWidget {
                             Icon(
                               isSelected ? item.selectedIcon : item.icon,
                               color: isSelected
-                                  ? theme.colorScheme.primary
+                                  ? AppTheme.navyMid
                                   : isDark
-                                      ? Colors.white.withValues(alpha: 0.5)
-                                      : Colors.black.withValues(alpha: 0.4),
+                                  ? Colors.white.withValues(alpha: 0.45)
+                                  : AppTheme.navyMid.withValues(alpha: 0.40),
                               size: 22,
                             ),
                             const SizedBox(height: 4),
@@ -556,10 +687,10 @@ class _GlassNavBar extends StatelessWidget {
                                     ? FontWeight.w600
                                     : FontWeight.w400,
                                 color: isSelected
-                                    ? theme.colorScheme.primary
+                                    ? AppTheme.navyMid
                                     : isDark
-                                        ? Colors.white.withValues(alpha: 0.5)
-                                        : Colors.black.withValues(alpha: 0.4),
+                                    ? Colors.white.withValues(alpha: 0.45)
+                                    : AppTheme.navyMid.withValues(alpha: 0.40),
                               ),
                             ),
                           ],
@@ -583,4 +714,356 @@ class _NavItem {
   final String label;
 
   const _NavItem(this.icon, this.selectedIcon, this.label);
+}
+
+// ─── Desktop sidebar ──────────────────────────────────────────────────────────
+
+class _DesktopSidebar extends ConsumerWidget {
+  final int currentIndex;
+  final ValueChanged<int> onBranchTap;
+
+  const _DesktopSidebar({
+    required this.currentIndex,
+    required this.onBranchTap,
+  });
+
+  static const double _width = 240;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final user = ref.watch(currentUserProvider);
+    final theme = Theme.of(context);
+
+    return Container(
+      width: _width,
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0D1628) : AppTheme.navyMid,
+        border: Border(
+          right: BorderSide(
+            color: Colors.white.withValues(alpha: 0.08),
+            width: 1,
+          ),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // ── App header ──
+          Container(
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: Colors.white.withValues(alpha: 0.10)),
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.hotel_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'HMS Admin',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                    Text(
+                      'Management System',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.white54,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // ── Navigation items ──
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _SidebarSectionLabel('MAIN'),
+                  _SidebarBranchTile(
+                    icon: Icons.dashboard_outlined,
+                    selectedIcon: Icons.dashboard,
+                    label: 'Dashboard',
+                    isSelected: currentIndex == 0,
+                    onTap: () => onBranchTap(0),
+                  ),
+                  _SidebarBranchTile(
+                    icon: Icons.book_online_outlined,
+                    selectedIcon: Icons.book_online,
+                    label: 'Bookings',
+                    isSelected: currentIndex == 1,
+                    onTap: () => onBranchTap(1),
+                  ),
+                  _SidebarBranchTile(
+                    icon: Icons.meeting_room_outlined,
+                    selectedIcon: Icons.meeting_room,
+                    label: 'Rooms',
+                    isSelected: currentIndex == 2,
+                    onTap: () => onBranchTap(2),
+                  ),
+                  _SidebarBranchTile(
+                    icon: Icons.engineering_outlined,
+                    selectedIcon: Icons.engineering,
+                    label: 'Operations',
+                    isSelected: currentIndex == 3,
+                    onTap: () => onBranchTap(3),
+                  ),
+                  const SizedBox(height: 8),
+                  _SidebarSectionLabel('FEATURES'),
+                  _SidebarRouteTile(
+                    icon: Icons.people_outlined,
+                    label: 'Guests',
+                    route: '/guests',
+                  ),
+                  _SidebarRouteTile(
+                    icon: Icons.receipt_long_outlined,
+                    label: 'Billing',
+                    route: '/billing',
+                  ),
+                  _SidebarRouteTile(
+                    icon: Icons.inventory_2_outlined,
+                    label: 'Inventory',
+                    route: '/inventory',
+                  ),
+                  _SidebarRouteTile(
+                    icon: Icons.calendar_month_outlined,
+                    label: 'Calendar',
+                    route: '/calendar',
+                  ),
+                  _SidebarRouteTile(
+                    icon: Icons.bar_chart_outlined,
+                    label: 'Reports',
+                    route: '/reports',
+                  ),
+                  _SidebarRouteTile(
+                    icon: Icons.history,
+                    label: 'Audit Trail',
+                    route: '/audit',
+                  ),
+                  _SidebarRouteTile(
+                    icon: Icons.notifications_outlined,
+                    label: 'Notifications',
+                    route: '/notifications',
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // ── Footer ──
+          Container(
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(color: Colors.white.withValues(alpha: 0.10)),
+              ),
+            ),
+            child: Column(
+              children: [
+                const _SyncDrawerItem(),
+                _SidebarRouteTile(
+                  icon: Icons.settings_outlined,
+                  label: 'Settings',
+                  route: '/settings',
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  child: ListTile(
+                    dense: true,
+                    leading: CircleAvatar(
+                      radius: 14,
+                      backgroundColor: Colors.white.withValues(alpha: 0.15),
+                      child: Text(
+                        (user?.fullName ?? 'U')[0].toUpperCase(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    title: Text(
+                      user?.fullName ?? 'User',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    subtitle: Text(
+                      user?.role?.toUpperCase() ?? '',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.55),
+                        fontSize: 10,
+                      ),
+                    ),
+                    trailing: IconButton(
+                      icon: Icon(
+                        Icons.logout,
+                        size: 18,
+                        color: theme.colorScheme.error.withValues(alpha: 0.85),
+                      ),
+                      tooltip: 'Sign Out',
+                      onPressed: () =>
+                          ref.read(authProvider.notifier).signOut(),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SidebarSectionLabel extends StatelessWidget {
+  final String label;
+  const _SidebarSectionLabel(this.label);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: Colors.white.withValues(alpha: 0.40),
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.8,
+        ),
+      ),
+    );
+  }
+}
+
+class _SidebarBranchTile extends StatelessWidget {
+  final IconData icon;
+  final IconData selectedIcon;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _SidebarBranchTile({
+    required this.icon,
+    required this.selectedIcon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Colors.white.withValues(alpha: 0.12)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: ListTile(
+          dense: true,
+          leading: Icon(
+            isSelected ? selectedIcon : icon,
+            color: isSelected
+                ? Colors.white
+                : Colors.white.withValues(alpha: 0.55),
+            size: 20,
+          ),
+          title: Text(
+            label,
+            style: TextStyle(
+              color: isSelected
+                  ? Colors.white
+                  : Colors.white.withValues(alpha: 0.70),
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+              fontSize: 13.5,
+            ),
+          ),
+          onTap: onTap,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SidebarRouteTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String route;
+
+  const _SidebarRouteTile({
+    required this.icon,
+    required this.label,
+    required this.route,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+      child: ListTile(
+        dense: true,
+        leading: Icon(
+          icon,
+          color: Colors.white.withValues(alpha: 0.55),
+          size: 20,
+        ),
+        title: Text(
+          label,
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.70),
+            fontWeight: FontWeight.w400,
+            fontSize: 13.5,
+          ),
+        ),
+        onTap: () => context.push(route),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
 }

@@ -5,6 +5,8 @@ part 'room_type.g.dart';
 @JsonSerializable()
 class RoomType {
   final int id;
+  @JsonKey(name: 'hotel_id')
+  final int? hotelId;
   final String? name;
   final String? description;
   final int? capacity;
@@ -18,6 +20,7 @@ class RoomType {
 
   const RoomType({
     required this.id,
+    this.hotelId,
     this.name,
     this.description,
     this.capacity,
@@ -27,6 +30,7 @@ class RoomType {
     this.updatedAt,
   });
 
-  factory RoomType.fromJson(Map<String, dynamic> json) => _$RoomTypeFromJson(json);
+  factory RoomType.fromJson(Map<String, dynamic> json) =>
+      _$RoomTypeFromJson(json);
   Map<String, dynamic> toJson() => _$RoomTypeToJson(this);
 }

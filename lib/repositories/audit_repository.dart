@@ -11,6 +11,7 @@ class AuditRepository {
   AuditRepository(this._db, this._connectivity);
 
   Future<List<AuditLog>> getAll({
+    int? hotelId,
     String? entityType,
     String? action,
     int? userId,
@@ -18,6 +19,7 @@ class AuditRepository {
     int offset = 0,
   }) async {
     var rows = await _db.notificationDao.getAllAuditLogs();
+    if (hotelId != null) rows = rows.where((r) => r.hotelId == hotelId).toList();
     if (entityType != null) rows = rows.where((r) => r.entityType == entityType).toList();
     if (action != null) rows = rows.where((r) => r.action == action).toList();
     if (userId != null) rows = rows.where((r) => r.userId == userId).toList();

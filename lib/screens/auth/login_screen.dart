@@ -12,13 +12,13 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _identifierController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _identifierController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -27,7 +27,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     ref.read(authProvider.notifier).signIn(
-      _emailController.text.trim(),
+      _identifierController.text.trim(),
       _passwordController.text,
     );
   }
@@ -117,17 +117,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                             const SizedBox(height: 24),
 
-                            // Email field
+                            // Email or username field
                             TextFormField(
-                              controller: _emailController,
+                              controller: _identifierController,
                               keyboardType: TextInputType.emailAddress,
                               textInputAction: TextInputAction.next,
                               autocorrect: false,
-                              validator: Validators.email,
+                              validator: Validators.emailOrUsername,
                               decoration: const InputDecoration(
-                                labelText: 'Email',
-                                hintText: 'you@example.com',
-                                prefixIcon: Icon(Icons.email_outlined),
+                                labelText: 'Email or Username',
+                                hintText: 'you@example.com or your username',
+                                prefixIcon: Icon(Icons.person_outline),
                               ),
                             ),
                             const SizedBox(height: 16),

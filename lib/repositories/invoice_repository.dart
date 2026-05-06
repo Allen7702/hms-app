@@ -16,8 +16,9 @@ class InvoiceRepository {
 
   InvoiceRepository(this._db, this._connectivity);
 
-  Future<List<Invoice>> getAll({String? status}) async {
+  Future<List<Invoice>> getAll({int? hotelId, String? status}) async {
     var rows = await _db.billingDao.getAllInvoices();
+    if (hotelId != null) rows = rows.where((r) => r.hotelId == hotelId).toList();
     if (status != null) rows = rows.where((r) => r.status == status).toList();
     rows.sort((a, b) => (b.createdAt ?? '').compareTo(a.createdAt ?? ''));
     return rows.map((r) => r.toModel()).toList();

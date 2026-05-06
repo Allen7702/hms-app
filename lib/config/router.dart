@@ -25,21 +25,30 @@ import 'package:hms_app/screens/shell/seeding_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
+/// A [ChangeNotifier] that notifies go_router whenever auth state changes,
+/// so the router re-evaluates its redirect without being fully recreated.
+class _AuthRouterNotifier extends ChangeNotifier {
+  void notify() => notifyListeners();
+}
+
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authProvider);
+  final authNotifier = _AuthRouterNotifier();
+  ref.listen<AuthState>(authProvider, (_, __) => authNotifier.notify());
+  ref.onDispose(authNotifier.dispose);
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/',
     debugLogDiagnostics: true,
+    refreshListenable: authNotifier,
     redirect: (context, state) {
+      final authState = ref.read(authProvider);
       final isAuthenticated = authState.isAuthenticated;
       final isLoading = authState.isLoading;
       final isLoginRoute = state.matchedLocation == '/login';
       if (isLoading) return null;
       if (!isAuthenticated && !isLoginRoute) return '/login';
       if (isAuthenticated && isLoginRoute) return '/';
-
       return null;
     },
     routes: [

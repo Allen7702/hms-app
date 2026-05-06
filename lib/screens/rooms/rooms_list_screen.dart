@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,49 +27,25 @@ class _RoomsListScreenState extends ConsumerState<RoomsListScreen> {
     final roomsAsync = ref.watch(roomsProvider);
     final floorsAsync = ref.watch(roomFloorsProvider);
     final statusCountsAsync = ref.watch(roomStatusCountsProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      extendBodyBehindAppBar: true,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: ClipRRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-            child: Container(
-              decoration: BoxDecoration(
-                color: isDark
-                    ? Colors.black.withValues(alpha: 0.3)
-                    : Colors.white.withValues(alpha: 0.5),
-                border: Border(
-                  bottom: BorderSide(
-                    color: isDark
-                        ? Colors.white.withValues(alpha: 0.08)
-                        : Colors.white.withValues(alpha: 0.6),
-                    width: 0.5,
-                  ),
-                ),
-              ),
-              child: AppBar(
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                scrolledUnderElevation: 0,
-                title: const Text('Rooms'),
-                actions: [
-                  IconButton(
-                    icon: Icon(_isGridView ? Icons.view_list : Icons.grid_view),
-                    tooltip: _isGridView ? 'List view' : 'Grid view',
-                    onPressed: () => setState(() => _isGridView = !_isGridView),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
       body: Column(
         children: [
+          // View toggle row
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 4, 0),
+            child: Row(
+              children: [
+                const Spacer(),
+                IconButton(
+                  icon: Icon(_isGridView ? Icons.view_list : Icons.grid_view),
+                  tooltip: _isGridView ? 'List view' : 'Grid view',
+                  onPressed: () => setState(() => _isGridView = !_isGridView),
+                ),
+              ],
+            ),
+          ),
           // Status count chips
           statusCountsAsync.when(
             loading: () => const SizedBox(height: 52),
@@ -79,15 +54,16 @@ class _RoomsListScreenState extends ConsumerState<RoomsListScreen> {
               final total = counts.values.fold(0, (a, b) => a + b);
               return SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 child: Row(
                   children: [
                     FilterChip(
                       label: Text('All ($total)'),
                       selected: _selectedStatus == null,
-                      onSelected: (_) =>
-                          setState(() => _selectedStatus = null),
+                      onSelected: (_) => setState(() => _selectedStatus = null),
                     ),
                     ...RoomStatus.values.map((s) {
                       final count = counts[s.label] ?? 0;
@@ -98,8 +74,9 @@ class _RoomsListScreenState extends ConsumerState<RoomsListScreen> {
                           label: Text('${s.label} ($count)'),
                           selected: _selectedStatus == s.label,
                           onSelected: (_) => setState(
-                            () => _selectedStatus =
-                                _selectedStatus == s.label ? null : s.label,
+                            () => _selectedStatus = _selectedStatus == s.label
+                                ? null
+                                : s.label,
                           ),
                         ),
                       );
@@ -124,20 +101,21 @@ class _RoomsListScreenState extends ConsumerState<RoomsListScreen> {
                     ChoiceChip(
                       label: const Text('All Floors'),
                       selected: _selectedFloor == null,
-                      onSelected: (_) =>
-                          setState(() => _selectedFloor = null),
+                      onSelected: (_) => setState(() => _selectedFloor = null),
                     ),
-                    ...floors.map((f) => Padding(
-                          padding: const EdgeInsets.only(left: 8),
-                          child: ChoiceChip(
-                            label: Text('Floor $f'),
-                            selected: _selectedFloor == f,
-                            onSelected: (_) => setState(
-                              () => _selectedFloor =
-                                  _selectedFloor == f ? null : f,
-                            ),
+                    ...floors.map(
+                      (f) => Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: ChoiceChip(
+                          label: Text('Floor $f'),
+                          selected: _selectedFloor == f,
+                          onSelected: (_) => setState(
+                            () =>
+                                _selectedFloor = _selectedFloor == f ? null : f,
                           ),
-                        )),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               );
@@ -236,10 +214,10 @@ class _RoomGridTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final statusEnum =
-        RoomStatus.values.where((s) => s.label == room.status);
-    final status =
-        statusEnum.isNotEmpty ? statusEnum.first : RoomStatus.available;
+    final statusEnum = RoomStatus.values.where((s) => s.label == room.status);
+    final status = statusEnum.isNotEmpty
+        ? statusEnum.first
+        : RoomStatus.available;
 
     return InkWell(
       onTap: () => context.push('/rooms/${room.id}'),
@@ -300,10 +278,10 @@ class _RoomListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final statusEnum =
-        RoomStatus.values.where((s) => s.label == room.status);
-    final status =
-        statusEnum.isNotEmpty ? statusEnum.first : RoomStatus.available;
+    final statusEnum = RoomStatus.values.where((s) => s.label == room.status);
+    final status = statusEnum.isNotEmpty
+        ? statusEnum.first
+        : RoomStatus.available;
 
     return Card(
       child: ListTile(
@@ -328,7 +306,9 @@ class _RoomListItem extends StatelessWidget {
         ),
         title: Text(
           '${room.roomType?.name ?? 'Room'} · Floor ${room.floor ?? '-'}',
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
         ),
         subtitle: room.roomType?.price != null
             ? Text('${Formatters.currency(room.roomType!.price!)} /night')
@@ -373,9 +353,9 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to update: $e')));
       }
     } finally {
       if (mounted) setState(() => _isUpdating = false);
@@ -388,9 +368,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
     final roomAsync = ref.watch(roomDetailProvider(widget.roomId));
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Room #${widget.roomId}'),
-      ),
+      appBar: AppBar(title: Text('Room #${widget.roomId}')),
       body: roomAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(
@@ -415,8 +393,9 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
             return const Center(child: Text('Room not found'));
           }
 
-          final statusEnum =
-              RoomStatus.values.where((s) => s.label == room.status);
+          final statusEnum = RoomStatus.values.where(
+            (s) => s.label == room.status,
+          );
           final status = statusEnum.isNotEmpty
               ? statusEnum.first
               : RoomStatus.available;
@@ -455,8 +434,9 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
                           children: [
                             Text(
                               room.roomType?.name ?? 'Room',
-                              style: theme.textTheme.titleLarge
-                                  ?.copyWith(fontWeight: FontWeight.w700),
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                             const SizedBox(height: 4),
                             Text(
@@ -488,14 +468,19 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.info_outline,
-                              size: 18, color: theme.colorScheme.primary),
+                          Icon(
+                            Icons.info_outline,
+                            size: 18,
+                            color: theme.colorScheme.primary,
+                          ),
                           const SizedBox(width: 8),
-                          Text('Room Information',
-                              style: theme.textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: theme.colorScheme.primary,
-                              )),
+                          Text(
+                            'Room Information',
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 12),
@@ -503,19 +488,23 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
                       _DetailRow('Type', room.roomType?.name ?? '-'),
                       _DetailRow('Floor', room.floor ?? '-'),
                       if (room.roomType?.capacity != null)
-                        _DetailRow('Capacity',
-                            '${room.roomType!.capacity} guests'),
-                      if (room.roomType?.price != null)
-                        _DetailRow('Rate',
-                            '${Formatters.currency(room.roomType!.price!)} /night'),
-                      if (room.roomType?.description != null)
                         _DetailRow(
-                            'Description', room.roomType!.description!),
+                          'Capacity',
+                          '${room.roomType!.capacity} guests',
+                        ),
+                      if (room.roomType?.price != null)
+                        _DetailRow(
+                          'Rate',
+                          '${Formatters.currency(room.roomType!.price!)} /night',
+                        ),
+                      if (room.roomType?.description != null)
+                        _DetailRow('Description', room.roomType!.description!),
                       if (room.lastCleaned != null)
                         _DetailRow(
                           'Last Cleaned',
                           Formatters.relative(
-                              DateTime.tryParse(room.lastCleaned!)),
+                            DateTime.tryParse(room.lastCleaned!),
+                          ),
                         ),
                     ],
                   ),
@@ -533,14 +522,19 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.star_outline,
-                                size: 18, color: theme.colorScheme.primary),
+                            Icon(
+                              Icons.star_outline,
+                              size: 18,
+                              color: theme.colorScheme.primary,
+                            ),
                             const SizedBox(width: 8),
-                            Text('Features',
-                                style: theme.textTheme.titleSmall?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: theme.colorScheme.primary,
-                                )),
+                            Text(
+                              'Features',
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: theme.colorScheme.primary,
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 12),
@@ -570,14 +564,19 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.swap_horiz,
-                              size: 18, color: theme.colorScheme.primary),
+                          Icon(
+                            Icons.swap_horiz,
+                            size: 18,
+                            color: theme.colorScheme.primary,
+                          ),
                           const SizedBox(width: 8),
-                          Text('Update Status',
-                              style: theme.textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: theme.colorScheme.primary,
-                              )),
+                          Text(
+                            'Update Status',
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 12),
@@ -628,14 +627,20 @@ class _DetailRow extends StatelessWidget {
         children: [
           SizedBox(
             width: 120,
-            child: Text(label,
-                style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant)),
+            child: Text(
+              label,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
           ),
           Expanded(
-            child: Text(value,
-                style: theme.textTheme.bodyMedium
-                    ?.copyWith(fontWeight: FontWeight.w500)),
+            child: Text(
+              value,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
         ],
       ),

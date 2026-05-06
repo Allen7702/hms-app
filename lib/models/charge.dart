@@ -5,6 +5,8 @@ part 'charge.g.dart';
 @JsonSerializable()
 class Charge {
   final int id;
+  @JsonKey(name: 'hotel_id')
+  final int? hotelId;
   @JsonKey(name: 'booking_id')
   final int? bookingId;
   @JsonKey(name: 'invoice_id')
@@ -30,9 +32,12 @@ class Charge {
   final String? notes;
   @JsonKey(name: 'created_at')
   final String? createdAt;
+  @JsonKey(name: 'updated_at')
+  final String? updatedAt;
 
   const Charge({
     required this.id,
+    this.hotelId,
     this.bookingId,
     this.invoiceId,
     this.chargeType,
@@ -48,6 +53,7 @@ class Charge {
     this.serviceDate,
     this.notes,
     this.createdAt,
+    this.updatedAt,
   });
 
   factory Charge.fromJson(Map<String, dynamic> json) => _$ChargeFromJson(json);

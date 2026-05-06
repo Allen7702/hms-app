@@ -6,6 +6,8 @@ part 'room.g.dart';
 @JsonSerializable()
 class Room {
   final int id;
+  @JsonKey(name: 'hotel_id')
+  final int? hotelId;
   @JsonKey(name: 'room_number', fromJson: Room._stringFromAny)
   final String? roomNumber;
   @JsonKey(fromJson: Room._stringFromAny)
@@ -27,6 +29,7 @@ class Room {
 
   const Room({
     required this.id,
+    this.hotelId,
     this.roomNumber,
     this.floor,
     this.roomTypeId,

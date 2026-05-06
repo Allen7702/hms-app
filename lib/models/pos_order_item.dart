@@ -5,6 +5,8 @@ part 'pos_order_item.g.dart';
 @JsonSerializable()
 class PosOrderItem {
   final int id;
+  @JsonKey(name: 'hotel_id')
+  final int? hotelId;
   @JsonKey(name: 'order_id')
   final int? orderId;
   @JsonKey(name: 'product_id')
@@ -33,6 +35,7 @@ class PosOrderItem {
 
   const PosOrderItem({
     required this.id,
+    this.hotelId,
     this.orderId,
     this.productId,
     this.productName,

@@ -61,15 +61,16 @@ class _SeedingWrapperState extends ConsumerState<SeedingWrapper> {
           );
         }
 
-        // Sync done (success or idle after starting)
-        if (_seedingStarted) {
-          // Mark done so we don't re-evaluate next rebuild
+        // Sync done — only advance once sync actually succeeded
+        if (_seedingStarted && syncState.status == SyncStatus.success) {
           Future.microtask(() {
             if (mounted) setState(() => _seedingDone = true);
           });
+          return widget.child;
         }
 
-        return widget.child;
+        // Still waiting for sync to start or complete
+        return const _SeedingScreen(message: 'Setting up offline mode…');
       },
     );
   }

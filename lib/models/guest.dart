@@ -5,6 +5,8 @@ part 'guest.g.dart';
 @JsonSerializable()
 class Guest {
   final int id;
+  @JsonKey(name: 'hotel_id')
+  final int? hotelId;
   @JsonKey(name: 'name')
   final String? name;
   final String? email;
@@ -38,6 +40,7 @@ class Guest {
 
   const Guest({
     required this.id,
+    this.hotelId,
     this.name,
     this.email,
     this.phone,

@@ -18,6 +18,17 @@ class $UsersTableTable extends UsersTable
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _hotelIdMeta = const VerificationMeta(
+    'hotelId',
+  );
+  @override
+  late final GeneratedColumn<int> hotelId = GeneratedColumn<int>(
+    'hotel_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _fullNameMeta = const VerificationMeta(
     'fullName',
   );
@@ -106,6 +117,7 @@ class $UsersTableTable extends UsersTable
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    hotelId,
     fullName,
     username,
     email,
@@ -129,6 +141,12 @@ class $UsersTableTable extends UsersTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('hotel_id')) {
+      context.handle(
+        _hotelIdMeta,
+        hotelId.isAcceptableOrUnknown(data['hotel_id']!, _hotelIdMeta),
+      );
     }
     if (data.containsKey('full_name')) {
       context.handle(
@@ -191,6 +209,10 @@ class $UsersTableTable extends UsersTable
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      hotelId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hotel_id'],
+      ),
       fullName: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}full_name'],
@@ -234,6 +256,7 @@ class $UsersTableTable extends UsersTable
 
 class LocalUser extends DataClass implements Insertable<LocalUser> {
   final int id;
+  final int? hotelId;
   final String? fullName;
   final String? username;
   final String? email;
@@ -244,6 +267,7 @@ class LocalUser extends DataClass implements Insertable<LocalUser> {
   final String? updatedAt;
   const LocalUser({
     required this.id,
+    this.hotelId,
     this.fullName,
     this.username,
     this.email,
@@ -257,6 +281,9 @@ class LocalUser extends DataClass implements Insertable<LocalUser> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || hotelId != null) {
+      map['hotel_id'] = Variable<int>(hotelId);
+    }
     if (!nullToAbsent || fullName != null) {
       map['full_name'] = Variable<String>(fullName);
     }
@@ -287,6 +314,9 @@ class LocalUser extends DataClass implements Insertable<LocalUser> {
   UsersTableCompanion toCompanion(bool nullToAbsent) {
     return UsersTableCompanion(
       id: Value(id),
+      hotelId: hotelId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hotelId),
       fullName: fullName == null && nullToAbsent
           ? const Value.absent()
           : Value(fullName),
@@ -319,6 +349,7 @@ class LocalUser extends DataClass implements Insertable<LocalUser> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LocalUser(
       id: serializer.fromJson<int>(json['id']),
+      hotelId: serializer.fromJson<int?>(json['hotelId']),
       fullName: serializer.fromJson<String?>(json['fullName']),
       username: serializer.fromJson<String?>(json['username']),
       email: serializer.fromJson<String?>(json['email']),
@@ -334,6 +365,7 @@ class LocalUser extends DataClass implements Insertable<LocalUser> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'hotelId': serializer.toJson<int?>(hotelId),
       'fullName': serializer.toJson<String?>(fullName),
       'username': serializer.toJson<String?>(username),
       'email': serializer.toJson<String?>(email),
@@ -347,6 +379,7 @@ class LocalUser extends DataClass implements Insertable<LocalUser> {
 
   LocalUser copyWith({
     int? id,
+    Value<int?> hotelId = const Value.absent(),
     Value<String?> fullName = const Value.absent(),
     Value<String?> username = const Value.absent(),
     Value<String?> email = const Value.absent(),
@@ -357,6 +390,7 @@ class LocalUser extends DataClass implements Insertable<LocalUser> {
     Value<String?> updatedAt = const Value.absent(),
   }) => LocalUser(
     id: id ?? this.id,
+    hotelId: hotelId.present ? hotelId.value : this.hotelId,
     fullName: fullName.present ? fullName.value : this.fullName,
     username: username.present ? username.value : this.username,
     email: email.present ? email.value : this.email,
@@ -369,6 +403,7 @@ class LocalUser extends DataClass implements Insertable<LocalUser> {
   LocalUser copyWithCompanion(UsersTableCompanion data) {
     return LocalUser(
       id: data.id.present ? data.id.value : this.id,
+      hotelId: data.hotelId.present ? data.hotelId.value : this.hotelId,
       fullName: data.fullName.present ? data.fullName.value : this.fullName,
       username: data.username.present ? data.username.value : this.username,
       email: data.email.present ? data.email.value : this.email,
@@ -384,6 +419,7 @@ class LocalUser extends DataClass implements Insertable<LocalUser> {
   String toString() {
     return (StringBuffer('LocalUser(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('fullName: $fullName, ')
           ..write('username: $username, ')
           ..write('email: $email, ')
@@ -399,6 +435,7 @@ class LocalUser extends DataClass implements Insertable<LocalUser> {
   @override
   int get hashCode => Object.hash(
     id,
+    hotelId,
     fullName,
     username,
     email,
@@ -413,6 +450,7 @@ class LocalUser extends DataClass implements Insertable<LocalUser> {
       identical(this, other) ||
       (other is LocalUser &&
           other.id == this.id &&
+          other.hotelId == this.hotelId &&
           other.fullName == this.fullName &&
           other.username == this.username &&
           other.email == this.email &&
@@ -425,6 +463,7 @@ class LocalUser extends DataClass implements Insertable<LocalUser> {
 
 class UsersTableCompanion extends UpdateCompanion<LocalUser> {
   final Value<int> id;
+  final Value<int?> hotelId;
   final Value<String?> fullName;
   final Value<String?> username;
   final Value<String?> email;
@@ -435,6 +474,7 @@ class UsersTableCompanion extends UpdateCompanion<LocalUser> {
   final Value<String?> updatedAt;
   const UsersTableCompanion({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.fullName = const Value.absent(),
     this.username = const Value.absent(),
     this.email = const Value.absent(),
@@ -446,6 +486,7 @@ class UsersTableCompanion extends UpdateCompanion<LocalUser> {
   });
   UsersTableCompanion.insert({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.fullName = const Value.absent(),
     this.username = const Value.absent(),
     this.email = const Value.absent(),
@@ -457,6 +498,7 @@ class UsersTableCompanion extends UpdateCompanion<LocalUser> {
   });
   static Insertable<LocalUser> custom({
     Expression<int>? id,
+    Expression<int>? hotelId,
     Expression<String>? fullName,
     Expression<String>? username,
     Expression<String>? email,
@@ -468,6 +510,7 @@ class UsersTableCompanion extends UpdateCompanion<LocalUser> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (hotelId != null) 'hotel_id': hotelId,
       if (fullName != null) 'full_name': fullName,
       if (username != null) 'username': username,
       if (email != null) 'email': email,
@@ -481,6 +524,7 @@ class UsersTableCompanion extends UpdateCompanion<LocalUser> {
 
   UsersTableCompanion copyWith({
     Value<int>? id,
+    Value<int?>? hotelId,
     Value<String?>? fullName,
     Value<String?>? username,
     Value<String?>? email,
@@ -492,6 +536,7 @@ class UsersTableCompanion extends UpdateCompanion<LocalUser> {
   }) {
     return UsersTableCompanion(
       id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
       fullName: fullName ?? this.fullName,
       username: username ?? this.username,
       email: email ?? this.email,
@@ -508,6 +553,9 @@ class UsersTableCompanion extends UpdateCompanion<LocalUser> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (hotelId.present) {
+      map['hotel_id'] = Variable<int>(hotelId.value);
     }
     if (fullName.present) {
       map['full_name'] = Variable<String>(fullName.value);
@@ -540,6 +588,7 @@ class UsersTableCompanion extends UpdateCompanion<LocalUser> {
   String toString() {
     return (StringBuffer('UsersTableCompanion(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('fullName: $fullName, ')
           ..write('username: $username, ')
           ..write('email: $email, ')
@@ -1270,6 +1319,17 @@ class $RoomTypesTableTable extends RoomTypesTable
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _hotelIdMeta = const VerificationMeta(
+    'hotelId',
+  );
+  @override
+  late final GeneratedColumn<int> hotelId = GeneratedColumn<int>(
+    'hotel_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -1346,6 +1406,7 @@ class $RoomTypesTableTable extends RoomTypesTable
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    hotelId,
     name,
     description,
     capacity,
@@ -1368,6 +1429,12 @@ class $RoomTypesTableTable extends RoomTypesTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('hotel_id')) {
+      context.handle(
+        _hotelIdMeta,
+        hotelId.isAcceptableOrUnknown(data['hotel_id']!, _hotelIdMeta),
+      );
     }
     if (data.containsKey('name')) {
       context.handle(
@@ -1430,6 +1497,10 @@ class $RoomTypesTableTable extends RoomTypesTable
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      hotelId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hotel_id'],
+      ),
       name: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name'],
@@ -1469,6 +1540,7 @@ class $RoomTypesTableTable extends RoomTypesTable
 
 class LocalRoomType extends DataClass implements Insertable<LocalRoomType> {
   final int id;
+  final int? hotelId;
   final String? name;
   final String? description;
   final int? capacity;
@@ -1478,6 +1550,7 @@ class LocalRoomType extends DataClass implements Insertable<LocalRoomType> {
   final String? updatedAt;
   const LocalRoomType({
     required this.id,
+    this.hotelId,
     this.name,
     this.description,
     this.capacity,
@@ -1490,6 +1563,9 @@ class LocalRoomType extends DataClass implements Insertable<LocalRoomType> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || hotelId != null) {
+      map['hotel_id'] = Variable<int>(hotelId);
+    }
     if (!nullToAbsent || name != null) {
       map['name'] = Variable<String>(name);
     }
@@ -1517,6 +1593,9 @@ class LocalRoomType extends DataClass implements Insertable<LocalRoomType> {
   RoomTypesTableCompanion toCompanion(bool nullToAbsent) {
     return RoomTypesTableCompanion(
       id: Value(id),
+      hotelId: hotelId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hotelId),
       name: name == null && nullToAbsent ? const Value.absent() : Value(name),
       description: description == null && nullToAbsent
           ? const Value.absent()
@@ -1546,6 +1625,7 @@ class LocalRoomType extends DataClass implements Insertable<LocalRoomType> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LocalRoomType(
       id: serializer.fromJson<int>(json['id']),
+      hotelId: serializer.fromJson<int?>(json['hotelId']),
       name: serializer.fromJson<String?>(json['name']),
       description: serializer.fromJson<String?>(json['description']),
       capacity: serializer.fromJson<int?>(json['capacity']),
@@ -1560,6 +1640,7 @@ class LocalRoomType extends DataClass implements Insertable<LocalRoomType> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'hotelId': serializer.toJson<int?>(hotelId),
       'name': serializer.toJson<String?>(name),
       'description': serializer.toJson<String?>(description),
       'capacity': serializer.toJson<int?>(capacity),
@@ -1572,6 +1653,7 @@ class LocalRoomType extends DataClass implements Insertable<LocalRoomType> {
 
   LocalRoomType copyWith({
     int? id,
+    Value<int?> hotelId = const Value.absent(),
     Value<String?> name = const Value.absent(),
     Value<String?> description = const Value.absent(),
     Value<int?> capacity = const Value.absent(),
@@ -1581,6 +1663,7 @@ class LocalRoomType extends DataClass implements Insertable<LocalRoomType> {
     Value<String?> updatedAt = const Value.absent(),
   }) => LocalRoomType(
     id: id ?? this.id,
+    hotelId: hotelId.present ? hotelId.value : this.hotelId,
     name: name.present ? name.value : this.name,
     description: description.present ? description.value : this.description,
     capacity: capacity.present ? capacity.value : this.capacity,
@@ -1594,6 +1677,7 @@ class LocalRoomType extends DataClass implements Insertable<LocalRoomType> {
   LocalRoomType copyWithCompanion(RoomTypesTableCompanion data) {
     return LocalRoomType(
       id: data.id.present ? data.id.value : this.id,
+      hotelId: data.hotelId.present ? data.hotelId.value : this.hotelId,
       name: data.name.present ? data.name.value : this.name,
       description: data.description.present
           ? data.description.value
@@ -1612,6 +1696,7 @@ class LocalRoomType extends DataClass implements Insertable<LocalRoomType> {
   String toString() {
     return (StringBuffer('LocalRoomType(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('name: $name, ')
           ..write('description: $description, ')
           ..write('capacity: $capacity, ')
@@ -1626,6 +1711,7 @@ class LocalRoomType extends DataClass implements Insertable<LocalRoomType> {
   @override
   int get hashCode => Object.hash(
     id,
+    hotelId,
     name,
     description,
     capacity,
@@ -1639,6 +1725,7 @@ class LocalRoomType extends DataClass implements Insertable<LocalRoomType> {
       identical(this, other) ||
       (other is LocalRoomType &&
           other.id == this.id &&
+          other.hotelId == this.hotelId &&
           other.name == this.name &&
           other.description == this.description &&
           other.capacity == this.capacity &&
@@ -1650,6 +1737,7 @@ class LocalRoomType extends DataClass implements Insertable<LocalRoomType> {
 
 class RoomTypesTableCompanion extends UpdateCompanion<LocalRoomType> {
   final Value<int> id;
+  final Value<int?> hotelId;
   final Value<String?> name;
   final Value<String?> description;
   final Value<int?> capacity;
@@ -1659,6 +1747,7 @@ class RoomTypesTableCompanion extends UpdateCompanion<LocalRoomType> {
   final Value<String?> updatedAt;
   const RoomTypesTableCompanion({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.name = const Value.absent(),
     this.description = const Value.absent(),
     this.capacity = const Value.absent(),
@@ -1669,6 +1758,7 @@ class RoomTypesTableCompanion extends UpdateCompanion<LocalRoomType> {
   });
   RoomTypesTableCompanion.insert({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.name = const Value.absent(),
     this.description = const Value.absent(),
     this.capacity = const Value.absent(),
@@ -1679,6 +1769,7 @@ class RoomTypesTableCompanion extends UpdateCompanion<LocalRoomType> {
   });
   static Insertable<LocalRoomType> custom({
     Expression<int>? id,
+    Expression<int>? hotelId,
     Expression<String>? name,
     Expression<String>? description,
     Expression<int>? capacity,
@@ -1689,6 +1780,7 @@ class RoomTypesTableCompanion extends UpdateCompanion<LocalRoomType> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (hotelId != null) 'hotel_id': hotelId,
       if (name != null) 'name': name,
       if (description != null) 'description': description,
       if (capacity != null) 'capacity': capacity,
@@ -1701,6 +1793,7 @@ class RoomTypesTableCompanion extends UpdateCompanion<LocalRoomType> {
 
   RoomTypesTableCompanion copyWith({
     Value<int>? id,
+    Value<int?>? hotelId,
     Value<String?>? name,
     Value<String?>? description,
     Value<int?>? capacity,
@@ -1711,6 +1804,7 @@ class RoomTypesTableCompanion extends UpdateCompanion<LocalRoomType> {
   }) {
     return RoomTypesTableCompanion(
       id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
       name: name ?? this.name,
       description: description ?? this.description,
       capacity: capacity ?? this.capacity,
@@ -1726,6 +1820,9 @@ class RoomTypesTableCompanion extends UpdateCompanion<LocalRoomType> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (hotelId.present) {
+      map['hotel_id'] = Variable<int>(hotelId.value);
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
@@ -1755,6 +1852,7 @@ class RoomTypesTableCompanion extends UpdateCompanion<LocalRoomType> {
   String toString() {
     return (StringBuffer('RoomTypesTableCompanion(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('name: $name, ')
           ..write('description: $description, ')
           ..write('capacity: $capacity, ')
@@ -1779,6 +1877,17 @@ class $RoomsTableTable extends RoomsTable
     'id',
     aliasedName,
     false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hotelIdMeta = const VerificationMeta(
+    'hotelId',
+  );
+  @override
+  late final GeneratedColumn<int> hotelId = GeneratedColumn<int>(
+    'hotel_id',
+    aliasedName,
+    true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
@@ -1869,6 +1978,7 @@ class $RoomsTableTable extends RoomsTable
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    hotelId,
     roomNumber,
     floor,
     roomTypeId,
@@ -1892,6 +2002,12 @@ class $RoomsTableTable extends RoomsTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('hotel_id')) {
+      context.handle(
+        _hotelIdMeta,
+        hotelId.isAcceptableOrUnknown(data['hotel_id']!, _hotelIdMeta),
+      );
     }
     if (data.containsKey('room_number')) {
       context.handle(
@@ -1960,6 +2076,10 @@ class $RoomsTableTable extends RoomsTable
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      hotelId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hotel_id'],
+      ),
       roomNumber: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}room_number'],
@@ -2003,6 +2123,7 @@ class $RoomsTableTable extends RoomsTable
 
 class LocalRoom extends DataClass implements Insertable<LocalRoom> {
   final int id;
+  final int? hotelId;
   final String? roomNumber;
   final String? floor;
   final int? roomTypeId;
@@ -2013,6 +2134,7 @@ class LocalRoom extends DataClass implements Insertable<LocalRoom> {
   final String? updatedAt;
   const LocalRoom({
     required this.id,
+    this.hotelId,
     this.roomNumber,
     this.floor,
     this.roomTypeId,
@@ -2026,6 +2148,9 @@ class LocalRoom extends DataClass implements Insertable<LocalRoom> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || hotelId != null) {
+      map['hotel_id'] = Variable<int>(hotelId);
+    }
     if (!nullToAbsent || roomNumber != null) {
       map['room_number'] = Variable<String>(roomNumber);
     }
@@ -2056,6 +2181,9 @@ class LocalRoom extends DataClass implements Insertable<LocalRoom> {
   RoomsTableCompanion toCompanion(bool nullToAbsent) {
     return RoomsTableCompanion(
       id: Value(id),
+      hotelId: hotelId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hotelId),
       roomNumber: roomNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(roomNumber),
@@ -2090,6 +2218,7 @@ class LocalRoom extends DataClass implements Insertable<LocalRoom> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LocalRoom(
       id: serializer.fromJson<int>(json['id']),
+      hotelId: serializer.fromJson<int?>(json['hotelId']),
       roomNumber: serializer.fromJson<String?>(json['roomNumber']),
       floor: serializer.fromJson<String?>(json['floor']),
       roomTypeId: serializer.fromJson<int?>(json['roomTypeId']),
@@ -2105,6 +2234,7 @@ class LocalRoom extends DataClass implements Insertable<LocalRoom> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'hotelId': serializer.toJson<int?>(hotelId),
       'roomNumber': serializer.toJson<String?>(roomNumber),
       'floor': serializer.toJson<String?>(floor),
       'roomTypeId': serializer.toJson<int?>(roomTypeId),
@@ -2118,6 +2248,7 @@ class LocalRoom extends DataClass implements Insertable<LocalRoom> {
 
   LocalRoom copyWith({
     int? id,
+    Value<int?> hotelId = const Value.absent(),
     Value<String?> roomNumber = const Value.absent(),
     Value<String?> floor = const Value.absent(),
     Value<int?> roomTypeId = const Value.absent(),
@@ -2128,6 +2259,7 @@ class LocalRoom extends DataClass implements Insertable<LocalRoom> {
     Value<String?> updatedAt = const Value.absent(),
   }) => LocalRoom(
     id: id ?? this.id,
+    hotelId: hotelId.present ? hotelId.value : this.hotelId,
     roomNumber: roomNumber.present ? roomNumber.value : this.roomNumber,
     floor: floor.present ? floor.value : this.floor,
     roomTypeId: roomTypeId.present ? roomTypeId.value : this.roomTypeId,
@@ -2140,6 +2272,7 @@ class LocalRoom extends DataClass implements Insertable<LocalRoom> {
   LocalRoom copyWithCompanion(RoomsTableCompanion data) {
     return LocalRoom(
       id: data.id.present ? data.id.value : this.id,
+      hotelId: data.hotelId.present ? data.hotelId.value : this.hotelId,
       roomNumber: data.roomNumber.present
           ? data.roomNumber.value
           : this.roomNumber,
@@ -2161,6 +2294,7 @@ class LocalRoom extends DataClass implements Insertable<LocalRoom> {
   String toString() {
     return (StringBuffer('LocalRoom(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('roomNumber: $roomNumber, ')
           ..write('floor: $floor, ')
           ..write('roomTypeId: $roomTypeId, ')
@@ -2176,6 +2310,7 @@ class LocalRoom extends DataClass implements Insertable<LocalRoom> {
   @override
   int get hashCode => Object.hash(
     id,
+    hotelId,
     roomNumber,
     floor,
     roomTypeId,
@@ -2190,6 +2325,7 @@ class LocalRoom extends DataClass implements Insertable<LocalRoom> {
       identical(this, other) ||
       (other is LocalRoom &&
           other.id == this.id &&
+          other.hotelId == this.hotelId &&
           other.roomNumber == this.roomNumber &&
           other.floor == this.floor &&
           other.roomTypeId == this.roomTypeId &&
@@ -2202,6 +2338,7 @@ class LocalRoom extends DataClass implements Insertable<LocalRoom> {
 
 class RoomsTableCompanion extends UpdateCompanion<LocalRoom> {
   final Value<int> id;
+  final Value<int?> hotelId;
   final Value<String?> roomNumber;
   final Value<String?> floor;
   final Value<int?> roomTypeId;
@@ -2212,6 +2349,7 @@ class RoomsTableCompanion extends UpdateCompanion<LocalRoom> {
   final Value<String?> updatedAt;
   const RoomsTableCompanion({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.roomNumber = const Value.absent(),
     this.floor = const Value.absent(),
     this.roomTypeId = const Value.absent(),
@@ -2223,6 +2361,7 @@ class RoomsTableCompanion extends UpdateCompanion<LocalRoom> {
   });
   RoomsTableCompanion.insert({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.roomNumber = const Value.absent(),
     this.floor = const Value.absent(),
     this.roomTypeId = const Value.absent(),
@@ -2234,6 +2373,7 @@ class RoomsTableCompanion extends UpdateCompanion<LocalRoom> {
   });
   static Insertable<LocalRoom> custom({
     Expression<int>? id,
+    Expression<int>? hotelId,
     Expression<String>? roomNumber,
     Expression<String>? floor,
     Expression<int>? roomTypeId,
@@ -2245,6 +2385,7 @@ class RoomsTableCompanion extends UpdateCompanion<LocalRoom> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (hotelId != null) 'hotel_id': hotelId,
       if (roomNumber != null) 'room_number': roomNumber,
       if (floor != null) 'floor': floor,
       if (roomTypeId != null) 'room_type_id': roomTypeId,
@@ -2258,6 +2399,7 @@ class RoomsTableCompanion extends UpdateCompanion<LocalRoom> {
 
   RoomsTableCompanion copyWith({
     Value<int>? id,
+    Value<int?>? hotelId,
     Value<String?>? roomNumber,
     Value<String?>? floor,
     Value<int?>? roomTypeId,
@@ -2269,6 +2411,7 @@ class RoomsTableCompanion extends UpdateCompanion<LocalRoom> {
   }) {
     return RoomsTableCompanion(
       id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
       roomNumber: roomNumber ?? this.roomNumber,
       floor: floor ?? this.floor,
       roomTypeId: roomTypeId ?? this.roomTypeId,
@@ -2285,6 +2428,9 @@ class RoomsTableCompanion extends UpdateCompanion<LocalRoom> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (hotelId.present) {
+      map['hotel_id'] = Variable<int>(hotelId.value);
     }
     if (roomNumber.present) {
       map['room_number'] = Variable<String>(roomNumber.value);
@@ -2317,6 +2463,7 @@ class RoomsTableCompanion extends UpdateCompanion<LocalRoom> {
   String toString() {
     return (StringBuffer('RoomsTableCompanion(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('roomNumber: $roomNumber, ')
           ..write('floor: $floor, ')
           ..write('roomTypeId: $roomTypeId, ')
@@ -2342,6 +2489,17 @@ class $GuestsTableTable extends GuestsTable
     'id',
     aliasedName,
     false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hotelIdMeta = const VerificationMeta(
+    'hotelId',
+  );
+  @override
+  late final GeneratedColumn<int> hotelId = GeneratedColumn<int>(
+    'hotel_id',
+    aliasedName,
+    true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
@@ -2540,6 +2698,7 @@ class $GuestsTableTable extends GuestsTable
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    hotelId,
     name,
     email,
     phone,
@@ -2573,6 +2732,12 @@ class $GuestsTableTable extends GuestsTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('hotel_id')) {
+      context.handle(
+        _hotelIdMeta,
+        hotelId.isAcceptableOrUnknown(data['hotel_id']!, _hotelIdMeta),
+      );
     }
     if (data.containsKey('name')) {
       context.handle(
@@ -2716,6 +2881,10 @@ class $GuestsTableTable extends GuestsTable
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      hotelId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hotel_id'],
+      ),
       name: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name'],
@@ -2799,6 +2968,7 @@ class $GuestsTableTable extends GuestsTable
 
 class LocalGuest extends DataClass implements Insertable<LocalGuest> {
   final int id;
+  final int? hotelId;
   final String? name;
   final String? email;
   final String? phone;
@@ -2819,6 +2989,7 @@ class LocalGuest extends DataClass implements Insertable<LocalGuest> {
   final String? updatedAt;
   const LocalGuest({
     required this.id,
+    this.hotelId,
     this.name,
     this.email,
     this.phone,
@@ -2842,6 +3013,9 @@ class LocalGuest extends DataClass implements Insertable<LocalGuest> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || hotelId != null) {
+      map['hotel_id'] = Variable<int>(hotelId);
+    }
     if (!nullToAbsent || name != null) {
       map['name'] = Variable<String>(name);
     }
@@ -2902,6 +3076,9 @@ class LocalGuest extends DataClass implements Insertable<LocalGuest> {
   GuestsTableCompanion toCompanion(bool nullToAbsent) {
     return GuestsTableCompanion(
       id: Value(id),
+      hotelId: hotelId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hotelId),
       name: name == null && nullToAbsent ? const Value.absent() : Value(name),
       email: email == null && nullToAbsent
           ? const Value.absent()
@@ -2964,6 +3141,7 @@ class LocalGuest extends DataClass implements Insertable<LocalGuest> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LocalGuest(
       id: serializer.fromJson<int>(json['id']),
+      hotelId: serializer.fromJson<int?>(json['hotelId']),
       name: serializer.fromJson<String?>(json['name']),
       email: serializer.fromJson<String?>(json['email']),
       phone: serializer.fromJson<String?>(json['phone']),
@@ -2991,6 +3169,7 @@ class LocalGuest extends DataClass implements Insertable<LocalGuest> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'hotelId': serializer.toJson<int?>(hotelId),
       'name': serializer.toJson<String?>(name),
       'email': serializer.toJson<String?>(email),
       'phone': serializer.toJson<String?>(phone),
@@ -3014,6 +3193,7 @@ class LocalGuest extends DataClass implements Insertable<LocalGuest> {
 
   LocalGuest copyWith({
     int? id,
+    Value<int?> hotelId = const Value.absent(),
     Value<String?> name = const Value.absent(),
     Value<String?> email = const Value.absent(),
     Value<String?> phone = const Value.absent(),
@@ -3034,6 +3214,7 @@ class LocalGuest extends DataClass implements Insertable<LocalGuest> {
     Value<String?> updatedAt = const Value.absent(),
   }) => LocalGuest(
     id: id ?? this.id,
+    hotelId: hotelId.present ? hotelId.value : this.hotelId,
     name: name.present ? name.value : this.name,
     email: email.present ? email.value : this.email,
     phone: phone.present ? phone.value : this.phone,
@@ -3060,6 +3241,7 @@ class LocalGuest extends DataClass implements Insertable<LocalGuest> {
   LocalGuest copyWithCompanion(GuestsTableCompanion data) {
     return LocalGuest(
       id: data.id.present ? data.id.value : this.id,
+      hotelId: data.hotelId.present ? data.hotelId.value : this.hotelId,
       name: data.name.present ? data.name.value : this.name,
       email: data.email.present ? data.email.value : this.email,
       phone: data.phone.present ? data.phone.value : this.phone,
@@ -3103,6 +3285,7 @@ class LocalGuest extends DataClass implements Insertable<LocalGuest> {
   String toString() {
     return (StringBuffer('LocalGuest(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('name: $name, ')
           ..write('email: $email, ')
           ..write('phone: $phone, ')
@@ -3128,6 +3311,7 @@ class LocalGuest extends DataClass implements Insertable<LocalGuest> {
   @override
   int get hashCode => Object.hash(
     id,
+    hotelId,
     name,
     email,
     phone,
@@ -3152,6 +3336,7 @@ class LocalGuest extends DataClass implements Insertable<LocalGuest> {
       identical(this, other) ||
       (other is LocalGuest &&
           other.id == this.id &&
+          other.hotelId == this.hotelId &&
           other.name == this.name &&
           other.email == this.email &&
           other.phone == this.phone &&
@@ -3174,6 +3359,7 @@ class LocalGuest extends DataClass implements Insertable<LocalGuest> {
 
 class GuestsTableCompanion extends UpdateCompanion<LocalGuest> {
   final Value<int> id;
+  final Value<int?> hotelId;
   final Value<String?> name;
   final Value<String?> email;
   final Value<String?> phone;
@@ -3194,6 +3380,7 @@ class GuestsTableCompanion extends UpdateCompanion<LocalGuest> {
   final Value<String?> updatedAt;
   const GuestsTableCompanion({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.name = const Value.absent(),
     this.email = const Value.absent(),
     this.phone = const Value.absent(),
@@ -3215,6 +3402,7 @@ class GuestsTableCompanion extends UpdateCompanion<LocalGuest> {
   });
   GuestsTableCompanion.insert({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.name = const Value.absent(),
     this.email = const Value.absent(),
     this.phone = const Value.absent(),
@@ -3236,6 +3424,7 @@ class GuestsTableCompanion extends UpdateCompanion<LocalGuest> {
   });
   static Insertable<LocalGuest> custom({
     Expression<int>? id,
+    Expression<int>? hotelId,
     Expression<String>? name,
     Expression<String>? email,
     Expression<String>? phone,
@@ -3257,6 +3446,7 @@ class GuestsTableCompanion extends UpdateCompanion<LocalGuest> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (hotelId != null) 'hotel_id': hotelId,
       if (name != null) 'name': name,
       if (email != null) 'email': email,
       if (phone != null) 'phone': phone,
@@ -3280,6 +3470,7 @@ class GuestsTableCompanion extends UpdateCompanion<LocalGuest> {
 
   GuestsTableCompanion copyWith({
     Value<int>? id,
+    Value<int?>? hotelId,
     Value<String?>? name,
     Value<String?>? email,
     Value<String?>? phone,
@@ -3301,6 +3492,7 @@ class GuestsTableCompanion extends UpdateCompanion<LocalGuest> {
   }) {
     return GuestsTableCompanion(
       id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
       name: name ?? this.name,
       email: email ?? this.email,
       phone: phone ?? this.phone,
@@ -3327,6 +3519,9 @@ class GuestsTableCompanion extends UpdateCompanion<LocalGuest> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (hotelId.present) {
+      map['hotel_id'] = Variable<int>(hotelId.value);
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
@@ -3389,6 +3584,7 @@ class GuestsTableCompanion extends UpdateCompanion<LocalGuest> {
   String toString() {
     return (StringBuffer('GuestsTableCompanion(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('name: $name, ')
           ..write('email: $email, ')
           ..write('phone: $phone, ')
@@ -3424,6 +3620,17 @@ class $BookingsTableTable extends BookingsTable
     'id',
     aliasedName,
     false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hotelIdMeta = const VerificationMeta(
+    'hotelId',
+  );
+  @override
+  late final GeneratedColumn<int> hotelId = GeneratedColumn<int>(
+    'hotel_id',
+    aliasedName,
+    true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
@@ -3485,6 +3692,17 @@ class $BookingsTableTable extends BookingsTable
     aliasedName,
     true,
     type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdByUserIdMeta = const VerificationMeta(
+    'createdByUserId',
+  );
+  @override
+  late final GeneratedColumn<int> createdByUserId = GeneratedColumn<int>(
+    'created_by_user_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
   static const VerificationMeta _rateAppliedMeta = const VerificationMeta(
@@ -3549,6 +3767,17 @@ class $BookingsTableTable extends BookingsTable
         type: DriftSqlType.string,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _cancellationReasonMeta =
+      const VerificationMeta('cancellationReason');
+  @override
+  late final GeneratedColumn<String> cancellationReason =
+      GeneratedColumn<String>(
+        'cancellation_reason',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _paymentStatusMeta = const VerificationMeta(
     'paymentStatus',
   );
@@ -3585,18 +3814,21 @@ class $BookingsTableTable extends BookingsTable
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    hotelId,
     guestId,
     roomId,
     checkIn,
     checkOut,
     status,
     source,
+    createdByUserId,
     rateApplied,
     adults,
     children,
     specialRequests,
     notes,
     modificationReason,
+    cancellationReason,
     paymentStatus,
     createdAt,
     updatedAt,
@@ -3615,6 +3847,12 @@ class $BookingsTableTable extends BookingsTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('hotel_id')) {
+      context.handle(
+        _hotelIdMeta,
+        hotelId.isAcceptableOrUnknown(data['hotel_id']!, _hotelIdMeta),
+      );
     }
     if (data.containsKey('guest_id')) {
       context.handle(
@@ -3650,6 +3888,15 @@ class $BookingsTableTable extends BookingsTable
       context.handle(
         _sourceMeta,
         source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    }
+    if (data.containsKey('created_by_user_id')) {
+      context.handle(
+        _createdByUserIdMeta,
+        createdByUserId.isAcceptableOrUnknown(
+          data['created_by_user_id']!,
+          _createdByUserIdMeta,
+        ),
       );
     }
     if (data.containsKey('rate_applied')) {
@@ -3697,6 +3944,15 @@ class $BookingsTableTable extends BookingsTable
         ),
       );
     }
+    if (data.containsKey('cancellation_reason')) {
+      context.handle(
+        _cancellationReasonMeta,
+        cancellationReason.isAcceptableOrUnknown(
+          data['cancellation_reason']!,
+          _cancellationReasonMeta,
+        ),
+      );
+    }
     if (data.containsKey('payment_status')) {
       context.handle(
         _paymentStatusMeta,
@@ -3731,6 +3987,10 @@ class $BookingsTableTable extends BookingsTable
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      hotelId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hotel_id'],
+      ),
       guestId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}guest_id'],
@@ -3754,6 +4014,10 @@ class $BookingsTableTable extends BookingsTable
       source: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}source'],
+      ),
+      createdByUserId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_by_user_id'],
       ),
       rateApplied: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -3779,6 +4043,10 @@ class $BookingsTableTable extends BookingsTable
         DriftSqlType.string,
         data['${effectivePrefix}modification_reason'],
       ),
+      cancellationReason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cancellation_reason'],
+      ),
       paymentStatus: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}payment_status'],
@@ -3802,35 +4070,41 @@ class $BookingsTableTable extends BookingsTable
 
 class LocalBooking extends DataClass implements Insertable<LocalBooking> {
   final int id;
+  final int? hotelId;
   final int? guestId;
   final int? roomId;
   final String? checkIn;
   final String? checkOut;
   final String? status;
   final String? source;
+  final int? createdByUserId;
   final int? rateApplied;
   final int? adults;
   final int? children;
   final String? specialRequests;
   final String? notes;
   final String? modificationReason;
+  final String? cancellationReason;
   final String? paymentStatus;
   final String? createdAt;
   final String? updatedAt;
   const LocalBooking({
     required this.id,
+    this.hotelId,
     this.guestId,
     this.roomId,
     this.checkIn,
     this.checkOut,
     this.status,
     this.source,
+    this.createdByUserId,
     this.rateApplied,
     this.adults,
     this.children,
     this.specialRequests,
     this.notes,
     this.modificationReason,
+    this.cancellationReason,
     this.paymentStatus,
     this.createdAt,
     this.updatedAt,
@@ -3839,6 +4113,9 @@ class LocalBooking extends DataClass implements Insertable<LocalBooking> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || hotelId != null) {
+      map['hotel_id'] = Variable<int>(hotelId);
+    }
     if (!nullToAbsent || guestId != null) {
       map['guest_id'] = Variable<int>(guestId);
     }
@@ -3856,6 +4133,9 @@ class LocalBooking extends DataClass implements Insertable<LocalBooking> {
     }
     if (!nullToAbsent || source != null) {
       map['source'] = Variable<String>(source);
+    }
+    if (!nullToAbsent || createdByUserId != null) {
+      map['created_by_user_id'] = Variable<int>(createdByUserId);
     }
     if (!nullToAbsent || rateApplied != null) {
       map['rate_applied'] = Variable<int>(rateApplied);
@@ -3875,6 +4155,9 @@ class LocalBooking extends DataClass implements Insertable<LocalBooking> {
     if (!nullToAbsent || modificationReason != null) {
       map['modification_reason'] = Variable<String>(modificationReason);
     }
+    if (!nullToAbsent || cancellationReason != null) {
+      map['cancellation_reason'] = Variable<String>(cancellationReason);
+    }
     if (!nullToAbsent || paymentStatus != null) {
       map['payment_status'] = Variable<String>(paymentStatus);
     }
@@ -3890,6 +4173,9 @@ class LocalBooking extends DataClass implements Insertable<LocalBooking> {
   BookingsTableCompanion toCompanion(bool nullToAbsent) {
     return BookingsTableCompanion(
       id: Value(id),
+      hotelId: hotelId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hotelId),
       guestId: guestId == null && nullToAbsent
           ? const Value.absent()
           : Value(guestId),
@@ -3908,6 +4194,9 @@ class LocalBooking extends DataClass implements Insertable<LocalBooking> {
       source: source == null && nullToAbsent
           ? const Value.absent()
           : Value(source),
+      createdByUserId: createdByUserId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(createdByUserId),
       rateApplied: rateApplied == null && nullToAbsent
           ? const Value.absent()
           : Value(rateApplied),
@@ -3926,6 +4215,9 @@ class LocalBooking extends DataClass implements Insertable<LocalBooking> {
       modificationReason: modificationReason == null && nullToAbsent
           ? const Value.absent()
           : Value(modificationReason),
+      cancellationReason: cancellationReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cancellationReason),
       paymentStatus: paymentStatus == null && nullToAbsent
           ? const Value.absent()
           : Value(paymentStatus),
@@ -3945,12 +4237,14 @@ class LocalBooking extends DataClass implements Insertable<LocalBooking> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LocalBooking(
       id: serializer.fromJson<int>(json['id']),
+      hotelId: serializer.fromJson<int?>(json['hotelId']),
       guestId: serializer.fromJson<int?>(json['guestId']),
       roomId: serializer.fromJson<int?>(json['roomId']),
       checkIn: serializer.fromJson<String?>(json['checkIn']),
       checkOut: serializer.fromJson<String?>(json['checkOut']),
       status: serializer.fromJson<String?>(json['status']),
       source: serializer.fromJson<String?>(json['source']),
+      createdByUserId: serializer.fromJson<int?>(json['createdByUserId']),
       rateApplied: serializer.fromJson<int?>(json['rateApplied']),
       adults: serializer.fromJson<int?>(json['adults']),
       children: serializer.fromJson<int?>(json['children']),
@@ -3958,6 +4252,9 @@ class LocalBooking extends DataClass implements Insertable<LocalBooking> {
       notes: serializer.fromJson<String?>(json['notes']),
       modificationReason: serializer.fromJson<String?>(
         json['modificationReason'],
+      ),
+      cancellationReason: serializer.fromJson<String?>(
+        json['cancellationReason'],
       ),
       paymentStatus: serializer.fromJson<String?>(json['paymentStatus']),
       createdAt: serializer.fromJson<String?>(json['createdAt']),
@@ -3969,18 +4266,21 @@ class LocalBooking extends DataClass implements Insertable<LocalBooking> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'hotelId': serializer.toJson<int?>(hotelId),
       'guestId': serializer.toJson<int?>(guestId),
       'roomId': serializer.toJson<int?>(roomId),
       'checkIn': serializer.toJson<String?>(checkIn),
       'checkOut': serializer.toJson<String?>(checkOut),
       'status': serializer.toJson<String?>(status),
       'source': serializer.toJson<String?>(source),
+      'createdByUserId': serializer.toJson<int?>(createdByUserId),
       'rateApplied': serializer.toJson<int?>(rateApplied),
       'adults': serializer.toJson<int?>(adults),
       'children': serializer.toJson<int?>(children),
       'specialRequests': serializer.toJson<String?>(specialRequests),
       'notes': serializer.toJson<String?>(notes),
       'modificationReason': serializer.toJson<String?>(modificationReason),
+      'cancellationReason': serializer.toJson<String?>(cancellationReason),
       'paymentStatus': serializer.toJson<String?>(paymentStatus),
       'createdAt': serializer.toJson<String?>(createdAt),
       'updatedAt': serializer.toJson<String?>(updatedAt),
@@ -3989,29 +4289,36 @@ class LocalBooking extends DataClass implements Insertable<LocalBooking> {
 
   LocalBooking copyWith({
     int? id,
+    Value<int?> hotelId = const Value.absent(),
     Value<int?> guestId = const Value.absent(),
     Value<int?> roomId = const Value.absent(),
     Value<String?> checkIn = const Value.absent(),
     Value<String?> checkOut = const Value.absent(),
     Value<String?> status = const Value.absent(),
     Value<String?> source = const Value.absent(),
+    Value<int?> createdByUserId = const Value.absent(),
     Value<int?> rateApplied = const Value.absent(),
     Value<int?> adults = const Value.absent(),
     Value<int?> children = const Value.absent(),
     Value<String?> specialRequests = const Value.absent(),
     Value<String?> notes = const Value.absent(),
     Value<String?> modificationReason = const Value.absent(),
+    Value<String?> cancellationReason = const Value.absent(),
     Value<String?> paymentStatus = const Value.absent(),
     Value<String?> createdAt = const Value.absent(),
     Value<String?> updatedAt = const Value.absent(),
   }) => LocalBooking(
     id: id ?? this.id,
+    hotelId: hotelId.present ? hotelId.value : this.hotelId,
     guestId: guestId.present ? guestId.value : this.guestId,
     roomId: roomId.present ? roomId.value : this.roomId,
     checkIn: checkIn.present ? checkIn.value : this.checkIn,
     checkOut: checkOut.present ? checkOut.value : this.checkOut,
     status: status.present ? status.value : this.status,
     source: source.present ? source.value : this.source,
+    createdByUserId: createdByUserId.present
+        ? createdByUserId.value
+        : this.createdByUserId,
     rateApplied: rateApplied.present ? rateApplied.value : this.rateApplied,
     adults: adults.present ? adults.value : this.adults,
     children: children.present ? children.value : this.children,
@@ -4022,6 +4329,9 @@ class LocalBooking extends DataClass implements Insertable<LocalBooking> {
     modificationReason: modificationReason.present
         ? modificationReason.value
         : this.modificationReason,
+    cancellationReason: cancellationReason.present
+        ? cancellationReason.value
+        : this.cancellationReason,
     paymentStatus: paymentStatus.present
         ? paymentStatus.value
         : this.paymentStatus,
@@ -4031,12 +4341,16 @@ class LocalBooking extends DataClass implements Insertable<LocalBooking> {
   LocalBooking copyWithCompanion(BookingsTableCompanion data) {
     return LocalBooking(
       id: data.id.present ? data.id.value : this.id,
+      hotelId: data.hotelId.present ? data.hotelId.value : this.hotelId,
       guestId: data.guestId.present ? data.guestId.value : this.guestId,
       roomId: data.roomId.present ? data.roomId.value : this.roomId,
       checkIn: data.checkIn.present ? data.checkIn.value : this.checkIn,
       checkOut: data.checkOut.present ? data.checkOut.value : this.checkOut,
       status: data.status.present ? data.status.value : this.status,
       source: data.source.present ? data.source.value : this.source,
+      createdByUserId: data.createdByUserId.present
+          ? data.createdByUserId.value
+          : this.createdByUserId,
       rateApplied: data.rateApplied.present
           ? data.rateApplied.value
           : this.rateApplied,
@@ -4049,6 +4363,9 @@ class LocalBooking extends DataClass implements Insertable<LocalBooking> {
       modificationReason: data.modificationReason.present
           ? data.modificationReason.value
           : this.modificationReason,
+      cancellationReason: data.cancellationReason.present
+          ? data.cancellationReason.value
+          : this.cancellationReason,
       paymentStatus: data.paymentStatus.present
           ? data.paymentStatus.value
           : this.paymentStatus,
@@ -4061,18 +4378,21 @@ class LocalBooking extends DataClass implements Insertable<LocalBooking> {
   String toString() {
     return (StringBuffer('LocalBooking(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('guestId: $guestId, ')
           ..write('roomId: $roomId, ')
           ..write('checkIn: $checkIn, ')
           ..write('checkOut: $checkOut, ')
           ..write('status: $status, ')
           ..write('source: $source, ')
+          ..write('createdByUserId: $createdByUserId, ')
           ..write('rateApplied: $rateApplied, ')
           ..write('adults: $adults, ')
           ..write('children: $children, ')
           ..write('specialRequests: $specialRequests, ')
           ..write('notes: $notes, ')
           ..write('modificationReason: $modificationReason, ')
+          ..write('cancellationReason: $cancellationReason, ')
           ..write('paymentStatus: $paymentStatus, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -4083,18 +4403,21 @@ class LocalBooking extends DataClass implements Insertable<LocalBooking> {
   @override
   int get hashCode => Object.hash(
     id,
+    hotelId,
     guestId,
     roomId,
     checkIn,
     checkOut,
     status,
     source,
+    createdByUserId,
     rateApplied,
     adults,
     children,
     specialRequests,
     notes,
     modificationReason,
+    cancellationReason,
     paymentStatus,
     createdAt,
     updatedAt,
@@ -4104,18 +4427,21 @@ class LocalBooking extends DataClass implements Insertable<LocalBooking> {
       identical(this, other) ||
       (other is LocalBooking &&
           other.id == this.id &&
+          other.hotelId == this.hotelId &&
           other.guestId == this.guestId &&
           other.roomId == this.roomId &&
           other.checkIn == this.checkIn &&
           other.checkOut == this.checkOut &&
           other.status == this.status &&
           other.source == this.source &&
+          other.createdByUserId == this.createdByUserId &&
           other.rateApplied == this.rateApplied &&
           other.adults == this.adults &&
           other.children == this.children &&
           other.specialRequests == this.specialRequests &&
           other.notes == this.notes &&
           other.modificationReason == this.modificationReason &&
+          other.cancellationReason == this.cancellationReason &&
           other.paymentStatus == this.paymentStatus &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
@@ -4123,89 +4449,104 @@ class LocalBooking extends DataClass implements Insertable<LocalBooking> {
 
 class BookingsTableCompanion extends UpdateCompanion<LocalBooking> {
   final Value<int> id;
+  final Value<int?> hotelId;
   final Value<int?> guestId;
   final Value<int?> roomId;
   final Value<String?> checkIn;
   final Value<String?> checkOut;
   final Value<String?> status;
   final Value<String?> source;
+  final Value<int?> createdByUserId;
   final Value<int?> rateApplied;
   final Value<int?> adults;
   final Value<int?> children;
   final Value<String?> specialRequests;
   final Value<String?> notes;
   final Value<String?> modificationReason;
+  final Value<String?> cancellationReason;
   final Value<String?> paymentStatus;
   final Value<String?> createdAt;
   final Value<String?> updatedAt;
   const BookingsTableCompanion({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.guestId = const Value.absent(),
     this.roomId = const Value.absent(),
     this.checkIn = const Value.absent(),
     this.checkOut = const Value.absent(),
     this.status = const Value.absent(),
     this.source = const Value.absent(),
+    this.createdByUserId = const Value.absent(),
     this.rateApplied = const Value.absent(),
     this.adults = const Value.absent(),
     this.children = const Value.absent(),
     this.specialRequests = const Value.absent(),
     this.notes = const Value.absent(),
     this.modificationReason = const Value.absent(),
+    this.cancellationReason = const Value.absent(),
     this.paymentStatus = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
   BookingsTableCompanion.insert({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.guestId = const Value.absent(),
     this.roomId = const Value.absent(),
     this.checkIn = const Value.absent(),
     this.checkOut = const Value.absent(),
     this.status = const Value.absent(),
     this.source = const Value.absent(),
+    this.createdByUserId = const Value.absent(),
     this.rateApplied = const Value.absent(),
     this.adults = const Value.absent(),
     this.children = const Value.absent(),
     this.specialRequests = const Value.absent(),
     this.notes = const Value.absent(),
     this.modificationReason = const Value.absent(),
+    this.cancellationReason = const Value.absent(),
     this.paymentStatus = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
   static Insertable<LocalBooking> custom({
     Expression<int>? id,
+    Expression<int>? hotelId,
     Expression<int>? guestId,
     Expression<int>? roomId,
     Expression<String>? checkIn,
     Expression<String>? checkOut,
     Expression<String>? status,
     Expression<String>? source,
+    Expression<int>? createdByUserId,
     Expression<int>? rateApplied,
     Expression<int>? adults,
     Expression<int>? children,
     Expression<String>? specialRequests,
     Expression<String>? notes,
     Expression<String>? modificationReason,
+    Expression<String>? cancellationReason,
     Expression<String>? paymentStatus,
     Expression<String>? createdAt,
     Expression<String>? updatedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (hotelId != null) 'hotel_id': hotelId,
       if (guestId != null) 'guest_id': guestId,
       if (roomId != null) 'room_id': roomId,
       if (checkIn != null) 'check_in': checkIn,
       if (checkOut != null) 'check_out': checkOut,
       if (status != null) 'status': status,
       if (source != null) 'source': source,
+      if (createdByUserId != null) 'created_by_user_id': createdByUserId,
       if (rateApplied != null) 'rate_applied': rateApplied,
       if (adults != null) 'adults': adults,
       if (children != null) 'children': children,
       if (specialRequests != null) 'special_requests': specialRequests,
       if (notes != null) 'notes': notes,
       if (modificationReason != null) 'modification_reason': modificationReason,
+      if (cancellationReason != null) 'cancellation_reason': cancellationReason,
       if (paymentStatus != null) 'payment_status': paymentStatus,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -4214,36 +4555,42 @@ class BookingsTableCompanion extends UpdateCompanion<LocalBooking> {
 
   BookingsTableCompanion copyWith({
     Value<int>? id,
+    Value<int?>? hotelId,
     Value<int?>? guestId,
     Value<int?>? roomId,
     Value<String?>? checkIn,
     Value<String?>? checkOut,
     Value<String?>? status,
     Value<String?>? source,
+    Value<int?>? createdByUserId,
     Value<int?>? rateApplied,
     Value<int?>? adults,
     Value<int?>? children,
     Value<String?>? specialRequests,
     Value<String?>? notes,
     Value<String?>? modificationReason,
+    Value<String?>? cancellationReason,
     Value<String?>? paymentStatus,
     Value<String?>? createdAt,
     Value<String?>? updatedAt,
   }) {
     return BookingsTableCompanion(
       id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
       guestId: guestId ?? this.guestId,
       roomId: roomId ?? this.roomId,
       checkIn: checkIn ?? this.checkIn,
       checkOut: checkOut ?? this.checkOut,
       status: status ?? this.status,
       source: source ?? this.source,
+      createdByUserId: createdByUserId ?? this.createdByUserId,
       rateApplied: rateApplied ?? this.rateApplied,
       adults: adults ?? this.adults,
       children: children ?? this.children,
       specialRequests: specialRequests ?? this.specialRequests,
       notes: notes ?? this.notes,
       modificationReason: modificationReason ?? this.modificationReason,
+      cancellationReason: cancellationReason ?? this.cancellationReason,
       paymentStatus: paymentStatus ?? this.paymentStatus,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -4255,6 +4602,9 @@ class BookingsTableCompanion extends UpdateCompanion<LocalBooking> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (hotelId.present) {
+      map['hotel_id'] = Variable<int>(hotelId.value);
     }
     if (guestId.present) {
       map['guest_id'] = Variable<int>(guestId.value);
@@ -4274,6 +4624,9 @@ class BookingsTableCompanion extends UpdateCompanion<LocalBooking> {
     if (source.present) {
       map['source'] = Variable<String>(source.value);
     }
+    if (createdByUserId.present) {
+      map['created_by_user_id'] = Variable<int>(createdByUserId.value);
+    }
     if (rateApplied.present) {
       map['rate_applied'] = Variable<int>(rateApplied.value);
     }
@@ -4292,6 +4645,9 @@ class BookingsTableCompanion extends UpdateCompanion<LocalBooking> {
     if (modificationReason.present) {
       map['modification_reason'] = Variable<String>(modificationReason.value);
     }
+    if (cancellationReason.present) {
+      map['cancellation_reason'] = Variable<String>(cancellationReason.value);
+    }
     if (paymentStatus.present) {
       map['payment_status'] = Variable<String>(paymentStatus.value);
     }
@@ -4308,18 +4664,21 @@ class BookingsTableCompanion extends UpdateCompanion<LocalBooking> {
   String toString() {
     return (StringBuffer('BookingsTableCompanion(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('guestId: $guestId, ')
           ..write('roomId: $roomId, ')
           ..write('checkIn: $checkIn, ')
           ..write('checkOut: $checkOut, ')
           ..write('status: $status, ')
           ..write('source: $source, ')
+          ..write('createdByUserId: $createdByUserId, ')
           ..write('rateApplied: $rateApplied, ')
           ..write('adults: $adults, ')
           ..write('children: $children, ')
           ..write('specialRequests: $specialRequests, ')
           ..write('notes: $notes, ')
           ..write('modificationReason: $modificationReason, ')
+          ..write('cancellationReason: $cancellationReason, ')
           ..write('paymentStatus: $paymentStatus, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -4340,6 +4699,17 @@ class $OtaReservationsTableTable extends OtaReservationsTable
     'id',
     aliasedName,
     false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hotelIdMeta = const VerificationMeta(
+    'hotelId',
+  );
+  @override
+  late final GeneratedColumn<int> hotelId = GeneratedColumn<int>(
+    'hotel_id',
+    aliasedName,
+    true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
@@ -4399,6 +4769,7 @@ class $OtaReservationsTableTable extends OtaReservationsTable
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    hotelId,
     bookingId,
     otaId,
     otaName,
@@ -4419,6 +4790,12 @@ class $OtaReservationsTableTable extends OtaReservationsTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('hotel_id')) {
+      context.handle(
+        _hotelIdMeta,
+        hotelId.isAcceptableOrUnknown(data['hotel_id']!, _hotelIdMeta),
+      );
     }
     if (data.containsKey('booking_id')) {
       context.handle(
@@ -4463,6 +4840,10 @@ class $OtaReservationsTableTable extends OtaReservationsTable
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      hotelId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hotel_id'],
+      ),
       bookingId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}booking_id'],
@@ -4495,6 +4876,7 @@ class $OtaReservationsTableTable extends OtaReservationsTable
 class LocalOtaReservation extends DataClass
     implements Insertable<LocalOtaReservation> {
   final int id;
+  final int? hotelId;
   final int? bookingId;
   final String? otaId;
   final String? otaName;
@@ -4502,6 +4884,7 @@ class LocalOtaReservation extends DataClass
   final String? updatedAt;
   const LocalOtaReservation({
     required this.id,
+    this.hotelId,
     this.bookingId,
     this.otaId,
     this.otaName,
@@ -4512,6 +4895,9 @@ class LocalOtaReservation extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || hotelId != null) {
+      map['hotel_id'] = Variable<int>(hotelId);
+    }
     if (!nullToAbsent || bookingId != null) {
       map['booking_id'] = Variable<int>(bookingId);
     }
@@ -4533,6 +4919,9 @@ class LocalOtaReservation extends DataClass
   OtaReservationsTableCompanion toCompanion(bool nullToAbsent) {
     return OtaReservationsTableCompanion(
       id: Value(id),
+      hotelId: hotelId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hotelId),
       bookingId: bookingId == null && nullToAbsent
           ? const Value.absent()
           : Value(bookingId),
@@ -4558,6 +4947,7 @@ class LocalOtaReservation extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LocalOtaReservation(
       id: serializer.fromJson<int>(json['id']),
+      hotelId: serializer.fromJson<int?>(json['hotelId']),
       bookingId: serializer.fromJson<int?>(json['bookingId']),
       otaId: serializer.fromJson<String?>(json['otaId']),
       otaName: serializer.fromJson<String?>(json['otaName']),
@@ -4570,6 +4960,7 @@ class LocalOtaReservation extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'hotelId': serializer.toJson<int?>(hotelId),
       'bookingId': serializer.toJson<int?>(bookingId),
       'otaId': serializer.toJson<String?>(otaId),
       'otaName': serializer.toJson<String?>(otaName),
@@ -4580,6 +4971,7 @@ class LocalOtaReservation extends DataClass
 
   LocalOtaReservation copyWith({
     int? id,
+    Value<int?> hotelId = const Value.absent(),
     Value<int?> bookingId = const Value.absent(),
     Value<String?> otaId = const Value.absent(),
     Value<String?> otaName = const Value.absent(),
@@ -4587,6 +4979,7 @@ class LocalOtaReservation extends DataClass
     Value<String?> updatedAt = const Value.absent(),
   }) => LocalOtaReservation(
     id: id ?? this.id,
+    hotelId: hotelId.present ? hotelId.value : this.hotelId,
     bookingId: bookingId.present ? bookingId.value : this.bookingId,
     otaId: otaId.present ? otaId.value : this.otaId,
     otaName: otaName.present ? otaName.value : this.otaName,
@@ -4596,6 +4989,7 @@ class LocalOtaReservation extends DataClass
   LocalOtaReservation copyWithCompanion(OtaReservationsTableCompanion data) {
     return LocalOtaReservation(
       id: data.id.present ? data.id.value : this.id,
+      hotelId: data.hotelId.present ? data.hotelId.value : this.hotelId,
       bookingId: data.bookingId.present ? data.bookingId.value : this.bookingId,
       otaId: data.otaId.present ? data.otaId.value : this.otaId,
       otaName: data.otaName.present ? data.otaName.value : this.otaName,
@@ -4608,6 +5002,7 @@ class LocalOtaReservation extends DataClass
   String toString() {
     return (StringBuffer('LocalOtaReservation(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('bookingId: $bookingId, ')
           ..write('otaId: $otaId, ')
           ..write('otaName: $otaName, ')
@@ -4619,12 +5014,13 @@ class LocalOtaReservation extends DataClass
 
   @override
   int get hashCode =>
-      Object.hash(id, bookingId, otaId, otaName, createdAt, updatedAt);
+      Object.hash(id, hotelId, bookingId, otaId, otaName, createdAt, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is LocalOtaReservation &&
           other.id == this.id &&
+          other.hotelId == this.hotelId &&
           other.bookingId == this.bookingId &&
           other.otaId == this.otaId &&
           other.otaName == this.otaName &&
@@ -4635,6 +5031,7 @@ class LocalOtaReservation extends DataClass
 class OtaReservationsTableCompanion
     extends UpdateCompanion<LocalOtaReservation> {
   final Value<int> id;
+  final Value<int?> hotelId;
   final Value<int?> bookingId;
   final Value<String?> otaId;
   final Value<String?> otaName;
@@ -4642,6 +5039,7 @@ class OtaReservationsTableCompanion
   final Value<String?> updatedAt;
   const OtaReservationsTableCompanion({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.bookingId = const Value.absent(),
     this.otaId = const Value.absent(),
     this.otaName = const Value.absent(),
@@ -4650,6 +5048,7 @@ class OtaReservationsTableCompanion
   });
   OtaReservationsTableCompanion.insert({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.bookingId = const Value.absent(),
     this.otaId = const Value.absent(),
     this.otaName = const Value.absent(),
@@ -4658,6 +5057,7 @@ class OtaReservationsTableCompanion
   });
   static Insertable<LocalOtaReservation> custom({
     Expression<int>? id,
+    Expression<int>? hotelId,
     Expression<int>? bookingId,
     Expression<String>? otaId,
     Expression<String>? otaName,
@@ -4666,6 +5066,7 @@ class OtaReservationsTableCompanion
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (hotelId != null) 'hotel_id': hotelId,
       if (bookingId != null) 'booking_id': bookingId,
       if (otaId != null) 'ota_id': otaId,
       if (otaName != null) 'ota_name': otaName,
@@ -4676,6 +5077,7 @@ class OtaReservationsTableCompanion
 
   OtaReservationsTableCompanion copyWith({
     Value<int>? id,
+    Value<int?>? hotelId,
     Value<int?>? bookingId,
     Value<String?>? otaId,
     Value<String?>? otaName,
@@ -4684,6 +5086,7 @@ class OtaReservationsTableCompanion
   }) {
     return OtaReservationsTableCompanion(
       id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
       bookingId: bookingId ?? this.bookingId,
       otaId: otaId ?? this.otaId,
       otaName: otaName ?? this.otaName,
@@ -4697,6 +5100,9 @@ class OtaReservationsTableCompanion
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (hotelId.present) {
+      map['hotel_id'] = Variable<int>(hotelId.value);
     }
     if (bookingId.present) {
       map['booking_id'] = Variable<int>(bookingId.value);
@@ -4720,6 +5126,7 @@ class OtaReservationsTableCompanion
   String toString() {
     return (StringBuffer('OtaReservationsTableCompanion(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('bookingId: $bookingId, ')
           ..write('otaId: $otaId, ')
           ..write('otaName: $otaName, ')
@@ -4742,6 +5149,17 @@ class $InvoicesTableTable extends InvoicesTable
     'id',
     aliasedName,
     false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hotelIdMeta = const VerificationMeta(
+    'hotelId',
+  );
+  @override
+  late final GeneratedColumn<int> hotelId = GeneratedColumn<int>(
+    'hotel_id',
+    aliasedName,
+    true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
@@ -4859,6 +5277,7 @@ class $InvoicesTableTable extends InvoicesTable
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    hotelId,
     bookingId,
     amount,
     tax,
@@ -4885,6 +5304,12 @@ class $InvoicesTableTable extends InvoicesTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('hotel_id')) {
+      context.handle(
+        _hotelIdMeta,
+        hotelId.isAcceptableOrUnknown(data['hotel_id']!, _hotelIdMeta),
+      );
     }
     if (data.containsKey('booking_id')) {
       context.handle(
@@ -4968,6 +5393,10 @@ class $InvoicesTableTable extends InvoicesTable
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      hotelId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hotel_id'],
+      ),
       bookingId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}booking_id'],
@@ -5023,6 +5452,7 @@ class $InvoicesTableTable extends InvoicesTable
 
 class LocalInvoice extends DataClass implements Insertable<LocalInvoice> {
   final int id;
+  final int? hotelId;
   final int? bookingId;
   final int? amount;
   final int? tax;
@@ -5036,6 +5466,7 @@ class LocalInvoice extends DataClass implements Insertable<LocalInvoice> {
   final String? updatedAt;
   const LocalInvoice({
     required this.id,
+    this.hotelId,
     this.bookingId,
     this.amount,
     this.tax,
@@ -5052,6 +5483,9 @@ class LocalInvoice extends DataClass implements Insertable<LocalInvoice> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || hotelId != null) {
+      map['hotel_id'] = Variable<int>(hotelId);
+    }
     if (!nullToAbsent || bookingId != null) {
       map['booking_id'] = Variable<int>(bookingId);
     }
@@ -5091,6 +5525,9 @@ class LocalInvoice extends DataClass implements Insertable<LocalInvoice> {
   InvoicesTableCompanion toCompanion(bool nullToAbsent) {
     return InvoicesTableCompanion(
       id: Value(id),
+      hotelId: hotelId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hotelId),
       bookingId: bookingId == null && nullToAbsent
           ? const Value.absent()
           : Value(bookingId),
@@ -5132,6 +5569,7 @@ class LocalInvoice extends DataClass implements Insertable<LocalInvoice> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LocalInvoice(
       id: serializer.fromJson<int>(json['id']),
+      hotelId: serializer.fromJson<int?>(json['hotelId']),
       bookingId: serializer.fromJson<int?>(json['bookingId']),
       amount: serializer.fromJson<int?>(json['amount']),
       tax: serializer.fromJson<int?>(json['tax']),
@@ -5150,6 +5588,7 @@ class LocalInvoice extends DataClass implements Insertable<LocalInvoice> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'hotelId': serializer.toJson<int?>(hotelId),
       'bookingId': serializer.toJson<int?>(bookingId),
       'amount': serializer.toJson<int?>(amount),
       'tax': serializer.toJson<int?>(tax),
@@ -5166,6 +5605,7 @@ class LocalInvoice extends DataClass implements Insertable<LocalInvoice> {
 
   LocalInvoice copyWith({
     int? id,
+    Value<int?> hotelId = const Value.absent(),
     Value<int?> bookingId = const Value.absent(),
     Value<int?> amount = const Value.absent(),
     Value<int?> tax = const Value.absent(),
@@ -5179,6 +5619,7 @@ class LocalInvoice extends DataClass implements Insertable<LocalInvoice> {
     Value<String?> updatedAt = const Value.absent(),
   }) => LocalInvoice(
     id: id ?? this.id,
+    hotelId: hotelId.present ? hotelId.value : this.hotelId,
     bookingId: bookingId.present ? bookingId.value : this.bookingId,
     amount: amount.present ? amount.value : this.amount,
     tax: tax.present ? tax.value : this.tax,
@@ -5196,6 +5637,7 @@ class LocalInvoice extends DataClass implements Insertable<LocalInvoice> {
   LocalInvoice copyWithCompanion(InvoicesTableCompanion data) {
     return LocalInvoice(
       id: data.id.present ? data.id.value : this.id,
+      hotelId: data.hotelId.present ? data.hotelId.value : this.hotelId,
       bookingId: data.bookingId.present ? data.bookingId.value : this.bookingId,
       amount: data.amount.present ? data.amount.value : this.amount,
       tax: data.tax.present ? data.tax.value : this.tax,
@@ -5216,6 +5658,7 @@ class LocalInvoice extends DataClass implements Insertable<LocalInvoice> {
   String toString() {
     return (StringBuffer('LocalInvoice(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('bookingId: $bookingId, ')
           ..write('amount: $amount, ')
           ..write('tax: $tax, ')
@@ -5234,6 +5677,7 @@ class LocalInvoice extends DataClass implements Insertable<LocalInvoice> {
   @override
   int get hashCode => Object.hash(
     id,
+    hotelId,
     bookingId,
     amount,
     tax,
@@ -5251,6 +5695,7 @@ class LocalInvoice extends DataClass implements Insertable<LocalInvoice> {
       identical(this, other) ||
       (other is LocalInvoice &&
           other.id == this.id &&
+          other.hotelId == this.hotelId &&
           other.bookingId == this.bookingId &&
           other.amount == this.amount &&
           other.tax == this.tax &&
@@ -5266,6 +5711,7 @@ class LocalInvoice extends DataClass implements Insertable<LocalInvoice> {
 
 class InvoicesTableCompanion extends UpdateCompanion<LocalInvoice> {
   final Value<int> id;
+  final Value<int?> hotelId;
   final Value<int?> bookingId;
   final Value<int?> amount;
   final Value<int?> tax;
@@ -5279,6 +5725,7 @@ class InvoicesTableCompanion extends UpdateCompanion<LocalInvoice> {
   final Value<String?> updatedAt;
   const InvoicesTableCompanion({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.bookingId = const Value.absent(),
     this.amount = const Value.absent(),
     this.tax = const Value.absent(),
@@ -5293,6 +5740,7 @@ class InvoicesTableCompanion extends UpdateCompanion<LocalInvoice> {
   });
   InvoicesTableCompanion.insert({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.bookingId = const Value.absent(),
     this.amount = const Value.absent(),
     this.tax = const Value.absent(),
@@ -5307,6 +5755,7 @@ class InvoicesTableCompanion extends UpdateCompanion<LocalInvoice> {
   });
   static Insertable<LocalInvoice> custom({
     Expression<int>? id,
+    Expression<int>? hotelId,
     Expression<int>? bookingId,
     Expression<int>? amount,
     Expression<int>? tax,
@@ -5321,6 +5770,7 @@ class InvoicesTableCompanion extends UpdateCompanion<LocalInvoice> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (hotelId != null) 'hotel_id': hotelId,
       if (bookingId != null) 'booking_id': bookingId,
       if (amount != null) 'amount': amount,
       if (tax != null) 'tax': tax,
@@ -5337,6 +5787,7 @@ class InvoicesTableCompanion extends UpdateCompanion<LocalInvoice> {
 
   InvoicesTableCompanion copyWith({
     Value<int>? id,
+    Value<int?>? hotelId,
     Value<int?>? bookingId,
     Value<int?>? amount,
     Value<int?>? tax,
@@ -5351,6 +5802,7 @@ class InvoicesTableCompanion extends UpdateCompanion<LocalInvoice> {
   }) {
     return InvoicesTableCompanion(
       id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
       bookingId: bookingId ?? this.bookingId,
       amount: amount ?? this.amount,
       tax: tax ?? this.tax,
@@ -5370,6 +5822,9 @@ class InvoicesTableCompanion extends UpdateCompanion<LocalInvoice> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (hotelId.present) {
+      map['hotel_id'] = Variable<int>(hotelId.value);
     }
     if (bookingId.present) {
       map['booking_id'] = Variable<int>(bookingId.value);
@@ -5411,6 +5866,7 @@ class InvoicesTableCompanion extends UpdateCompanion<LocalInvoice> {
   String toString() {
     return (StringBuffer('InvoicesTableCompanion(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('bookingId: $bookingId, ')
           ..write('amount: $amount, ')
           ..write('tax: $tax, ')
@@ -5439,6 +5895,17 @@ class $PaymentsTableTable extends PaymentsTable
     'id',
     aliasedName,
     false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hotelIdMeta = const VerificationMeta(
+    'hotelId',
+  );
+  @override
+  late final GeneratedColumn<int> hotelId = GeneratedColumn<int>(
+    'hotel_id',
+    aliasedName,
+    true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
@@ -5513,9 +5980,21 @@ class $PaymentsTableTable extends PaymentsTable
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<String> updatedAt = GeneratedColumn<String>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    hotelId,
     invoiceId,
     amount,
     status,
@@ -5523,6 +6002,7 @@ class $PaymentsTableTable extends PaymentsTable
     transactionId,
     processedAt,
     createdAt,
+    updatedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -5538,6 +6018,12 @@ class $PaymentsTableTable extends PaymentsTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('hotel_id')) {
+      context.handle(
+        _hotelIdMeta,
+        hotelId.isAcceptableOrUnknown(data['hotel_id']!, _hotelIdMeta),
+      );
     }
     if (data.containsKey('invoice_id')) {
       context.handle(
@@ -5587,6 +6073,12 @@ class $PaymentsTableTable extends PaymentsTable
         createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
       );
     }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
     return context;
   }
 
@@ -5600,6 +6092,10 @@ class $PaymentsTableTable extends PaymentsTable
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      hotelId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hotel_id'],
+      ),
       invoiceId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}invoice_id'],
@@ -5628,6 +6124,10 @@ class $PaymentsTableTable extends PaymentsTable
         DriftSqlType.string,
         data['${effectivePrefix}created_at'],
       ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}updated_at'],
+      ),
     );
   }
 
@@ -5639,6 +6139,7 @@ class $PaymentsTableTable extends PaymentsTable
 
 class LocalPayment extends DataClass implements Insertable<LocalPayment> {
   final int id;
+  final int? hotelId;
   final int? invoiceId;
   final int? amount;
   final String? status;
@@ -5646,8 +6147,10 @@ class LocalPayment extends DataClass implements Insertable<LocalPayment> {
   final String? transactionId;
   final String? processedAt;
   final String? createdAt;
+  final String? updatedAt;
   const LocalPayment({
     required this.id,
+    this.hotelId,
     this.invoiceId,
     this.amount,
     this.status,
@@ -5655,11 +6158,15 @@ class LocalPayment extends DataClass implements Insertable<LocalPayment> {
     this.transactionId,
     this.processedAt,
     this.createdAt,
+    this.updatedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || hotelId != null) {
+      map['hotel_id'] = Variable<int>(hotelId);
+    }
     if (!nullToAbsent || invoiceId != null) {
       map['invoice_id'] = Variable<int>(invoiceId);
     }
@@ -5681,12 +6188,18 @@ class LocalPayment extends DataClass implements Insertable<LocalPayment> {
     if (!nullToAbsent || createdAt != null) {
       map['created_at'] = Variable<String>(createdAt);
     }
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<String>(updatedAt);
+    }
     return map;
   }
 
   PaymentsTableCompanion toCompanion(bool nullToAbsent) {
     return PaymentsTableCompanion(
       id: Value(id),
+      hotelId: hotelId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hotelId),
       invoiceId: invoiceId == null && nullToAbsent
           ? const Value.absent()
           : Value(invoiceId),
@@ -5708,6 +6221,9 @@ class LocalPayment extends DataClass implements Insertable<LocalPayment> {
       createdAt: createdAt == null && nullToAbsent
           ? const Value.absent()
           : Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
     );
   }
 
@@ -5718,6 +6234,7 @@ class LocalPayment extends DataClass implements Insertable<LocalPayment> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LocalPayment(
       id: serializer.fromJson<int>(json['id']),
+      hotelId: serializer.fromJson<int?>(json['hotelId']),
       invoiceId: serializer.fromJson<int?>(json['invoiceId']),
       amount: serializer.fromJson<int?>(json['amount']),
       status: serializer.fromJson<String?>(json['status']),
@@ -5725,6 +6242,7 @@ class LocalPayment extends DataClass implements Insertable<LocalPayment> {
       transactionId: serializer.fromJson<String?>(json['transactionId']),
       processedAt: serializer.fromJson<String?>(json['processedAt']),
       createdAt: serializer.fromJson<String?>(json['createdAt']),
+      updatedAt: serializer.fromJson<String?>(json['updatedAt']),
     );
   }
   @override
@@ -5732,6 +6250,7 @@ class LocalPayment extends DataClass implements Insertable<LocalPayment> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'hotelId': serializer.toJson<int?>(hotelId),
       'invoiceId': serializer.toJson<int?>(invoiceId),
       'amount': serializer.toJson<int?>(amount),
       'status': serializer.toJson<String?>(status),
@@ -5739,11 +6258,13 @@ class LocalPayment extends DataClass implements Insertable<LocalPayment> {
       'transactionId': serializer.toJson<String?>(transactionId),
       'processedAt': serializer.toJson<String?>(processedAt),
       'createdAt': serializer.toJson<String?>(createdAt),
+      'updatedAt': serializer.toJson<String?>(updatedAt),
     };
   }
 
   LocalPayment copyWith({
     int? id,
+    Value<int?> hotelId = const Value.absent(),
     Value<int?> invoiceId = const Value.absent(),
     Value<int?> amount = const Value.absent(),
     Value<String?> status = const Value.absent(),
@@ -5751,8 +6272,10 @@ class LocalPayment extends DataClass implements Insertable<LocalPayment> {
     Value<String?> transactionId = const Value.absent(),
     Value<String?> processedAt = const Value.absent(),
     Value<String?> createdAt = const Value.absent(),
+    Value<String?> updatedAt = const Value.absent(),
   }) => LocalPayment(
     id: id ?? this.id,
+    hotelId: hotelId.present ? hotelId.value : this.hotelId,
     invoiceId: invoiceId.present ? invoiceId.value : this.invoiceId,
     amount: amount.present ? amount.value : this.amount,
     status: status.present ? status.value : this.status,
@@ -5762,10 +6285,12 @@ class LocalPayment extends DataClass implements Insertable<LocalPayment> {
         : this.transactionId,
     processedAt: processedAt.present ? processedAt.value : this.processedAt,
     createdAt: createdAt.present ? createdAt.value : this.createdAt,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
   );
   LocalPayment copyWithCompanion(PaymentsTableCompanion data) {
     return LocalPayment(
       id: data.id.present ? data.id.value : this.id,
+      hotelId: data.hotelId.present ? data.hotelId.value : this.hotelId,
       invoiceId: data.invoiceId.present ? data.invoiceId.value : this.invoiceId,
       amount: data.amount.present ? data.amount.value : this.amount,
       status: data.status.present ? data.status.value : this.status,
@@ -5777,6 +6302,7 @@ class LocalPayment extends DataClass implements Insertable<LocalPayment> {
           ? data.processedAt.value
           : this.processedAt,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
 
@@ -5784,13 +6310,15 @@ class LocalPayment extends DataClass implements Insertable<LocalPayment> {
   String toString() {
     return (StringBuffer('LocalPayment(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('invoiceId: $invoiceId, ')
           ..write('amount: $amount, ')
           ..write('status: $status, ')
           ..write('method: $method, ')
           ..write('transactionId: $transactionId, ')
           ..write('processedAt: $processedAt, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
@@ -5798,6 +6326,7 @@ class LocalPayment extends DataClass implements Insertable<LocalPayment> {
   @override
   int get hashCode => Object.hash(
     id,
+    hotelId,
     invoiceId,
     amount,
     status,
@@ -5805,23 +6334,27 @@ class LocalPayment extends DataClass implements Insertable<LocalPayment> {
     transactionId,
     processedAt,
     createdAt,
+    updatedAt,
   );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is LocalPayment &&
           other.id == this.id &&
+          other.hotelId == this.hotelId &&
           other.invoiceId == this.invoiceId &&
           other.amount == this.amount &&
           other.status == this.status &&
           other.method == this.method &&
           other.transactionId == this.transactionId &&
           other.processedAt == this.processedAt &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
 }
 
 class PaymentsTableCompanion extends UpdateCompanion<LocalPayment> {
   final Value<int> id;
+  final Value<int?> hotelId;
   final Value<int?> invoiceId;
   final Value<int?> amount;
   final Value<String?> status;
@@ -5829,8 +6362,10 @@ class PaymentsTableCompanion extends UpdateCompanion<LocalPayment> {
   final Value<String?> transactionId;
   final Value<String?> processedAt;
   final Value<String?> createdAt;
+  final Value<String?> updatedAt;
   const PaymentsTableCompanion({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.invoiceId = const Value.absent(),
     this.amount = const Value.absent(),
     this.status = const Value.absent(),
@@ -5838,9 +6373,11 @@ class PaymentsTableCompanion extends UpdateCompanion<LocalPayment> {
     this.transactionId = const Value.absent(),
     this.processedAt = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
   });
   PaymentsTableCompanion.insert({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.invoiceId = const Value.absent(),
     this.amount = const Value.absent(),
     this.status = const Value.absent(),
@@ -5848,9 +6385,11 @@ class PaymentsTableCompanion extends UpdateCompanion<LocalPayment> {
     this.transactionId = const Value.absent(),
     this.processedAt = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
   });
   static Insertable<LocalPayment> custom({
     Expression<int>? id,
+    Expression<int>? hotelId,
     Expression<int>? invoiceId,
     Expression<int>? amount,
     Expression<String>? status,
@@ -5858,9 +6397,11 @@ class PaymentsTableCompanion extends UpdateCompanion<LocalPayment> {
     Expression<String>? transactionId,
     Expression<String>? processedAt,
     Expression<String>? createdAt,
+    Expression<String>? updatedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (hotelId != null) 'hotel_id': hotelId,
       if (invoiceId != null) 'invoice_id': invoiceId,
       if (amount != null) 'amount': amount,
       if (status != null) 'status': status,
@@ -5868,11 +6409,13 @@ class PaymentsTableCompanion extends UpdateCompanion<LocalPayment> {
       if (transactionId != null) 'transaction_id': transactionId,
       if (processedAt != null) 'processed_at': processedAt,
       if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
     });
   }
 
   PaymentsTableCompanion copyWith({
     Value<int>? id,
+    Value<int?>? hotelId,
     Value<int?>? invoiceId,
     Value<int?>? amount,
     Value<String?>? status,
@@ -5880,9 +6423,11 @@ class PaymentsTableCompanion extends UpdateCompanion<LocalPayment> {
     Value<String?>? transactionId,
     Value<String?>? processedAt,
     Value<String?>? createdAt,
+    Value<String?>? updatedAt,
   }) {
     return PaymentsTableCompanion(
       id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
       invoiceId: invoiceId ?? this.invoiceId,
       amount: amount ?? this.amount,
       status: status ?? this.status,
@@ -5890,6 +6435,7 @@ class PaymentsTableCompanion extends UpdateCompanion<LocalPayment> {
       transactionId: transactionId ?? this.transactionId,
       processedAt: processedAt ?? this.processedAt,
       createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
@@ -5898,6 +6444,9 @@ class PaymentsTableCompanion extends UpdateCompanion<LocalPayment> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (hotelId.present) {
+      map['hotel_id'] = Variable<int>(hotelId.value);
     }
     if (invoiceId.present) {
       map['invoice_id'] = Variable<int>(invoiceId.value);
@@ -5920,6 +6469,9 @@ class PaymentsTableCompanion extends UpdateCompanion<LocalPayment> {
     if (createdAt.present) {
       map['created_at'] = Variable<String>(createdAt.value);
     }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<String>(updatedAt.value);
+    }
     return map;
   }
 
@@ -5927,13 +6479,15 @@ class PaymentsTableCompanion extends UpdateCompanion<LocalPayment> {
   String toString() {
     return (StringBuffer('PaymentsTableCompanion(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('invoiceId: $invoiceId, ')
           ..write('amount: $amount, ')
           ..write('status: $status, ')
           ..write('method: $method, ')
           ..write('transactionId: $transactionId, ')
           ..write('processedAt: $processedAt, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
@@ -5951,6 +6505,17 @@ class $ChargesTableTable extends ChargesTable
     'id',
     aliasedName,
     false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hotelIdMeta = const VerificationMeta(
+    'hotelId',
+  );
+  @override
+  late final GeneratedColumn<int> hotelId = GeneratedColumn<int>(
+    'hotel_id',
+    aliasedName,
+    true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
@@ -6125,6 +6690,7 @@ class $ChargesTableTable extends ChargesTable
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    hotelId,
     bookingId,
     invoiceId,
     chargeType,
@@ -6156,6 +6722,12 @@ class $ChargesTableTable extends ChargesTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('hotel_id')) {
+      context.handle(
+        _hotelIdMeta,
+        hotelId.isAcceptableOrUnknown(data['hotel_id']!, _hotelIdMeta),
+      );
     }
     if (data.containsKey('booking_id')) {
       context.handle(
@@ -6278,6 +6850,10 @@ class $ChargesTableTable extends ChargesTable
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      hotelId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hotel_id'],
+      ),
       bookingId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}booking_id'],
@@ -6353,6 +6929,7 @@ class $ChargesTableTable extends ChargesTable
 
 class LocalCharge extends DataClass implements Insertable<LocalCharge> {
   final int id;
+  final int? hotelId;
   final int? bookingId;
   final int? invoiceId;
   final String? chargeType;
@@ -6371,6 +6948,7 @@ class LocalCharge extends DataClass implements Insertable<LocalCharge> {
   final String? updatedAt;
   const LocalCharge({
     required this.id,
+    this.hotelId,
     this.bookingId,
     this.invoiceId,
     this.chargeType,
@@ -6392,6 +6970,9 @@ class LocalCharge extends DataClass implements Insertable<LocalCharge> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || hotelId != null) {
+      map['hotel_id'] = Variable<int>(hotelId);
+    }
     if (!nullToAbsent || bookingId != null) {
       map['booking_id'] = Variable<int>(bookingId);
     }
@@ -6446,6 +7027,9 @@ class LocalCharge extends DataClass implements Insertable<LocalCharge> {
   ChargesTableCompanion toCompanion(bool nullToAbsent) {
     return ChargesTableCompanion(
       id: Value(id),
+      hotelId: hotelId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hotelId),
       bookingId: bookingId == null && nullToAbsent
           ? const Value.absent()
           : Value(bookingId),
@@ -6504,6 +7088,7 @@ class LocalCharge extends DataClass implements Insertable<LocalCharge> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LocalCharge(
       id: serializer.fromJson<int>(json['id']),
+      hotelId: serializer.fromJson<int?>(json['hotelId']),
       bookingId: serializer.fromJson<int?>(json['bookingId']),
       invoiceId: serializer.fromJson<int?>(json['invoiceId']),
       chargeType: serializer.fromJson<String?>(json['chargeType']),
@@ -6527,6 +7112,7 @@ class LocalCharge extends DataClass implements Insertable<LocalCharge> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'hotelId': serializer.toJson<int?>(hotelId),
       'bookingId': serializer.toJson<int?>(bookingId),
       'invoiceId': serializer.toJson<int?>(invoiceId),
       'chargeType': serializer.toJson<String?>(chargeType),
@@ -6548,6 +7134,7 @@ class LocalCharge extends DataClass implements Insertable<LocalCharge> {
 
   LocalCharge copyWith({
     int? id,
+    Value<int?> hotelId = const Value.absent(),
     Value<int?> bookingId = const Value.absent(),
     Value<int?> invoiceId = const Value.absent(),
     Value<String?> chargeType = const Value.absent(),
@@ -6566,6 +7153,7 @@ class LocalCharge extends DataClass implements Insertable<LocalCharge> {
     Value<String?> updatedAt = const Value.absent(),
   }) => LocalCharge(
     id: id ?? this.id,
+    hotelId: hotelId.present ? hotelId.value : this.hotelId,
     bookingId: bookingId.present ? bookingId.value : this.bookingId,
     invoiceId: invoiceId.present ? invoiceId.value : this.invoiceId,
     chargeType: chargeType.present ? chargeType.value : this.chargeType,
@@ -6590,6 +7178,7 @@ class LocalCharge extends DataClass implements Insertable<LocalCharge> {
   LocalCharge copyWithCompanion(ChargesTableCompanion data) {
     return LocalCharge(
       id: data.id.present ? data.id.value : this.id,
+      hotelId: data.hotelId.present ? data.hotelId.value : this.hotelId,
       bookingId: data.bookingId.present ? data.bookingId.value : this.bookingId,
       invoiceId: data.invoiceId.present ? data.invoiceId.value : this.invoiceId,
       chargeType: data.chargeType.present
@@ -6625,6 +7214,7 @@ class LocalCharge extends DataClass implements Insertable<LocalCharge> {
   String toString() {
     return (StringBuffer('LocalCharge(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('bookingId: $bookingId, ')
           ..write('invoiceId: $invoiceId, ')
           ..write('chargeType: $chargeType, ')
@@ -6648,6 +7238,7 @@ class LocalCharge extends DataClass implements Insertable<LocalCharge> {
   @override
   int get hashCode => Object.hash(
     id,
+    hotelId,
     bookingId,
     invoiceId,
     chargeType,
@@ -6670,6 +7261,7 @@ class LocalCharge extends DataClass implements Insertable<LocalCharge> {
       identical(this, other) ||
       (other is LocalCharge &&
           other.id == this.id &&
+          other.hotelId == this.hotelId &&
           other.bookingId == this.bookingId &&
           other.invoiceId == this.invoiceId &&
           other.chargeType == this.chargeType &&
@@ -6690,6 +7282,7 @@ class LocalCharge extends DataClass implements Insertable<LocalCharge> {
 
 class ChargesTableCompanion extends UpdateCompanion<LocalCharge> {
   final Value<int> id;
+  final Value<int?> hotelId;
   final Value<int?> bookingId;
   final Value<int?> invoiceId;
   final Value<String?> chargeType;
@@ -6708,6 +7301,7 @@ class ChargesTableCompanion extends UpdateCompanion<LocalCharge> {
   final Value<String?> updatedAt;
   const ChargesTableCompanion({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.bookingId = const Value.absent(),
     this.invoiceId = const Value.absent(),
     this.chargeType = const Value.absent(),
@@ -6727,6 +7321,7 @@ class ChargesTableCompanion extends UpdateCompanion<LocalCharge> {
   });
   ChargesTableCompanion.insert({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.bookingId = const Value.absent(),
     this.invoiceId = const Value.absent(),
     this.chargeType = const Value.absent(),
@@ -6746,6 +7341,7 @@ class ChargesTableCompanion extends UpdateCompanion<LocalCharge> {
   });
   static Insertable<LocalCharge> custom({
     Expression<int>? id,
+    Expression<int>? hotelId,
     Expression<int>? bookingId,
     Expression<int>? invoiceId,
     Expression<String>? chargeType,
@@ -6765,6 +7361,7 @@ class ChargesTableCompanion extends UpdateCompanion<LocalCharge> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (hotelId != null) 'hotel_id': hotelId,
       if (bookingId != null) 'booking_id': bookingId,
       if (invoiceId != null) 'invoice_id': invoiceId,
       if (chargeType != null) 'charge_type': chargeType,
@@ -6786,6 +7383,7 @@ class ChargesTableCompanion extends UpdateCompanion<LocalCharge> {
 
   ChargesTableCompanion copyWith({
     Value<int>? id,
+    Value<int?>? hotelId,
     Value<int?>? bookingId,
     Value<int?>? invoiceId,
     Value<String?>? chargeType,
@@ -6805,6 +7403,7 @@ class ChargesTableCompanion extends UpdateCompanion<LocalCharge> {
   }) {
     return ChargesTableCompanion(
       id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
       bookingId: bookingId ?? this.bookingId,
       invoiceId: invoiceId ?? this.invoiceId,
       chargeType: chargeType ?? this.chargeType,
@@ -6829,6 +7428,9 @@ class ChargesTableCompanion extends UpdateCompanion<LocalCharge> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (hotelId.present) {
+      map['hotel_id'] = Variable<int>(hotelId.value);
     }
     if (bookingId.present) {
       map['booking_id'] = Variable<int>(bookingId.value);
@@ -6885,6 +7487,7 @@ class ChargesTableCompanion extends UpdateCompanion<LocalCharge> {
   String toString() {
     return (StringBuffer('ChargesTableCompanion(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('bookingId: $bookingId, ')
           ..write('invoiceId: $invoiceId, ')
           ..write('chargeType: $chargeType, ')
@@ -6918,6 +7521,17 @@ class $HousekeepingsTableTable extends HousekeepingsTable
     'id',
     aliasedName,
     false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hotelIdMeta = const VerificationMeta(
+    'hotelId',
+  );
+  @override
+  late final GeneratedColumn<int> hotelId = GeneratedColumn<int>(
+    'hotel_id',
+    aliasedName,
+    true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
@@ -7006,6 +7620,7 @@ class $HousekeepingsTableTable extends HousekeepingsTable
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    hotelId,
     roomId,
     status,
     assigneeId,
@@ -7029,6 +7644,12 @@ class $HousekeepingsTableTable extends HousekeepingsTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('hotel_id')) {
+      context.handle(
+        _hotelIdMeta,
+        hotelId.isAcceptableOrUnknown(data['hotel_id']!, _hotelIdMeta),
+      );
     }
     if (data.containsKey('room_id')) {
       context.handle(
@@ -7097,6 +7718,10 @@ class $HousekeepingsTableTable extends HousekeepingsTable
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      hotelId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hotel_id'],
+      ),
       roomId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}room_id'],
@@ -7141,6 +7766,7 @@ class $HousekeepingsTableTable extends HousekeepingsTable
 class LocalHousekeeping extends DataClass
     implements Insertable<LocalHousekeeping> {
   final int id;
+  final int? hotelId;
   final int? roomId;
   final String? status;
   final int? assigneeId;
@@ -7151,6 +7777,7 @@ class LocalHousekeeping extends DataClass
   final String? updatedAt;
   const LocalHousekeeping({
     required this.id,
+    this.hotelId,
     this.roomId,
     this.status,
     this.assigneeId,
@@ -7164,6 +7791,9 @@ class LocalHousekeeping extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || hotelId != null) {
+      map['hotel_id'] = Variable<int>(hotelId);
+    }
     if (!nullToAbsent || roomId != null) {
       map['room_id'] = Variable<int>(roomId);
     }
@@ -7194,6 +7824,9 @@ class LocalHousekeeping extends DataClass
   HousekeepingsTableCompanion toCompanion(bool nullToAbsent) {
     return HousekeepingsTableCompanion(
       id: Value(id),
+      hotelId: hotelId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hotelId),
       roomId: roomId == null && nullToAbsent
           ? const Value.absent()
           : Value(roomId),
@@ -7228,6 +7861,7 @@ class LocalHousekeeping extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LocalHousekeeping(
       id: serializer.fromJson<int>(json['id']),
+      hotelId: serializer.fromJson<int?>(json['hotelId']),
       roomId: serializer.fromJson<int?>(json['roomId']),
       status: serializer.fromJson<String?>(json['status']),
       assigneeId: serializer.fromJson<int?>(json['assigneeId']),
@@ -7243,6 +7877,7 @@ class LocalHousekeeping extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'hotelId': serializer.toJson<int?>(hotelId),
       'roomId': serializer.toJson<int?>(roomId),
       'status': serializer.toJson<String?>(status),
       'assigneeId': serializer.toJson<int?>(assigneeId),
@@ -7256,6 +7891,7 @@ class LocalHousekeeping extends DataClass
 
   LocalHousekeeping copyWith({
     int? id,
+    Value<int?> hotelId = const Value.absent(),
     Value<int?> roomId = const Value.absent(),
     Value<String?> status = const Value.absent(),
     Value<int?> assigneeId = const Value.absent(),
@@ -7266,6 +7902,7 @@ class LocalHousekeeping extends DataClass
     Value<String?> updatedAt = const Value.absent(),
   }) => LocalHousekeeping(
     id: id ?? this.id,
+    hotelId: hotelId.present ? hotelId.value : this.hotelId,
     roomId: roomId.present ? roomId.value : this.roomId,
     status: status.present ? status.value : this.status,
     assigneeId: assigneeId.present ? assigneeId.value : this.assigneeId,
@@ -7280,6 +7917,7 @@ class LocalHousekeeping extends DataClass
   LocalHousekeeping copyWithCompanion(HousekeepingsTableCompanion data) {
     return LocalHousekeeping(
       id: data.id.present ? data.id.value : this.id,
+      hotelId: data.hotelId.present ? data.hotelId.value : this.hotelId,
       roomId: data.roomId.present ? data.roomId.value : this.roomId,
       status: data.status.present ? data.status.value : this.status,
       assigneeId: data.assigneeId.present
@@ -7301,6 +7939,7 @@ class LocalHousekeeping extends DataClass
   String toString() {
     return (StringBuffer('LocalHousekeeping(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('roomId: $roomId, ')
           ..write('status: $status, ')
           ..write('assigneeId: $assigneeId, ')
@@ -7316,6 +7955,7 @@ class LocalHousekeeping extends DataClass
   @override
   int get hashCode => Object.hash(
     id,
+    hotelId,
     roomId,
     status,
     assigneeId,
@@ -7330,6 +7970,7 @@ class LocalHousekeeping extends DataClass
       identical(this, other) ||
       (other is LocalHousekeeping &&
           other.id == this.id &&
+          other.hotelId == this.hotelId &&
           other.roomId == this.roomId &&
           other.status == this.status &&
           other.assigneeId == this.assigneeId &&
@@ -7342,6 +7983,7 @@ class LocalHousekeeping extends DataClass
 
 class HousekeepingsTableCompanion extends UpdateCompanion<LocalHousekeeping> {
   final Value<int> id;
+  final Value<int?> hotelId;
   final Value<int?> roomId;
   final Value<String?> status;
   final Value<int?> assigneeId;
@@ -7352,6 +7994,7 @@ class HousekeepingsTableCompanion extends UpdateCompanion<LocalHousekeeping> {
   final Value<String?> updatedAt;
   const HousekeepingsTableCompanion({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.roomId = const Value.absent(),
     this.status = const Value.absent(),
     this.assigneeId = const Value.absent(),
@@ -7363,6 +8006,7 @@ class HousekeepingsTableCompanion extends UpdateCompanion<LocalHousekeeping> {
   });
   HousekeepingsTableCompanion.insert({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.roomId = const Value.absent(),
     this.status = const Value.absent(),
     this.assigneeId = const Value.absent(),
@@ -7374,6 +8018,7 @@ class HousekeepingsTableCompanion extends UpdateCompanion<LocalHousekeeping> {
   });
   static Insertable<LocalHousekeeping> custom({
     Expression<int>? id,
+    Expression<int>? hotelId,
     Expression<int>? roomId,
     Expression<String>? status,
     Expression<int>? assigneeId,
@@ -7385,6 +8030,7 @@ class HousekeepingsTableCompanion extends UpdateCompanion<LocalHousekeeping> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (hotelId != null) 'hotel_id': hotelId,
       if (roomId != null) 'room_id': roomId,
       if (status != null) 'status': status,
       if (assigneeId != null) 'assignee_id': assigneeId,
@@ -7398,6 +8044,7 @@ class HousekeepingsTableCompanion extends UpdateCompanion<LocalHousekeeping> {
 
   HousekeepingsTableCompanion copyWith({
     Value<int>? id,
+    Value<int?>? hotelId,
     Value<int?>? roomId,
     Value<String?>? status,
     Value<int?>? assigneeId,
@@ -7409,6 +8056,7 @@ class HousekeepingsTableCompanion extends UpdateCompanion<LocalHousekeeping> {
   }) {
     return HousekeepingsTableCompanion(
       id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
       roomId: roomId ?? this.roomId,
       status: status ?? this.status,
       assigneeId: assigneeId ?? this.assigneeId,
@@ -7425,6 +8073,9 @@ class HousekeepingsTableCompanion extends UpdateCompanion<LocalHousekeeping> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (hotelId.present) {
+      map['hotel_id'] = Variable<int>(hotelId.value);
     }
     if (roomId.present) {
       map['room_id'] = Variable<int>(roomId.value);
@@ -7457,6 +8108,7 @@ class HousekeepingsTableCompanion extends UpdateCompanion<LocalHousekeeping> {
   String toString() {
     return (StringBuffer('HousekeepingsTableCompanion(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('roomId: $roomId, ')
           ..write('status: $status, ')
           ..write('assigneeId: $assigneeId, ')
@@ -7482,6 +8134,17 @@ class $MaintenancesTableTable extends MaintenancesTable
     'id',
     aliasedName,
     false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hotelIdMeta = const VerificationMeta(
+    'hotelId',
+  );
+  @override
+  late final GeneratedColumn<int> hotelId = GeneratedColumn<int>(
+    'hotel_id',
+    aliasedName,
+    true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
@@ -7674,6 +8337,7 @@ class $MaintenancesTableTable extends MaintenancesTable
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    hotelId,
     roomId,
     description,
     status,
@@ -7706,6 +8370,12 @@ class $MaintenancesTableTable extends MaintenancesTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('hotel_id')) {
+      context.handle(
+        _hotelIdMeta,
+        hotelId.isAcceptableOrUnknown(data['hotel_id']!, _hotelIdMeta),
+      );
     }
     if (data.containsKey('room_id')) {
       context.handle(
@@ -7843,6 +8513,10 @@ class $MaintenancesTableTable extends MaintenancesTable
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      hotelId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hotel_id'],
+      ),
       roomId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}room_id'],
@@ -7923,6 +8597,7 @@ class $MaintenancesTableTable extends MaintenancesTable
 class LocalMaintenance extends DataClass
     implements Insertable<LocalMaintenance> {
   final int id;
+  final int? hotelId;
   final int? roomId;
   final String? description;
   final String? status;
@@ -7942,6 +8617,7 @@ class LocalMaintenance extends DataClass
   final String? updatedAt;
   const LocalMaintenance({
     required this.id,
+    this.hotelId,
     this.roomId,
     this.description,
     this.status,
@@ -7964,6 +8640,9 @@ class LocalMaintenance extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || hotelId != null) {
+      map['hotel_id'] = Variable<int>(hotelId);
+    }
     if (!nullToAbsent || roomId != null) {
       map['room_id'] = Variable<int>(roomId);
     }
@@ -8021,6 +8700,9 @@ class LocalMaintenance extends DataClass
   MaintenancesTableCompanion toCompanion(bool nullToAbsent) {
     return MaintenancesTableCompanion(
       id: Value(id),
+      hotelId: hotelId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hotelId),
       roomId: roomId == null && nullToAbsent
           ? const Value.absent()
           : Value(roomId),
@@ -8082,6 +8764,7 @@ class LocalMaintenance extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LocalMaintenance(
       id: serializer.fromJson<int>(json['id']),
+      hotelId: serializer.fromJson<int?>(json['hotelId']),
       roomId: serializer.fromJson<int?>(json['roomId']),
       description: serializer.fromJson<String?>(json['description']),
       status: serializer.fromJson<String?>(json['status']),
@@ -8106,6 +8789,7 @@ class LocalMaintenance extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'hotelId': serializer.toJson<int?>(hotelId),
       'roomId': serializer.toJson<int?>(roomId),
       'description': serializer.toJson<String?>(description),
       'status': serializer.toJson<String?>(status),
@@ -8128,6 +8812,7 @@ class LocalMaintenance extends DataClass
 
   LocalMaintenance copyWith({
     int? id,
+    Value<int?> hotelId = const Value.absent(),
     Value<int?> roomId = const Value.absent(),
     Value<String?> description = const Value.absent(),
     Value<String?> status = const Value.absent(),
@@ -8147,6 +8832,7 @@ class LocalMaintenance extends DataClass
     Value<String?> updatedAt = const Value.absent(),
   }) => LocalMaintenance(
     id: id ?? this.id,
+    hotelId: hotelId.present ? hotelId.value : this.hotelId,
     roomId: roomId.present ? roomId.value : this.roomId,
     description: description.present ? description.value : this.description,
     status: status.present ? status.value : this.status,
@@ -8180,6 +8866,7 @@ class LocalMaintenance extends DataClass
   LocalMaintenance copyWithCompanion(MaintenancesTableCompanion data) {
     return LocalMaintenance(
       id: data.id.present ? data.id.value : this.id,
+      hotelId: data.hotelId.present ? data.hotelId.value : this.hotelId,
       roomId: data.roomId.present ? data.roomId.value : this.roomId,
       description: data.description.present
           ? data.description.value
@@ -8222,6 +8909,7 @@ class LocalMaintenance extends DataClass
   String toString() {
     return (StringBuffer('LocalMaintenance(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('roomId: $roomId, ')
           ..write('description: $description, ')
           ..write('status: $status, ')
@@ -8246,6 +8934,7 @@ class LocalMaintenance extends DataClass
   @override
   int get hashCode => Object.hash(
     id,
+    hotelId,
     roomId,
     description,
     status,
@@ -8269,6 +8958,7 @@ class LocalMaintenance extends DataClass
       identical(this, other) ||
       (other is LocalMaintenance &&
           other.id == this.id &&
+          other.hotelId == this.hotelId &&
           other.roomId == this.roomId &&
           other.description == this.description &&
           other.status == this.status &&
@@ -8290,6 +8980,7 @@ class LocalMaintenance extends DataClass
 
 class MaintenancesTableCompanion extends UpdateCompanion<LocalMaintenance> {
   final Value<int> id;
+  final Value<int?> hotelId;
   final Value<int?> roomId;
   final Value<String?> description;
   final Value<String?> status;
@@ -8309,6 +9000,7 @@ class MaintenancesTableCompanion extends UpdateCompanion<LocalMaintenance> {
   final Value<String?> updatedAt;
   const MaintenancesTableCompanion({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.roomId = const Value.absent(),
     this.description = const Value.absent(),
     this.status = const Value.absent(),
@@ -8329,6 +9021,7 @@ class MaintenancesTableCompanion extends UpdateCompanion<LocalMaintenance> {
   });
   MaintenancesTableCompanion.insert({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.roomId = const Value.absent(),
     this.description = const Value.absent(),
     this.status = const Value.absent(),
@@ -8349,6 +9042,7 @@ class MaintenancesTableCompanion extends UpdateCompanion<LocalMaintenance> {
   });
   static Insertable<LocalMaintenance> custom({
     Expression<int>? id,
+    Expression<int>? hotelId,
     Expression<int>? roomId,
     Expression<String>? description,
     Expression<String>? status,
@@ -8369,6 +9063,7 @@ class MaintenancesTableCompanion extends UpdateCompanion<LocalMaintenance> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (hotelId != null) 'hotel_id': hotelId,
       if (roomId != null) 'room_id': roomId,
       if (description != null) 'description': description,
       if (status != null) 'status': status,
@@ -8391,6 +9086,7 @@ class MaintenancesTableCompanion extends UpdateCompanion<LocalMaintenance> {
 
   MaintenancesTableCompanion copyWith({
     Value<int>? id,
+    Value<int?>? hotelId,
     Value<int?>? roomId,
     Value<String?>? description,
     Value<String?>? status,
@@ -8411,6 +9107,7 @@ class MaintenancesTableCompanion extends UpdateCompanion<LocalMaintenance> {
   }) {
     return MaintenancesTableCompanion(
       id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
       roomId: roomId ?? this.roomId,
       description: description ?? this.description,
       status: status ?? this.status,
@@ -8436,6 +9133,9 @@ class MaintenancesTableCompanion extends UpdateCompanion<LocalMaintenance> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (hotelId.present) {
+      map['hotel_id'] = Variable<int>(hotelId.value);
     }
     if (roomId.present) {
       map['room_id'] = Variable<int>(roomId.value);
@@ -8495,6 +9195,7 @@ class MaintenancesTableCompanion extends UpdateCompanion<LocalMaintenance> {
   String toString() {
     return (StringBuffer('MaintenancesTableCompanion(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('roomId: $roomId, ')
           ..write('description: $description, ')
           ..write('status: $status, ')
@@ -17079,6 +17780,17 @@ class $PosShiftsTableTable extends PosShiftsTable
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<String> updatedAt = GeneratedColumn<String>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -17097,6 +17809,7 @@ class $PosShiftsTableTable extends PosShiftsTable
     notes,
     status,
     createdAt,
+    updatedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -17218,6 +17931,12 @@ class $PosShiftsTableTable extends PosShiftsTable
         createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
       );
     }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
     return context;
   }
 
@@ -17291,6 +18010,10 @@ class $PosShiftsTableTable extends PosShiftsTable
         DriftSqlType.string,
         data['${effectivePrefix}created_at'],
       ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}updated_at'],
+      ),
     );
   }
 
@@ -17317,6 +18040,7 @@ class LocalPosShift extends DataClass implements Insertable<LocalPosShift> {
   final String? notes;
   final String? status;
   final String? createdAt;
+  final String? updatedAt;
   const LocalPosShift({
     required this.id,
     this.hotelId,
@@ -17334,6 +18058,7 @@ class LocalPosShift extends DataClass implements Insertable<LocalPosShift> {
     this.notes,
     this.status,
     this.createdAt,
+    this.updatedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -17383,6 +18108,9 @@ class LocalPosShift extends DataClass implements Insertable<LocalPosShift> {
     }
     if (!nullToAbsent || createdAt != null) {
       map['created_at'] = Variable<String>(createdAt);
+    }
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<String>(updatedAt);
     }
     return map;
   }
@@ -17435,6 +18163,9 @@ class LocalPosShift extends DataClass implements Insertable<LocalPosShift> {
       createdAt: createdAt == null && nullToAbsent
           ? const Value.absent()
           : Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
     );
   }
 
@@ -17460,6 +18191,7 @@ class LocalPosShift extends DataClass implements Insertable<LocalPosShift> {
       notes: serializer.fromJson<String?>(json['notes']),
       status: serializer.fromJson<String?>(json['status']),
       createdAt: serializer.fromJson<String?>(json['createdAt']),
+      updatedAt: serializer.fromJson<String?>(json['updatedAt']),
     );
   }
   @override
@@ -17482,6 +18214,7 @@ class LocalPosShift extends DataClass implements Insertable<LocalPosShift> {
       'notes': serializer.toJson<String?>(notes),
       'status': serializer.toJson<String?>(status),
       'createdAt': serializer.toJson<String?>(createdAt),
+      'updatedAt': serializer.toJson<String?>(updatedAt),
     };
   }
 
@@ -17502,6 +18235,7 @@ class LocalPosShift extends DataClass implements Insertable<LocalPosShift> {
     Value<String?> notes = const Value.absent(),
     Value<String?> status = const Value.absent(),
     Value<String?> createdAt = const Value.absent(),
+    Value<String?> updatedAt = const Value.absent(),
   }) => LocalPosShift(
     id: id ?? this.id,
     hotelId: hotelId.present ? hotelId.value : this.hotelId,
@@ -17519,6 +18253,7 @@ class LocalPosShift extends DataClass implements Insertable<LocalPosShift> {
     notes: notes.present ? notes.value : this.notes,
     status: status.present ? status.value : this.status,
     createdAt: createdAt.present ? createdAt.value : this.createdAt,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
   );
   LocalPosShift copyWithCompanion(PosShiftsTableCompanion data) {
     return LocalPosShift(
@@ -17552,6 +18287,7 @@ class LocalPosShift extends DataClass implements Insertable<LocalPosShift> {
       notes: data.notes.present ? data.notes.value : this.notes,
       status: data.status.present ? data.status.value : this.status,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
 
@@ -17573,7 +18309,8 @@ class LocalPosShift extends DataClass implements Insertable<LocalPosShift> {
           ..write('totalOrders: $totalOrders, ')
           ..write('notes: $notes, ')
           ..write('status: $status, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
@@ -17596,6 +18333,7 @@ class LocalPosShift extends DataClass implements Insertable<LocalPosShift> {
     notes,
     status,
     createdAt,
+    updatedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -17616,7 +18354,8 @@ class LocalPosShift extends DataClass implements Insertable<LocalPosShift> {
           other.totalOrders == this.totalOrders &&
           other.notes == this.notes &&
           other.status == this.status &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
 }
 
 class PosShiftsTableCompanion extends UpdateCompanion<LocalPosShift> {
@@ -17636,6 +18375,7 @@ class PosShiftsTableCompanion extends UpdateCompanion<LocalPosShift> {
   final Value<String?> notes;
   final Value<String?> status;
   final Value<String?> createdAt;
+  final Value<String?> updatedAt;
   const PosShiftsTableCompanion({
     this.id = const Value.absent(),
     this.hotelId = const Value.absent(),
@@ -17653,6 +18393,7 @@ class PosShiftsTableCompanion extends UpdateCompanion<LocalPosShift> {
     this.notes = const Value.absent(),
     this.status = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
   });
   PosShiftsTableCompanion.insert({
     this.id = const Value.absent(),
@@ -17671,6 +18412,7 @@ class PosShiftsTableCompanion extends UpdateCompanion<LocalPosShift> {
     this.notes = const Value.absent(),
     this.status = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
   });
   static Insertable<LocalPosShift> custom({
     Expression<int>? id,
@@ -17689,6 +18431,7 @@ class PosShiftsTableCompanion extends UpdateCompanion<LocalPosShift> {
     Expression<String>? notes,
     Expression<String>? status,
     Expression<String>? createdAt,
+    Expression<String>? updatedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -17707,6 +18450,7 @@ class PosShiftsTableCompanion extends UpdateCompanion<LocalPosShift> {
       if (notes != null) 'notes': notes,
       if (status != null) 'status': status,
       if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
     });
   }
 
@@ -17727,6 +18471,7 @@ class PosShiftsTableCompanion extends UpdateCompanion<LocalPosShift> {
     Value<String?>? notes,
     Value<String?>? status,
     Value<String?>? createdAt,
+    Value<String?>? updatedAt,
   }) {
     return PosShiftsTableCompanion(
       id: id ?? this.id,
@@ -17745,6 +18490,7 @@ class PosShiftsTableCompanion extends UpdateCompanion<LocalPosShift> {
       notes: notes ?? this.notes,
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
@@ -17799,6 +18545,9 @@ class PosShiftsTableCompanion extends UpdateCompanion<LocalPosShift> {
     if (createdAt.present) {
       map['created_at'] = Variable<String>(createdAt.value);
     }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<String>(updatedAt.value);
+    }
     return map;
   }
 
@@ -17820,7 +18569,8 @@ class PosShiftsTableCompanion extends UpdateCompanion<LocalPosShift> {
           ..write('totalOrders: $totalOrders, ')
           ..write('notes: $notes, ')
           ..write('status: $status, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
@@ -19195,6 +19945,17 @@ class $PosOrderItemsTableTable extends PosOrderItemsTable
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _hotelIdMeta = const VerificationMeta(
+    'hotelId',
+  );
+  @override
+  late final GeneratedColumn<int> hotelId = GeneratedColumn<int>(
+    'hotel_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _orderIdMeta = const VerificationMeta(
     'orderId',
   );
@@ -19346,9 +20107,21 @@ class $PosOrderItemsTableTable extends PosOrderItemsTable
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<String> updatedAt = GeneratedColumn<String>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    hotelId,
     orderId,
     productId,
     productName,
@@ -19363,6 +20136,7 @@ class $PosOrderItemsTableTable extends PosOrderItemsTable
     voidedAt,
     sentAt,
     createdAt,
+    updatedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -19378,6 +20152,12 @@ class $PosOrderItemsTableTable extends PosOrderItemsTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('hotel_id')) {
+      context.handle(
+        _hotelIdMeta,
+        hotelId.isAcceptableOrUnknown(data['hotel_id']!, _hotelIdMeta),
+      );
     }
     if (data.containsKey('order_id')) {
       context.handle(
@@ -19466,6 +20246,12 @@ class $PosOrderItemsTableTable extends PosOrderItemsTable
         createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
       );
     }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
     return context;
   }
 
@@ -19479,6 +20265,10 @@ class $PosOrderItemsTableTable extends PosOrderItemsTable
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      hotelId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hotel_id'],
+      ),
       orderId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}order_id'],
@@ -19535,6 +20325,10 @@ class $PosOrderItemsTableTable extends PosOrderItemsTable
         DriftSqlType.string,
         data['${effectivePrefix}created_at'],
       ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}updated_at'],
+      ),
     );
   }
 
@@ -19547,6 +20341,7 @@ class $PosOrderItemsTableTable extends PosOrderItemsTable
 class LocalPosOrderItem extends DataClass
     implements Insertable<LocalPosOrderItem> {
   final int id;
+  final int? hotelId;
   final int? orderId;
   final int? productId;
   final String? productName;
@@ -19561,8 +20356,10 @@ class LocalPosOrderItem extends DataClass
   final String? voidedAt;
   final String? sentAt;
   final String? createdAt;
+  final String? updatedAt;
   const LocalPosOrderItem({
     required this.id,
+    this.hotelId,
     this.orderId,
     this.productId,
     this.productName,
@@ -19577,11 +20374,15 @@ class LocalPosOrderItem extends DataClass
     this.voidedAt,
     this.sentAt,
     this.createdAt,
+    this.updatedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || hotelId != null) {
+      map['hotel_id'] = Variable<int>(hotelId);
+    }
     if (!nullToAbsent || orderId != null) {
       map['order_id'] = Variable<int>(orderId);
     }
@@ -19624,12 +20425,18 @@ class LocalPosOrderItem extends DataClass
     if (!nullToAbsent || createdAt != null) {
       map['created_at'] = Variable<String>(createdAt);
     }
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<String>(updatedAt);
+    }
     return map;
   }
 
   PosOrderItemsTableCompanion toCompanion(bool nullToAbsent) {
     return PosOrderItemsTableCompanion(
       id: Value(id),
+      hotelId: hotelId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hotelId),
       orderId: orderId == null && nullToAbsent
           ? const Value.absent()
           : Value(orderId),
@@ -19672,6 +20479,9 @@ class LocalPosOrderItem extends DataClass
       createdAt: createdAt == null && nullToAbsent
           ? const Value.absent()
           : Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
     );
   }
 
@@ -19682,6 +20492,7 @@ class LocalPosOrderItem extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LocalPosOrderItem(
       id: serializer.fromJson<int>(json['id']),
+      hotelId: serializer.fromJson<int?>(json['hotelId']),
       orderId: serializer.fromJson<int?>(json['orderId']),
       productId: serializer.fromJson<int?>(json['productId']),
       productName: serializer.fromJson<String?>(json['productName']),
@@ -19696,6 +20507,7 @@ class LocalPosOrderItem extends DataClass
       voidedAt: serializer.fromJson<String?>(json['voidedAt']),
       sentAt: serializer.fromJson<String?>(json['sentAt']),
       createdAt: serializer.fromJson<String?>(json['createdAt']),
+      updatedAt: serializer.fromJson<String?>(json['updatedAt']),
     );
   }
   @override
@@ -19703,6 +20515,7 @@ class LocalPosOrderItem extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'hotelId': serializer.toJson<int?>(hotelId),
       'orderId': serializer.toJson<int?>(orderId),
       'productId': serializer.toJson<int?>(productId),
       'productName': serializer.toJson<String?>(productName),
@@ -19717,11 +20530,13 @@ class LocalPosOrderItem extends DataClass
       'voidedAt': serializer.toJson<String?>(voidedAt),
       'sentAt': serializer.toJson<String?>(sentAt),
       'createdAt': serializer.toJson<String?>(createdAt),
+      'updatedAt': serializer.toJson<String?>(updatedAt),
     };
   }
 
   LocalPosOrderItem copyWith({
     int? id,
+    Value<int?> hotelId = const Value.absent(),
     Value<int?> orderId = const Value.absent(),
     Value<int?> productId = const Value.absent(),
     Value<String?> productName = const Value.absent(),
@@ -19736,8 +20551,10 @@ class LocalPosOrderItem extends DataClass
     Value<String?> voidedAt = const Value.absent(),
     Value<String?> sentAt = const Value.absent(),
     Value<String?> createdAt = const Value.absent(),
+    Value<String?> updatedAt = const Value.absent(),
   }) => LocalPosOrderItem(
     id: id ?? this.id,
+    hotelId: hotelId.present ? hotelId.value : this.hotelId,
     orderId: orderId.present ? orderId.value : this.orderId,
     productId: productId.present ? productId.value : this.productId,
     productName: productName.present ? productName.value : this.productName,
@@ -19752,10 +20569,12 @@ class LocalPosOrderItem extends DataClass
     voidedAt: voidedAt.present ? voidedAt.value : this.voidedAt,
     sentAt: sentAt.present ? sentAt.value : this.sentAt,
     createdAt: createdAt.present ? createdAt.value : this.createdAt,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
   );
   LocalPosOrderItem copyWithCompanion(PosOrderItemsTableCompanion data) {
     return LocalPosOrderItem(
       id: data.id.present ? data.id.value : this.id,
+      hotelId: data.hotelId.present ? data.hotelId.value : this.hotelId,
       orderId: data.orderId.present ? data.orderId.value : this.orderId,
       productId: data.productId.present ? data.productId.value : this.productId,
       productName: data.productName.present
@@ -19774,6 +20593,7 @@ class LocalPosOrderItem extends DataClass
       voidedAt: data.voidedAt.present ? data.voidedAt.value : this.voidedAt,
       sentAt: data.sentAt.present ? data.sentAt.value : this.sentAt,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
 
@@ -19781,6 +20601,7 @@ class LocalPosOrderItem extends DataClass
   String toString() {
     return (StringBuffer('LocalPosOrderItem(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('orderId: $orderId, ')
           ..write('productId: $productId, ')
           ..write('productName: $productName, ')
@@ -19794,7 +20615,8 @@ class LocalPosOrderItem extends DataClass
           ..write('voidedBy: $voidedBy, ')
           ..write('voidedAt: $voidedAt, ')
           ..write('sentAt: $sentAt, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
@@ -19802,6 +20624,7 @@ class LocalPosOrderItem extends DataClass
   @override
   int get hashCode => Object.hash(
     id,
+    hotelId,
     orderId,
     productId,
     productName,
@@ -19816,12 +20639,14 @@ class LocalPosOrderItem extends DataClass
     voidedAt,
     sentAt,
     createdAt,
+    updatedAt,
   );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is LocalPosOrderItem &&
           other.id == this.id &&
+          other.hotelId == this.hotelId &&
           other.orderId == this.orderId &&
           other.productId == this.productId &&
           other.productName == this.productName &&
@@ -19835,11 +20660,13 @@ class LocalPosOrderItem extends DataClass
           other.voidedBy == this.voidedBy &&
           other.voidedAt == this.voidedAt &&
           other.sentAt == this.sentAt &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
 }
 
 class PosOrderItemsTableCompanion extends UpdateCompanion<LocalPosOrderItem> {
   final Value<int> id;
+  final Value<int?> hotelId;
   final Value<int?> orderId;
   final Value<int?> productId;
   final Value<String?> productName;
@@ -19854,8 +20681,10 @@ class PosOrderItemsTableCompanion extends UpdateCompanion<LocalPosOrderItem> {
   final Value<String?> voidedAt;
   final Value<String?> sentAt;
   final Value<String?> createdAt;
+  final Value<String?> updatedAt;
   const PosOrderItemsTableCompanion({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.orderId = const Value.absent(),
     this.productId = const Value.absent(),
     this.productName = const Value.absent(),
@@ -19870,9 +20699,11 @@ class PosOrderItemsTableCompanion extends UpdateCompanion<LocalPosOrderItem> {
     this.voidedAt = const Value.absent(),
     this.sentAt = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
   });
   PosOrderItemsTableCompanion.insert({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.orderId = const Value.absent(),
     this.productId = const Value.absent(),
     this.productName = const Value.absent(),
@@ -19887,9 +20718,11 @@ class PosOrderItemsTableCompanion extends UpdateCompanion<LocalPosOrderItem> {
     this.voidedAt = const Value.absent(),
     this.sentAt = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
   });
   static Insertable<LocalPosOrderItem> custom({
     Expression<int>? id,
+    Expression<int>? hotelId,
     Expression<int>? orderId,
     Expression<int>? productId,
     Expression<String>? productName,
@@ -19904,9 +20737,11 @@ class PosOrderItemsTableCompanion extends UpdateCompanion<LocalPosOrderItem> {
     Expression<String>? voidedAt,
     Expression<String>? sentAt,
     Expression<String>? createdAt,
+    Expression<String>? updatedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (hotelId != null) 'hotel_id': hotelId,
       if (orderId != null) 'order_id': orderId,
       if (productId != null) 'product_id': productId,
       if (productName != null) 'product_name': productName,
@@ -19921,11 +20756,13 @@ class PosOrderItemsTableCompanion extends UpdateCompanion<LocalPosOrderItem> {
       if (voidedAt != null) 'voided_at': voidedAt,
       if (sentAt != null) 'sent_at': sentAt,
       if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
     });
   }
 
   PosOrderItemsTableCompanion copyWith({
     Value<int>? id,
+    Value<int?>? hotelId,
     Value<int?>? orderId,
     Value<int?>? productId,
     Value<String?>? productName,
@@ -19940,9 +20777,11 @@ class PosOrderItemsTableCompanion extends UpdateCompanion<LocalPosOrderItem> {
     Value<String?>? voidedAt,
     Value<String?>? sentAt,
     Value<String?>? createdAt,
+    Value<String?>? updatedAt,
   }) {
     return PosOrderItemsTableCompanion(
       id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
       orderId: orderId ?? this.orderId,
       productId: productId ?? this.productId,
       productName: productName ?? this.productName,
@@ -19957,6 +20796,7 @@ class PosOrderItemsTableCompanion extends UpdateCompanion<LocalPosOrderItem> {
       voidedAt: voidedAt ?? this.voidedAt,
       sentAt: sentAt ?? this.sentAt,
       createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
@@ -19965,6 +20805,9 @@ class PosOrderItemsTableCompanion extends UpdateCompanion<LocalPosOrderItem> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (hotelId.present) {
+      map['hotel_id'] = Variable<int>(hotelId.value);
     }
     if (orderId.present) {
       map['order_id'] = Variable<int>(orderId.value);
@@ -20008,6 +20851,9 @@ class PosOrderItemsTableCompanion extends UpdateCompanion<LocalPosOrderItem> {
     if (createdAt.present) {
       map['created_at'] = Variable<String>(createdAt.value);
     }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<String>(updatedAt.value);
+    }
     return map;
   }
 
@@ -20015,6 +20861,7 @@ class PosOrderItemsTableCompanion extends UpdateCompanion<LocalPosOrderItem> {
   String toString() {
     return (StringBuffer('PosOrderItemsTableCompanion(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('orderId: $orderId, ')
           ..write('productId: $productId, ')
           ..write('productName: $productName, ')
@@ -20028,7 +20875,8 @@ class PosOrderItemsTableCompanion extends UpdateCompanion<LocalPosOrderItem> {
           ..write('voidedBy: $voidedBy, ')
           ..write('voidedAt: $voidedAt, ')
           ..write('sentAt: $sentAt, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
@@ -20046,6 +20894,17 @@ class $PosPaymentsTableTable extends PosPaymentsTable
     'id',
     aliasedName,
     false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hotelIdMeta = const VerificationMeta(
+    'hotelId',
+  );
+  @override
+  late final GeneratedColumn<int> hotelId = GeneratedColumn<int>(
+    'hotel_id',
+    aliasedName,
+    true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
@@ -20125,6 +20984,7 @@ class $PosPaymentsTableTable extends PosPaymentsTable
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    hotelId,
     orderId,
     shiftId,
     method,
@@ -20147,6 +21007,12 @@ class $PosPaymentsTableTable extends PosPaymentsTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('hotel_id')) {
+      context.handle(
+        _hotelIdMeta,
+        hotelId.isAcceptableOrUnknown(data['hotel_id']!, _hotelIdMeta),
+      );
     }
     if (data.containsKey('order_id')) {
       context.handle(
@@ -20203,6 +21069,10 @@ class $PosPaymentsTableTable extends PosPaymentsTable
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      hotelId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hotel_id'],
+      ),
       orderId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}order_id'],
@@ -20242,6 +21112,7 @@ class $PosPaymentsTableTable extends PosPaymentsTable
 
 class LocalPosPayment extends DataClass implements Insertable<LocalPosPayment> {
   final int id;
+  final int? hotelId;
   final int? orderId;
   final int? shiftId;
   final String? method;
@@ -20251,6 +21122,7 @@ class LocalPosPayment extends DataClass implements Insertable<LocalPosPayment> {
   final String? createdAt;
   const LocalPosPayment({
     required this.id,
+    this.hotelId,
     this.orderId,
     this.shiftId,
     this.method,
@@ -20263,6 +21135,9 @@ class LocalPosPayment extends DataClass implements Insertable<LocalPosPayment> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || hotelId != null) {
+      map['hotel_id'] = Variable<int>(hotelId);
+    }
     if (!nullToAbsent || orderId != null) {
       map['order_id'] = Variable<int>(orderId);
     }
@@ -20290,6 +21165,9 @@ class LocalPosPayment extends DataClass implements Insertable<LocalPosPayment> {
   PosPaymentsTableCompanion toCompanion(bool nullToAbsent) {
     return PosPaymentsTableCompanion(
       id: Value(id),
+      hotelId: hotelId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hotelId),
       orderId: orderId == null && nullToAbsent
           ? const Value.absent()
           : Value(orderId),
@@ -20321,6 +21199,7 @@ class LocalPosPayment extends DataClass implements Insertable<LocalPosPayment> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LocalPosPayment(
       id: serializer.fromJson<int>(json['id']),
+      hotelId: serializer.fromJson<int?>(json['hotelId']),
       orderId: serializer.fromJson<int?>(json['orderId']),
       shiftId: serializer.fromJson<int?>(json['shiftId']),
       method: serializer.fromJson<String?>(json['method']),
@@ -20335,6 +21214,7 @@ class LocalPosPayment extends DataClass implements Insertable<LocalPosPayment> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'hotelId': serializer.toJson<int?>(hotelId),
       'orderId': serializer.toJson<int?>(orderId),
       'shiftId': serializer.toJson<int?>(shiftId),
       'method': serializer.toJson<String?>(method),
@@ -20347,6 +21227,7 @@ class LocalPosPayment extends DataClass implements Insertable<LocalPosPayment> {
 
   LocalPosPayment copyWith({
     int? id,
+    Value<int?> hotelId = const Value.absent(),
     Value<int?> orderId = const Value.absent(),
     Value<int?> shiftId = const Value.absent(),
     Value<String?> method = const Value.absent(),
@@ -20356,6 +21237,7 @@ class LocalPosPayment extends DataClass implements Insertable<LocalPosPayment> {
     Value<String?> createdAt = const Value.absent(),
   }) => LocalPosPayment(
     id: id ?? this.id,
+    hotelId: hotelId.present ? hotelId.value : this.hotelId,
     orderId: orderId.present ? orderId.value : this.orderId,
     shiftId: shiftId.present ? shiftId.value : this.shiftId,
     method: method.present ? method.value : this.method,
@@ -20367,6 +21249,7 @@ class LocalPosPayment extends DataClass implements Insertable<LocalPosPayment> {
   LocalPosPayment copyWithCompanion(PosPaymentsTableCompanion data) {
     return LocalPosPayment(
       id: data.id.present ? data.id.value : this.id,
+      hotelId: data.hotelId.present ? data.hotelId.value : this.hotelId,
       orderId: data.orderId.present ? data.orderId.value : this.orderId,
       shiftId: data.shiftId.present ? data.shiftId.value : this.shiftId,
       method: data.method.present ? data.method.value : this.method,
@@ -20383,6 +21266,7 @@ class LocalPosPayment extends DataClass implements Insertable<LocalPosPayment> {
   String toString() {
     return (StringBuffer('LocalPosPayment(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('orderId: $orderId, ')
           ..write('shiftId: $shiftId, ')
           ..write('method: $method, ')
@@ -20397,6 +21281,7 @@ class LocalPosPayment extends DataClass implements Insertable<LocalPosPayment> {
   @override
   int get hashCode => Object.hash(
     id,
+    hotelId,
     orderId,
     shiftId,
     method,
@@ -20410,6 +21295,7 @@ class LocalPosPayment extends DataClass implements Insertable<LocalPosPayment> {
       identical(this, other) ||
       (other is LocalPosPayment &&
           other.id == this.id &&
+          other.hotelId == this.hotelId &&
           other.orderId == this.orderId &&
           other.shiftId == this.shiftId &&
           other.method == this.method &&
@@ -20421,6 +21307,7 @@ class LocalPosPayment extends DataClass implements Insertable<LocalPosPayment> {
 
 class PosPaymentsTableCompanion extends UpdateCompanion<LocalPosPayment> {
   final Value<int> id;
+  final Value<int?> hotelId;
   final Value<int?> orderId;
   final Value<int?> shiftId;
   final Value<String?> method;
@@ -20430,6 +21317,7 @@ class PosPaymentsTableCompanion extends UpdateCompanion<LocalPosPayment> {
   final Value<String?> createdAt;
   const PosPaymentsTableCompanion({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.orderId = const Value.absent(),
     this.shiftId = const Value.absent(),
     this.method = const Value.absent(),
@@ -20440,6 +21328,7 @@ class PosPaymentsTableCompanion extends UpdateCompanion<LocalPosPayment> {
   });
   PosPaymentsTableCompanion.insert({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.orderId = const Value.absent(),
     this.shiftId = const Value.absent(),
     this.method = const Value.absent(),
@@ -20450,6 +21339,7 @@ class PosPaymentsTableCompanion extends UpdateCompanion<LocalPosPayment> {
   });
   static Insertable<LocalPosPayment> custom({
     Expression<int>? id,
+    Expression<int>? hotelId,
     Expression<int>? orderId,
     Expression<int>? shiftId,
     Expression<String>? method,
@@ -20460,6 +21350,7 @@ class PosPaymentsTableCompanion extends UpdateCompanion<LocalPosPayment> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (hotelId != null) 'hotel_id': hotelId,
       if (orderId != null) 'order_id': orderId,
       if (shiftId != null) 'shift_id': shiftId,
       if (method != null) 'method': method,
@@ -20472,6 +21363,7 @@ class PosPaymentsTableCompanion extends UpdateCompanion<LocalPosPayment> {
 
   PosPaymentsTableCompanion copyWith({
     Value<int>? id,
+    Value<int?>? hotelId,
     Value<int?>? orderId,
     Value<int?>? shiftId,
     Value<String?>? method,
@@ -20482,6 +21374,7 @@ class PosPaymentsTableCompanion extends UpdateCompanion<LocalPosPayment> {
   }) {
     return PosPaymentsTableCompanion(
       id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
       orderId: orderId ?? this.orderId,
       shiftId: shiftId ?? this.shiftId,
       method: method ?? this.method,
@@ -20497,6 +21390,9 @@ class PosPaymentsTableCompanion extends UpdateCompanion<LocalPosPayment> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (hotelId.present) {
+      map['hotel_id'] = Variable<int>(hotelId.value);
     }
     if (orderId.present) {
       map['order_id'] = Variable<int>(orderId.value);
@@ -20526,6 +21422,7 @@ class PosPaymentsTableCompanion extends UpdateCompanion<LocalPosPayment> {
   String toString() {
     return (StringBuffer('PosPaymentsTableCompanion(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('orderId: $orderId, ')
           ..write('shiftId: $shiftId, ')
           ..write('method: $method, ')
@@ -22268,6 +23165,17 @@ class $NotificationsTableTable extends NotificationsTable
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _hotelIdMeta = const VerificationMeta(
+    'hotelId',
+  );
+  @override
+  late final GeneratedColumn<int> hotelId = GeneratedColumn<int>(
+    'hotel_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _typeMeta = const VerificationMeta('type');
   @override
   late final GeneratedColumn<String> type = GeneratedColumn<String>(
@@ -22350,6 +23258,15 @@ class $NotificationsTableTable extends NotificationsTable
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _readAtMeta = const VerificationMeta('readAt');
+  @override
+  late final GeneratedColumn<String> readAt = GeneratedColumn<String>(
+    'read_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -22375,6 +23292,7 @@ class $NotificationsTableTable extends NotificationsTable
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    hotelId,
     type,
     guestId,
     userId,
@@ -22383,6 +23301,7 @@ class $NotificationsTableTable extends NotificationsTable
     status,
     relatedEntityId,
     entityType,
+    readAt,
     createdAt,
     updatedAt,
   ];
@@ -22400,6 +23319,12 @@ class $NotificationsTableTable extends NotificationsTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('hotel_id')) {
+      context.handle(
+        _hotelIdMeta,
+        hotelId.isAcceptableOrUnknown(data['hotel_id']!, _hotelIdMeta),
+      );
     }
     if (data.containsKey('type')) {
       context.handle(
@@ -22452,6 +23377,12 @@ class $NotificationsTableTable extends NotificationsTable
         entityType.isAcceptableOrUnknown(data['entity_type']!, _entityTypeMeta),
       );
     }
+    if (data.containsKey('read_at')) {
+      context.handle(
+        _readAtMeta,
+        readAt.isAcceptableOrUnknown(data['read_at']!, _readAtMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -22477,6 +23408,10 @@ class $NotificationsTableTable extends NotificationsTable
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      hotelId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hotel_id'],
+      ),
       type: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}type'],
@@ -22509,6 +23444,10 @@ class $NotificationsTableTable extends NotificationsTable
         DriftSqlType.string,
         data['${effectivePrefix}entity_type'],
       ),
+      readAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}read_at'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}created_at'],
@@ -22529,6 +23468,7 @@ class $NotificationsTableTable extends NotificationsTable
 class LocalNotification extends DataClass
     implements Insertable<LocalNotification> {
   final int id;
+  final int? hotelId;
   final String? type;
   final int? guestId;
   final int? userId;
@@ -22537,10 +23477,12 @@ class LocalNotification extends DataClass
   final String? status;
   final int? relatedEntityId;
   final String? entityType;
+  final String? readAt;
   final String? createdAt;
   final String? updatedAt;
   const LocalNotification({
     required this.id,
+    this.hotelId,
     this.type,
     this.guestId,
     this.userId,
@@ -22549,6 +23491,7 @@ class LocalNotification extends DataClass
     this.status,
     this.relatedEntityId,
     this.entityType,
+    this.readAt,
     this.createdAt,
     this.updatedAt,
   });
@@ -22556,6 +23499,9 @@ class LocalNotification extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || hotelId != null) {
+      map['hotel_id'] = Variable<int>(hotelId);
+    }
     if (!nullToAbsent || type != null) {
       map['type'] = Variable<String>(type);
     }
@@ -22580,6 +23526,9 @@ class LocalNotification extends DataClass
     if (!nullToAbsent || entityType != null) {
       map['entity_type'] = Variable<String>(entityType);
     }
+    if (!nullToAbsent || readAt != null) {
+      map['read_at'] = Variable<String>(readAt);
+    }
     if (!nullToAbsent || createdAt != null) {
       map['created_at'] = Variable<String>(createdAt);
     }
@@ -22592,6 +23541,9 @@ class LocalNotification extends DataClass
   NotificationsTableCompanion toCompanion(bool nullToAbsent) {
     return NotificationsTableCompanion(
       id: Value(id),
+      hotelId: hotelId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hotelId),
       type: type == null && nullToAbsent ? const Value.absent() : Value(type),
       guestId: guestId == null && nullToAbsent
           ? const Value.absent()
@@ -22614,6 +23566,9 @@ class LocalNotification extends DataClass
       entityType: entityType == null && nullToAbsent
           ? const Value.absent()
           : Value(entityType),
+      readAt: readAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(readAt),
       createdAt: createdAt == null && nullToAbsent
           ? const Value.absent()
           : Value(createdAt),
@@ -22630,6 +23585,7 @@ class LocalNotification extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LocalNotification(
       id: serializer.fromJson<int>(json['id']),
+      hotelId: serializer.fromJson<int?>(json['hotelId']),
       type: serializer.fromJson<String?>(json['type']),
       guestId: serializer.fromJson<int?>(json['guestId']),
       userId: serializer.fromJson<int?>(json['userId']),
@@ -22638,6 +23594,7 @@ class LocalNotification extends DataClass
       status: serializer.fromJson<String?>(json['status']),
       relatedEntityId: serializer.fromJson<int?>(json['relatedEntityId']),
       entityType: serializer.fromJson<String?>(json['entityType']),
+      readAt: serializer.fromJson<String?>(json['readAt']),
       createdAt: serializer.fromJson<String?>(json['createdAt']),
       updatedAt: serializer.fromJson<String?>(json['updatedAt']),
     );
@@ -22647,6 +23604,7 @@ class LocalNotification extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'hotelId': serializer.toJson<int?>(hotelId),
       'type': serializer.toJson<String?>(type),
       'guestId': serializer.toJson<int?>(guestId),
       'userId': serializer.toJson<int?>(userId),
@@ -22655,6 +23613,7 @@ class LocalNotification extends DataClass
       'status': serializer.toJson<String?>(status),
       'relatedEntityId': serializer.toJson<int?>(relatedEntityId),
       'entityType': serializer.toJson<String?>(entityType),
+      'readAt': serializer.toJson<String?>(readAt),
       'createdAt': serializer.toJson<String?>(createdAt),
       'updatedAt': serializer.toJson<String?>(updatedAt),
     };
@@ -22662,6 +23621,7 @@ class LocalNotification extends DataClass
 
   LocalNotification copyWith({
     int? id,
+    Value<int?> hotelId = const Value.absent(),
     Value<String?> type = const Value.absent(),
     Value<int?> guestId = const Value.absent(),
     Value<int?> userId = const Value.absent(),
@@ -22670,10 +23630,12 @@ class LocalNotification extends DataClass
     Value<String?> status = const Value.absent(),
     Value<int?> relatedEntityId = const Value.absent(),
     Value<String?> entityType = const Value.absent(),
+    Value<String?> readAt = const Value.absent(),
     Value<String?> createdAt = const Value.absent(),
     Value<String?> updatedAt = const Value.absent(),
   }) => LocalNotification(
     id: id ?? this.id,
+    hotelId: hotelId.present ? hotelId.value : this.hotelId,
     type: type.present ? type.value : this.type,
     guestId: guestId.present ? guestId.value : this.guestId,
     userId: userId.present ? userId.value : this.userId,
@@ -22684,12 +23646,14 @@ class LocalNotification extends DataClass
         ? relatedEntityId.value
         : this.relatedEntityId,
     entityType: entityType.present ? entityType.value : this.entityType,
+    readAt: readAt.present ? readAt.value : this.readAt,
     createdAt: createdAt.present ? createdAt.value : this.createdAt,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
   );
   LocalNotification copyWithCompanion(NotificationsTableCompanion data) {
     return LocalNotification(
       id: data.id.present ? data.id.value : this.id,
+      hotelId: data.hotelId.present ? data.hotelId.value : this.hotelId,
       type: data.type.present ? data.type.value : this.type,
       guestId: data.guestId.present ? data.guestId.value : this.guestId,
       userId: data.userId.present ? data.userId.value : this.userId,
@@ -22702,6 +23666,7 @@ class LocalNotification extends DataClass
       entityType: data.entityType.present
           ? data.entityType.value
           : this.entityType,
+      readAt: data.readAt.present ? data.readAt.value : this.readAt,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -22711,6 +23676,7 @@ class LocalNotification extends DataClass
   String toString() {
     return (StringBuffer('LocalNotification(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('type: $type, ')
           ..write('guestId: $guestId, ')
           ..write('userId: $userId, ')
@@ -22719,6 +23685,7 @@ class LocalNotification extends DataClass
           ..write('status: $status, ')
           ..write('relatedEntityId: $relatedEntityId, ')
           ..write('entityType: $entityType, ')
+          ..write('readAt: $readAt, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -22728,6 +23695,7 @@ class LocalNotification extends DataClass
   @override
   int get hashCode => Object.hash(
     id,
+    hotelId,
     type,
     guestId,
     userId,
@@ -22736,6 +23704,7 @@ class LocalNotification extends DataClass
     status,
     relatedEntityId,
     entityType,
+    readAt,
     createdAt,
     updatedAt,
   );
@@ -22744,6 +23713,7 @@ class LocalNotification extends DataClass
       identical(this, other) ||
       (other is LocalNotification &&
           other.id == this.id &&
+          other.hotelId == this.hotelId &&
           other.type == this.type &&
           other.guestId == this.guestId &&
           other.userId == this.userId &&
@@ -22752,12 +23722,14 @@ class LocalNotification extends DataClass
           other.status == this.status &&
           other.relatedEntityId == this.relatedEntityId &&
           other.entityType == this.entityType &&
+          other.readAt == this.readAt &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
 
 class NotificationsTableCompanion extends UpdateCompanion<LocalNotification> {
   final Value<int> id;
+  final Value<int?> hotelId;
   final Value<String?> type;
   final Value<int?> guestId;
   final Value<int?> userId;
@@ -22766,10 +23738,12 @@ class NotificationsTableCompanion extends UpdateCompanion<LocalNotification> {
   final Value<String?> status;
   final Value<int?> relatedEntityId;
   final Value<String?> entityType;
+  final Value<String?> readAt;
   final Value<String?> createdAt;
   final Value<String?> updatedAt;
   const NotificationsTableCompanion({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.type = const Value.absent(),
     this.guestId = const Value.absent(),
     this.userId = const Value.absent(),
@@ -22778,11 +23752,13 @@ class NotificationsTableCompanion extends UpdateCompanion<LocalNotification> {
     this.status = const Value.absent(),
     this.relatedEntityId = const Value.absent(),
     this.entityType = const Value.absent(),
+    this.readAt = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
   NotificationsTableCompanion.insert({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.type = const Value.absent(),
     this.guestId = const Value.absent(),
     this.userId = const Value.absent(),
@@ -22791,11 +23767,13 @@ class NotificationsTableCompanion extends UpdateCompanion<LocalNotification> {
     this.status = const Value.absent(),
     this.relatedEntityId = const Value.absent(),
     this.entityType = const Value.absent(),
+    this.readAt = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
   static Insertable<LocalNotification> custom({
     Expression<int>? id,
+    Expression<int>? hotelId,
     Expression<String>? type,
     Expression<int>? guestId,
     Expression<int>? userId,
@@ -22804,11 +23782,13 @@ class NotificationsTableCompanion extends UpdateCompanion<LocalNotification> {
     Expression<String>? status,
     Expression<int>? relatedEntityId,
     Expression<String>? entityType,
+    Expression<String>? readAt,
     Expression<String>? createdAt,
     Expression<String>? updatedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (hotelId != null) 'hotel_id': hotelId,
       if (type != null) 'type': type,
       if (guestId != null) 'guest_id': guestId,
       if (userId != null) 'user_id': userId,
@@ -22817,6 +23797,7 @@ class NotificationsTableCompanion extends UpdateCompanion<LocalNotification> {
       if (status != null) 'status': status,
       if (relatedEntityId != null) 'related_entity_id': relatedEntityId,
       if (entityType != null) 'entity_type': entityType,
+      if (readAt != null) 'read_at': readAt,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
@@ -22824,6 +23805,7 @@ class NotificationsTableCompanion extends UpdateCompanion<LocalNotification> {
 
   NotificationsTableCompanion copyWith({
     Value<int>? id,
+    Value<int?>? hotelId,
     Value<String?>? type,
     Value<int?>? guestId,
     Value<int?>? userId,
@@ -22832,11 +23814,13 @@ class NotificationsTableCompanion extends UpdateCompanion<LocalNotification> {
     Value<String?>? status,
     Value<int?>? relatedEntityId,
     Value<String?>? entityType,
+    Value<String?>? readAt,
     Value<String?>? createdAt,
     Value<String?>? updatedAt,
   }) {
     return NotificationsTableCompanion(
       id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
       type: type ?? this.type,
       guestId: guestId ?? this.guestId,
       userId: userId ?? this.userId,
@@ -22845,6 +23829,7 @@ class NotificationsTableCompanion extends UpdateCompanion<LocalNotification> {
       status: status ?? this.status,
       relatedEntityId: relatedEntityId ?? this.relatedEntityId,
       entityType: entityType ?? this.entityType,
+      readAt: readAt ?? this.readAt,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -22855,6 +23840,9 @@ class NotificationsTableCompanion extends UpdateCompanion<LocalNotification> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (hotelId.present) {
+      map['hotel_id'] = Variable<int>(hotelId.value);
     }
     if (type.present) {
       map['type'] = Variable<String>(type.value);
@@ -22880,6 +23868,9 @@ class NotificationsTableCompanion extends UpdateCompanion<LocalNotification> {
     if (entityType.present) {
       map['entity_type'] = Variable<String>(entityType.value);
     }
+    if (readAt.present) {
+      map['read_at'] = Variable<String>(readAt.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<String>(createdAt.value);
     }
@@ -22893,6 +23884,7 @@ class NotificationsTableCompanion extends UpdateCompanion<LocalNotification> {
   String toString() {
     return (StringBuffer('NotificationsTableCompanion(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('type: $type, ')
           ..write('guestId: $guestId, ')
           ..write('userId: $userId, ')
@@ -22901,6 +23893,7 @@ class NotificationsTableCompanion extends UpdateCompanion<LocalNotification> {
           ..write('status: $status, ')
           ..write('relatedEntityId: $relatedEntityId, ')
           ..write('entityType: $entityType, ')
+          ..write('readAt: $readAt, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -22920,6 +23913,17 @@ class $AuditLogsTableTable extends AuditLogsTable
     'id',
     aliasedName,
     false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hotelIdMeta = const VerificationMeta(
+    'hotelId',
+  );
+  @override
+  late final GeneratedColumn<int> hotelId = GeneratedColumn<int>(
+    'hotel_id',
+    aliasedName,
+    true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
@@ -23021,6 +24025,7 @@ class $AuditLogsTableTable extends AuditLogsTable
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    hotelId,
     action,
     userId,
     entityType,
@@ -23045,6 +24050,12 @@ class $AuditLogsTableTable extends AuditLogsTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('hotel_id')) {
+      context.handle(
+        _hotelIdMeta,
+        hotelId.isAcceptableOrUnknown(data['hotel_id']!, _hotelIdMeta),
+      );
     }
     if (data.containsKey('action')) {
       context.handle(
@@ -23113,6 +24124,10 @@ class $AuditLogsTableTable extends AuditLogsTable
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      hotelId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hotel_id'],
+      ),
       action: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}action'],
@@ -23160,6 +24175,7 @@ class $AuditLogsTableTable extends AuditLogsTable
 
 class LocalAuditLog extends DataClass implements Insertable<LocalAuditLog> {
   final int id;
+  final int? hotelId;
   final String? action;
   final int? userId;
   final String? entityType;
@@ -23171,6 +24187,7 @@ class LocalAuditLog extends DataClass implements Insertable<LocalAuditLog> {
   final String? updatedAt;
   const LocalAuditLog({
     required this.id,
+    this.hotelId,
     this.action,
     this.userId,
     this.entityType,
@@ -23185,6 +24202,9 @@ class LocalAuditLog extends DataClass implements Insertable<LocalAuditLog> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || hotelId != null) {
+      map['hotel_id'] = Variable<int>(hotelId);
+    }
     if (!nullToAbsent || action != null) {
       map['action'] = Variable<String>(action);
     }
@@ -23218,6 +24238,9 @@ class LocalAuditLog extends DataClass implements Insertable<LocalAuditLog> {
   AuditLogsTableCompanion toCompanion(bool nullToAbsent) {
     return AuditLogsTableCompanion(
       id: Value(id),
+      hotelId: hotelId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hotelId),
       action: action == null && nullToAbsent
           ? const Value.absent()
           : Value(action),
@@ -23255,6 +24278,7 @@ class LocalAuditLog extends DataClass implements Insertable<LocalAuditLog> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LocalAuditLog(
       id: serializer.fromJson<int>(json['id']),
+      hotelId: serializer.fromJson<int?>(json['hotelId']),
       action: serializer.fromJson<String?>(json['action']),
       userId: serializer.fromJson<int?>(json['userId']),
       entityType: serializer.fromJson<String?>(json['entityType']),
@@ -23271,6 +24295,7 @@ class LocalAuditLog extends DataClass implements Insertable<LocalAuditLog> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'hotelId': serializer.toJson<int?>(hotelId),
       'action': serializer.toJson<String?>(action),
       'userId': serializer.toJson<int?>(userId),
       'entityType': serializer.toJson<String?>(entityType),
@@ -23285,6 +24310,7 @@ class LocalAuditLog extends DataClass implements Insertable<LocalAuditLog> {
 
   LocalAuditLog copyWith({
     int? id,
+    Value<int?> hotelId = const Value.absent(),
     Value<String?> action = const Value.absent(),
     Value<int?> userId = const Value.absent(),
     Value<String?> entityType = const Value.absent(),
@@ -23296,6 +24322,7 @@ class LocalAuditLog extends DataClass implements Insertable<LocalAuditLog> {
     Value<String?> updatedAt = const Value.absent(),
   }) => LocalAuditLog(
     id: id ?? this.id,
+    hotelId: hotelId.present ? hotelId.value : this.hotelId,
     action: action.present ? action.value : this.action,
     userId: userId.present ? userId.value : this.userId,
     entityType: entityType.present ? entityType.value : this.entityType,
@@ -23309,6 +24336,7 @@ class LocalAuditLog extends DataClass implements Insertable<LocalAuditLog> {
   LocalAuditLog copyWithCompanion(AuditLogsTableCompanion data) {
     return LocalAuditLog(
       id: data.id.present ? data.id.value : this.id,
+      hotelId: data.hotelId.present ? data.hotelId.value : this.hotelId,
       action: data.action.present ? data.action.value : this.action,
       userId: data.userId.present ? data.userId.value : this.userId,
       entityType: data.entityType.present
@@ -23329,6 +24357,7 @@ class LocalAuditLog extends DataClass implements Insertable<LocalAuditLog> {
   String toString() {
     return (StringBuffer('LocalAuditLog(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('action: $action, ')
           ..write('userId: $userId, ')
           ..write('entityType: $entityType, ')
@@ -23345,6 +24374,7 @@ class LocalAuditLog extends DataClass implements Insertable<LocalAuditLog> {
   @override
   int get hashCode => Object.hash(
     id,
+    hotelId,
     action,
     userId,
     entityType,
@@ -23360,6 +24390,7 @@ class LocalAuditLog extends DataClass implements Insertable<LocalAuditLog> {
       identical(this, other) ||
       (other is LocalAuditLog &&
           other.id == this.id &&
+          other.hotelId == this.hotelId &&
           other.action == this.action &&
           other.userId == this.userId &&
           other.entityType == this.entityType &&
@@ -23373,6 +24404,7 @@ class LocalAuditLog extends DataClass implements Insertable<LocalAuditLog> {
 
 class AuditLogsTableCompanion extends UpdateCompanion<LocalAuditLog> {
   final Value<int> id;
+  final Value<int?> hotelId;
   final Value<String?> action;
   final Value<int?> userId;
   final Value<String?> entityType;
@@ -23384,6 +24416,7 @@ class AuditLogsTableCompanion extends UpdateCompanion<LocalAuditLog> {
   final Value<String?> updatedAt;
   const AuditLogsTableCompanion({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.action = const Value.absent(),
     this.userId = const Value.absent(),
     this.entityType = const Value.absent(),
@@ -23396,6 +24429,7 @@ class AuditLogsTableCompanion extends UpdateCompanion<LocalAuditLog> {
   });
   AuditLogsTableCompanion.insert({
     this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
     this.action = const Value.absent(),
     this.userId = const Value.absent(),
     this.entityType = const Value.absent(),
@@ -23408,6 +24442,7 @@ class AuditLogsTableCompanion extends UpdateCompanion<LocalAuditLog> {
   });
   static Insertable<LocalAuditLog> custom({
     Expression<int>? id,
+    Expression<int>? hotelId,
     Expression<String>? action,
     Expression<int>? userId,
     Expression<String>? entityType,
@@ -23420,6 +24455,7 @@ class AuditLogsTableCompanion extends UpdateCompanion<LocalAuditLog> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (hotelId != null) 'hotel_id': hotelId,
       if (action != null) 'action': action,
       if (userId != null) 'user_id': userId,
       if (entityType != null) 'entity_type': entityType,
@@ -23434,6 +24470,7 @@ class AuditLogsTableCompanion extends UpdateCompanion<LocalAuditLog> {
 
   AuditLogsTableCompanion copyWith({
     Value<int>? id,
+    Value<int?>? hotelId,
     Value<String?>? action,
     Value<int?>? userId,
     Value<String?>? entityType,
@@ -23446,6 +24483,7 @@ class AuditLogsTableCompanion extends UpdateCompanion<LocalAuditLog> {
   }) {
     return AuditLogsTableCompanion(
       id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
       action: action ?? this.action,
       userId: userId ?? this.userId,
       entityType: entityType ?? this.entityType,
@@ -23463,6 +24501,9 @@ class AuditLogsTableCompanion extends UpdateCompanion<LocalAuditLog> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (hotelId.present) {
+      map['hotel_id'] = Variable<int>(hotelId.value);
     }
     if (action.present) {
       map['action'] = Variable<String>(action.value);
@@ -23498,6 +24539,7 @@ class AuditLogsTableCompanion extends UpdateCompanion<LocalAuditLog> {
   String toString() {
     return (StringBuffer('AuditLogsTableCompanion(')
           ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
           ..write('action: $action, ')
           ..write('userId: $userId, ')
           ..write('entityType: $entityType, ')
@@ -23505,6 +24547,453 @@ class AuditLogsTableCompanion extends UpdateCompanion<LocalAuditLog> {
           ..write('details: $details, ')
           ..write('dataBefore: $dataBefore, ')
           ..write('dataAfter: $dataAfter, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DeviceTokensTableTable extends DeviceTokensTable
+    with TableInfo<$DeviceTokensTableTable, LocalDeviceToken> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DeviceTokensTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hotelIdMeta = const VerificationMeta(
+    'hotelId',
+  );
+  @override
+  late final GeneratedColumn<int> hotelId = GeneratedColumn<int>(
+    'hotel_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<int> userId = GeneratedColumn<int>(
+    'user_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _tokenMeta = const VerificationMeta('token');
+  @override
+  late final GeneratedColumn<String> token = GeneratedColumn<String>(
+    'token',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _platformMeta = const VerificationMeta(
+    'platform',
+  );
+  @override
+  late final GeneratedColumn<String> platform = GeneratedColumn<String>(
+    'platform',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<String> createdAt = GeneratedColumn<String>(
+    'created_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<String> updatedAt = GeneratedColumn<String>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    hotelId,
+    userId,
+    token,
+    platform,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'device_tokens';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalDeviceToken> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('hotel_id')) {
+      context.handle(
+        _hotelIdMeta,
+        hotelId.isAcceptableOrUnknown(data['hotel_id']!, _hotelIdMeta),
+      );
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    }
+    if (data.containsKey('token')) {
+      context.handle(
+        _tokenMeta,
+        token.isAcceptableOrUnknown(data['token']!, _tokenMeta),
+      );
+    }
+    if (data.containsKey('platform')) {
+      context.handle(
+        _platformMeta,
+        platform.isAcceptableOrUnknown(data['platform']!, _platformMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalDeviceToken map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalDeviceToken(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      hotelId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hotel_id'],
+      ),
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}user_id'],
+      ),
+      token: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}token'],
+      ),
+      platform: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}platform'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}created_at'],
+      ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}updated_at'],
+      ),
+    );
+  }
+
+  @override
+  $DeviceTokensTableTable createAlias(String alias) {
+    return $DeviceTokensTableTable(attachedDatabase, alias);
+  }
+}
+
+class LocalDeviceToken extends DataClass
+    implements Insertable<LocalDeviceToken> {
+  final int id;
+  final int? hotelId;
+  final int? userId;
+  final String? token;
+  final String? platform;
+  final String? createdAt;
+  final String? updatedAt;
+  const LocalDeviceToken({
+    required this.id,
+    this.hotelId,
+    this.userId,
+    this.token,
+    this.platform,
+    this.createdAt,
+    this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    if (!nullToAbsent || hotelId != null) {
+      map['hotel_id'] = Variable<int>(hotelId);
+    }
+    if (!nullToAbsent || userId != null) {
+      map['user_id'] = Variable<int>(userId);
+    }
+    if (!nullToAbsent || token != null) {
+      map['token'] = Variable<String>(token);
+    }
+    if (!nullToAbsent || platform != null) {
+      map['platform'] = Variable<String>(platform);
+    }
+    if (!nullToAbsent || createdAt != null) {
+      map['created_at'] = Variable<String>(createdAt);
+    }
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<String>(updatedAt);
+    }
+    return map;
+  }
+
+  DeviceTokensTableCompanion toCompanion(bool nullToAbsent) {
+    return DeviceTokensTableCompanion(
+      id: Value(id),
+      hotelId: hotelId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hotelId),
+      userId: userId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(userId),
+      token: token == null && nullToAbsent
+          ? const Value.absent()
+          : Value(token),
+      platform: platform == null && nullToAbsent
+          ? const Value.absent()
+          : Value(platform),
+      createdAt: createdAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+    );
+  }
+
+  factory LocalDeviceToken.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalDeviceToken(
+      id: serializer.fromJson<int>(json['id']),
+      hotelId: serializer.fromJson<int?>(json['hotelId']),
+      userId: serializer.fromJson<int?>(json['userId']),
+      token: serializer.fromJson<String?>(json['token']),
+      platform: serializer.fromJson<String?>(json['platform']),
+      createdAt: serializer.fromJson<String?>(json['createdAt']),
+      updatedAt: serializer.fromJson<String?>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'hotelId': serializer.toJson<int?>(hotelId),
+      'userId': serializer.toJson<int?>(userId),
+      'token': serializer.toJson<String?>(token),
+      'platform': serializer.toJson<String?>(platform),
+      'createdAt': serializer.toJson<String?>(createdAt),
+      'updatedAt': serializer.toJson<String?>(updatedAt),
+    };
+  }
+
+  LocalDeviceToken copyWith({
+    int? id,
+    Value<int?> hotelId = const Value.absent(),
+    Value<int?> userId = const Value.absent(),
+    Value<String?> token = const Value.absent(),
+    Value<String?> platform = const Value.absent(),
+    Value<String?> createdAt = const Value.absent(),
+    Value<String?> updatedAt = const Value.absent(),
+  }) => LocalDeviceToken(
+    id: id ?? this.id,
+    hotelId: hotelId.present ? hotelId.value : this.hotelId,
+    userId: userId.present ? userId.value : this.userId,
+    token: token.present ? token.value : this.token,
+    platform: platform.present ? platform.value : this.platform,
+    createdAt: createdAt.present ? createdAt.value : this.createdAt,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+  );
+  LocalDeviceToken copyWithCompanion(DeviceTokensTableCompanion data) {
+    return LocalDeviceToken(
+      id: data.id.present ? data.id.value : this.id,
+      hotelId: data.hotelId.present ? data.hotelId.value : this.hotelId,
+      userId: data.userId.present ? data.userId.value : this.userId,
+      token: data.token.present ? data.token.value : this.token,
+      platform: data.platform.present ? data.platform.value : this.platform,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalDeviceToken(')
+          ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
+          ..write('userId: $userId, ')
+          ..write('token: $token, ')
+          ..write('platform: $platform, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, hotelId, userId, token, platform, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalDeviceToken &&
+          other.id == this.id &&
+          other.hotelId == this.hotelId &&
+          other.userId == this.userId &&
+          other.token == this.token &&
+          other.platform == this.platform &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class DeviceTokensTableCompanion extends UpdateCompanion<LocalDeviceToken> {
+  final Value<int> id;
+  final Value<int?> hotelId;
+  final Value<int?> userId;
+  final Value<String?> token;
+  final Value<String?> platform;
+  final Value<String?> createdAt;
+  final Value<String?> updatedAt;
+  const DeviceTokensTableCompanion({
+    this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.token = const Value.absent(),
+    this.platform = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  DeviceTokensTableCompanion.insert({
+    this.id = const Value.absent(),
+    this.hotelId = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.token = const Value.absent(),
+    this.platform = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  static Insertable<LocalDeviceToken> custom({
+    Expression<int>? id,
+    Expression<int>? hotelId,
+    Expression<int>? userId,
+    Expression<String>? token,
+    Expression<String>? platform,
+    Expression<String>? createdAt,
+    Expression<String>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (hotelId != null) 'hotel_id': hotelId,
+      if (userId != null) 'user_id': userId,
+      if (token != null) 'token': token,
+      if (platform != null) 'platform': platform,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  DeviceTokensTableCompanion copyWith({
+    Value<int>? id,
+    Value<int?>? hotelId,
+    Value<int?>? userId,
+    Value<String?>? token,
+    Value<String?>? platform,
+    Value<String?>? createdAt,
+    Value<String?>? updatedAt,
+  }) {
+    return DeviceTokensTableCompanion(
+      id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
+      userId: userId ?? this.userId,
+      token: token ?? this.token,
+      platform: platform ?? this.platform,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (hotelId.present) {
+      map['hotel_id'] = Variable<int>(hotelId.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<int>(userId.value);
+    }
+    if (token.present) {
+      map['token'] = Variable<String>(token.value);
+    }
+    if (platform.present) {
+      map['platform'] = Variable<String>(platform.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<String>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<String>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DeviceTokensTableCompanion(')
+          ..write('id: $id, ')
+          ..write('hotelId: $hotelId, ')
+          ..write('userId: $userId, ')
+          ..write('token: $token, ')
+          ..write('platform: $platform, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -24308,6 +25797,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $NotificationsTableTable notificationsTable =
       $NotificationsTableTable(this);
   late final $AuditLogsTableTable auditLogsTable = $AuditLogsTableTable(this);
+  late final $DeviceTokensTableTable deviceTokensTable =
+      $DeviceTokensTableTable(this);
   late final $SyncQueueTableTable syncQueueTable = $SyncQueueTableTable(this);
   late final $SyncMetaTableTable syncMetaTable = $SyncMetaTableTable(this);
   late final CoreDao coreDao = CoreDao(this as AppDatabase);
@@ -24358,6 +25849,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     posWastageLogsTable,
     notificationsTable,
     auditLogsTable,
+    deviceTokensTable,
     syncQueueTable,
     syncMetaTable,
   ];
@@ -24366,6 +25858,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 typedef $$UsersTableTableCreateCompanionBuilder =
     UsersTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<String?> fullName,
       Value<String?> username,
       Value<String?> email,
@@ -24378,6 +25871,7 @@ typedef $$UsersTableTableCreateCompanionBuilder =
 typedef $$UsersTableTableUpdateCompanionBuilder =
     UsersTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<String?> fullName,
       Value<String?> username,
       Value<String?> email,
@@ -24399,6 +25893,11 @@ class $$UsersTableTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -24457,6 +25956,11 @@ class $$UsersTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get fullName => $composableBuilder(
     column: $table.fullName,
     builder: (column) => ColumnOrderings(column),
@@ -24509,6 +26013,9 @@ class $$UsersTableTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get hotelId =>
+      $composableBuilder(column: $table.hotelId, builder: (column) => column);
 
   GeneratedColumn<String> get fullName =>
       $composableBuilder(column: $table.fullName, builder: (column) => column);
@@ -24567,6 +26074,7 @@ class $$UsersTableTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<String?> fullName = const Value.absent(),
                 Value<String?> username = const Value.absent(),
                 Value<String?> email = const Value.absent(),
@@ -24577,6 +26085,7 @@ class $$UsersTableTableTableManager
                 Value<String?> updatedAt = const Value.absent(),
               }) => UsersTableCompanion(
                 id: id,
+                hotelId: hotelId,
                 fullName: fullName,
                 username: username,
                 email: email,
@@ -24589,6 +26098,7 @@ class $$UsersTableTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<String?> fullName = const Value.absent(),
                 Value<String?> username = const Value.absent(),
                 Value<String?> email = const Value.absent(),
@@ -24599,6 +26109,7 @@ class $$UsersTableTableTableManager
                 Value<String?> updatedAt = const Value.absent(),
               }) => UsersTableCompanion.insert(
                 id: id,
+                hotelId: hotelId,
                 fullName: fullName,
                 username: username,
                 email: email,
@@ -24962,6 +26473,7 @@ typedef $$HotelsTableTableProcessedTableManager =
 typedef $$RoomTypesTableTableCreateCompanionBuilder =
     RoomTypesTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<String?> name,
       Value<String?> description,
       Value<int?> capacity,
@@ -24973,6 +26485,7 @@ typedef $$RoomTypesTableTableCreateCompanionBuilder =
 typedef $$RoomTypesTableTableUpdateCompanionBuilder =
     RoomTypesTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<String?> name,
       Value<String?> description,
       Value<int?> capacity,
@@ -24993,6 +26506,11 @@ class $$RoomTypesTableTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -25046,6 +26564,11 @@ class $$RoomTypesTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get name => $composableBuilder(
     column: $table.name,
     builder: (column) => ColumnOrderings(column),
@@ -25093,6 +26616,9 @@ class $$RoomTypesTableTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get hotelId =>
+      $composableBuilder(column: $table.hotelId, builder: (column) => column);
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
@@ -25154,6 +26680,7 @@ class $$RoomTypesTableTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<String?> name = const Value.absent(),
                 Value<String?> description = const Value.absent(),
                 Value<int?> capacity = const Value.absent(),
@@ -25163,6 +26690,7 @@ class $$RoomTypesTableTableTableManager
                 Value<String?> updatedAt = const Value.absent(),
               }) => RoomTypesTableCompanion(
                 id: id,
+                hotelId: hotelId,
                 name: name,
                 description: description,
                 capacity: capacity,
@@ -25174,6 +26702,7 @@ class $$RoomTypesTableTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<String?> name = const Value.absent(),
                 Value<String?> description = const Value.absent(),
                 Value<int?> capacity = const Value.absent(),
@@ -25183,6 +26712,7 @@ class $$RoomTypesTableTableTableManager
                 Value<String?> updatedAt = const Value.absent(),
               }) => RoomTypesTableCompanion.insert(
                 id: id,
+                hotelId: hotelId,
                 name: name,
                 description: description,
                 capacity: capacity,
@@ -25219,6 +26749,7 @@ typedef $$RoomTypesTableTableProcessedTableManager =
 typedef $$RoomsTableTableCreateCompanionBuilder =
     RoomsTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<String?> roomNumber,
       Value<String?> floor,
       Value<int?> roomTypeId,
@@ -25231,6 +26762,7 @@ typedef $$RoomsTableTableCreateCompanionBuilder =
 typedef $$RoomsTableTableUpdateCompanionBuilder =
     RoomsTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<String?> roomNumber,
       Value<String?> floor,
       Value<int?> roomTypeId,
@@ -25252,6 +26784,11 @@ class $$RoomsTableTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -25310,6 +26847,11 @@ class $$RoomsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get roomNumber => $composableBuilder(
     column: $table.roomNumber,
     builder: (column) => ColumnOrderings(column),
@@ -25362,6 +26904,9 @@ class $$RoomsTableTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get hotelId =>
+      $composableBuilder(column: $table.hotelId, builder: (column) => column);
 
   GeneratedColumn<String> get roomNumber => $composableBuilder(
     column: $table.roomNumber,
@@ -25426,6 +26971,7 @@ class $$RoomsTableTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<String?> roomNumber = const Value.absent(),
                 Value<String?> floor = const Value.absent(),
                 Value<int?> roomTypeId = const Value.absent(),
@@ -25436,6 +26982,7 @@ class $$RoomsTableTableTableManager
                 Value<String?> updatedAt = const Value.absent(),
               }) => RoomsTableCompanion(
                 id: id,
+                hotelId: hotelId,
                 roomNumber: roomNumber,
                 floor: floor,
                 roomTypeId: roomTypeId,
@@ -25448,6 +26995,7 @@ class $$RoomsTableTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<String?> roomNumber = const Value.absent(),
                 Value<String?> floor = const Value.absent(),
                 Value<int?> roomTypeId = const Value.absent(),
@@ -25458,6 +27006,7 @@ class $$RoomsTableTableTableManager
                 Value<String?> updatedAt = const Value.absent(),
               }) => RoomsTableCompanion.insert(
                 id: id,
+                hotelId: hotelId,
                 roomNumber: roomNumber,
                 floor: floor,
                 roomTypeId: roomTypeId,
@@ -25492,6 +27041,7 @@ typedef $$RoomsTableTableProcessedTableManager =
 typedef $$GuestsTableTableCreateCompanionBuilder =
     GuestsTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<String?> name,
       Value<String?> email,
       Value<String?> phone,
@@ -25514,6 +27064,7 @@ typedef $$GuestsTableTableCreateCompanionBuilder =
 typedef $$GuestsTableTableUpdateCompanionBuilder =
     GuestsTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<String?> name,
       Value<String?> email,
       Value<String?> phone,
@@ -25545,6 +27096,11 @@ class $$GuestsTableTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -25653,6 +27209,11 @@ class $$GuestsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get name => $composableBuilder(
     column: $table.name,
     builder: (column) => ColumnOrderings(column),
@@ -25755,6 +27316,9 @@ class $$GuestsTableTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get hotelId =>
+      $composableBuilder(column: $table.hotelId, builder: (column) => column);
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
@@ -25861,6 +27425,7 @@ class $$GuestsTableTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<String?> name = const Value.absent(),
                 Value<String?> email = const Value.absent(),
                 Value<String?> phone = const Value.absent(),
@@ -25881,6 +27446,7 @@ class $$GuestsTableTableTableManager
                 Value<String?> updatedAt = const Value.absent(),
               }) => GuestsTableCompanion(
                 id: id,
+                hotelId: hotelId,
                 name: name,
                 email: email,
                 phone: phone,
@@ -25903,6 +27469,7 @@ class $$GuestsTableTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<String?> name = const Value.absent(),
                 Value<String?> email = const Value.absent(),
                 Value<String?> phone = const Value.absent(),
@@ -25923,6 +27490,7 @@ class $$GuestsTableTableTableManager
                 Value<String?> updatedAt = const Value.absent(),
               }) => GuestsTableCompanion.insert(
                 id: id,
+                hotelId: hotelId,
                 name: name,
                 email: email,
                 phone: phone,
@@ -25970,18 +27538,21 @@ typedef $$GuestsTableTableProcessedTableManager =
 typedef $$BookingsTableTableCreateCompanionBuilder =
     BookingsTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<int?> guestId,
       Value<int?> roomId,
       Value<String?> checkIn,
       Value<String?> checkOut,
       Value<String?> status,
       Value<String?> source,
+      Value<int?> createdByUserId,
       Value<int?> rateApplied,
       Value<int?> adults,
       Value<int?> children,
       Value<String?> specialRequests,
       Value<String?> notes,
       Value<String?> modificationReason,
+      Value<String?> cancellationReason,
       Value<String?> paymentStatus,
       Value<String?> createdAt,
       Value<String?> updatedAt,
@@ -25989,18 +27560,21 @@ typedef $$BookingsTableTableCreateCompanionBuilder =
 typedef $$BookingsTableTableUpdateCompanionBuilder =
     BookingsTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<int?> guestId,
       Value<int?> roomId,
       Value<String?> checkIn,
       Value<String?> checkOut,
       Value<String?> status,
       Value<String?> source,
+      Value<int?> createdByUserId,
       Value<int?> rateApplied,
       Value<int?> adults,
       Value<int?> children,
       Value<String?> specialRequests,
       Value<String?> notes,
       Value<String?> modificationReason,
+      Value<String?> cancellationReason,
       Value<String?> paymentStatus,
       Value<String?> createdAt,
       Value<String?> updatedAt,
@@ -26017,6 +27591,11 @@ class $$BookingsTableTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -26050,6 +27629,11 @@ class $$BookingsTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<int> get createdByUserId => $composableBuilder(
+    column: $table.createdByUserId,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<int> get rateApplied => $composableBuilder(
     column: $table.rateApplied,
     builder: (column) => ColumnFilters(column),
@@ -26077,6 +27661,11 @@ class $$BookingsTableTableFilterComposer
 
   ColumnFilters<String> get modificationReason => $composableBuilder(
     column: $table.modificationReason,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get cancellationReason => $composableBuilder(
+    column: $table.cancellationReason,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -26110,6 +27699,11 @@ class $$BookingsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get guestId => $composableBuilder(
     column: $table.guestId,
     builder: (column) => ColumnOrderings(column),
@@ -26137,6 +27731,11 @@ class $$BookingsTableTableOrderingComposer
 
   ColumnOrderings<String> get source => $composableBuilder(
     column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdByUserId => $composableBuilder(
+    column: $table.createdByUserId,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -26170,6 +27769,11 @@ class $$BookingsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get cancellationReason => $composableBuilder(
+    column: $table.cancellationReason,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get paymentStatus => $composableBuilder(
     column: $table.paymentStatus,
     builder: (column) => ColumnOrderings(column),
@@ -26198,6 +27802,9 @@ class $$BookingsTableTableAnnotationComposer
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
+  GeneratedColumn<int> get hotelId =>
+      $composableBuilder(column: $table.hotelId, builder: (column) => column);
+
   GeneratedColumn<int> get guestId =>
       $composableBuilder(column: $table.guestId, builder: (column) => column);
 
@@ -26215,6 +27822,11 @@ class $$BookingsTableTableAnnotationComposer
 
   GeneratedColumn<String> get source =>
       $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<int> get createdByUserId => $composableBuilder(
+    column: $table.createdByUserId,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<int> get rateApplied => $composableBuilder(
     column: $table.rateApplied,
@@ -26237,6 +27849,11 @@ class $$BookingsTableTableAnnotationComposer
 
   GeneratedColumn<String> get modificationReason => $composableBuilder(
     column: $table.modificationReason,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get cancellationReason => $composableBuilder(
+    column: $table.cancellationReason,
     builder: (column) => column,
   );
 
@@ -26284,35 +27901,41 @@ class $$BookingsTableTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<int?> guestId = const Value.absent(),
                 Value<int?> roomId = const Value.absent(),
                 Value<String?> checkIn = const Value.absent(),
                 Value<String?> checkOut = const Value.absent(),
                 Value<String?> status = const Value.absent(),
                 Value<String?> source = const Value.absent(),
+                Value<int?> createdByUserId = const Value.absent(),
                 Value<int?> rateApplied = const Value.absent(),
                 Value<int?> adults = const Value.absent(),
                 Value<int?> children = const Value.absent(),
                 Value<String?> specialRequests = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<String?> modificationReason = const Value.absent(),
+                Value<String?> cancellationReason = const Value.absent(),
                 Value<String?> paymentStatus = const Value.absent(),
                 Value<String?> createdAt = const Value.absent(),
                 Value<String?> updatedAt = const Value.absent(),
               }) => BookingsTableCompanion(
                 id: id,
+                hotelId: hotelId,
                 guestId: guestId,
                 roomId: roomId,
                 checkIn: checkIn,
                 checkOut: checkOut,
                 status: status,
                 source: source,
+                createdByUserId: createdByUserId,
                 rateApplied: rateApplied,
                 adults: adults,
                 children: children,
                 specialRequests: specialRequests,
                 notes: notes,
                 modificationReason: modificationReason,
+                cancellationReason: cancellationReason,
                 paymentStatus: paymentStatus,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -26320,35 +27943,41 @@ class $$BookingsTableTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<int?> guestId = const Value.absent(),
                 Value<int?> roomId = const Value.absent(),
                 Value<String?> checkIn = const Value.absent(),
                 Value<String?> checkOut = const Value.absent(),
                 Value<String?> status = const Value.absent(),
                 Value<String?> source = const Value.absent(),
+                Value<int?> createdByUserId = const Value.absent(),
                 Value<int?> rateApplied = const Value.absent(),
                 Value<int?> adults = const Value.absent(),
                 Value<int?> children = const Value.absent(),
                 Value<String?> specialRequests = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<String?> modificationReason = const Value.absent(),
+                Value<String?> cancellationReason = const Value.absent(),
                 Value<String?> paymentStatus = const Value.absent(),
                 Value<String?> createdAt = const Value.absent(),
                 Value<String?> updatedAt = const Value.absent(),
               }) => BookingsTableCompanion.insert(
                 id: id,
+                hotelId: hotelId,
                 guestId: guestId,
                 roomId: roomId,
                 checkIn: checkIn,
                 checkOut: checkOut,
                 status: status,
                 source: source,
+                createdByUserId: createdByUserId,
                 rateApplied: rateApplied,
                 adults: adults,
                 children: children,
                 specialRequests: specialRequests,
                 notes: notes,
                 modificationReason: modificationReason,
+                cancellationReason: cancellationReason,
                 paymentStatus: paymentStatus,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -26381,6 +28010,7 @@ typedef $$BookingsTableTableProcessedTableManager =
 typedef $$OtaReservationsTableTableCreateCompanionBuilder =
     OtaReservationsTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<int?> bookingId,
       Value<String?> otaId,
       Value<String?> otaName,
@@ -26390,6 +28020,7 @@ typedef $$OtaReservationsTableTableCreateCompanionBuilder =
 typedef $$OtaReservationsTableTableUpdateCompanionBuilder =
     OtaReservationsTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<int?> bookingId,
       Value<String?> otaId,
       Value<String?> otaName,
@@ -26408,6 +28039,11 @@ class $$OtaReservationsTableTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -26451,6 +28087,11 @@ class $$OtaReservationsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get bookingId => $composableBuilder(
     column: $table.bookingId,
     builder: (column) => ColumnOrderings(column),
@@ -26488,6 +28129,9 @@ class $$OtaReservationsTableTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get hotelId =>
+      $composableBuilder(column: $table.hotelId, builder: (column) => column);
 
   GeneratedColumn<int> get bookingId =>
       $composableBuilder(column: $table.bookingId, builder: (column) => column);
@@ -26549,6 +28193,7 @@ class $$OtaReservationsTableTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<int?> bookingId = const Value.absent(),
                 Value<String?> otaId = const Value.absent(),
                 Value<String?> otaName = const Value.absent(),
@@ -26556,6 +28201,7 @@ class $$OtaReservationsTableTableTableManager
                 Value<String?> updatedAt = const Value.absent(),
               }) => OtaReservationsTableCompanion(
                 id: id,
+                hotelId: hotelId,
                 bookingId: bookingId,
                 otaId: otaId,
                 otaName: otaName,
@@ -26565,6 +28211,7 @@ class $$OtaReservationsTableTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<int?> bookingId = const Value.absent(),
                 Value<String?> otaId = const Value.absent(),
                 Value<String?> otaName = const Value.absent(),
@@ -26572,6 +28219,7 @@ class $$OtaReservationsTableTableTableManager
                 Value<String?> updatedAt = const Value.absent(),
               }) => OtaReservationsTableCompanion.insert(
                 id: id,
+                hotelId: hotelId,
                 bookingId: bookingId,
                 otaId: otaId,
                 otaName: otaName,
@@ -26610,6 +28258,7 @@ typedef $$OtaReservationsTableTableProcessedTableManager =
 typedef $$InvoicesTableTableCreateCompanionBuilder =
     InvoicesTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<int?> bookingId,
       Value<int?> amount,
       Value<int?> tax,
@@ -26625,6 +28274,7 @@ typedef $$InvoicesTableTableCreateCompanionBuilder =
 typedef $$InvoicesTableTableUpdateCompanionBuilder =
     InvoicesTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<int?> bookingId,
       Value<int?> amount,
       Value<int?> tax,
@@ -26649,6 +28299,11 @@ class $$InvoicesTableTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -26722,6 +28377,11 @@ class $$InvoicesTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get bookingId => $composableBuilder(
     column: $table.bookingId,
     builder: (column) => ColumnOrderings(column),
@@ -26789,6 +28449,9 @@ class $$InvoicesTableTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get hotelId =>
+      $composableBuilder(column: $table.hotelId, builder: (column) => column);
 
   GeneratedColumn<int> get bookingId =>
       $composableBuilder(column: $table.bookingId, builder: (column) => column);
@@ -26858,6 +28521,7 @@ class $$InvoicesTableTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<int?> bookingId = const Value.absent(),
                 Value<int?> amount = const Value.absent(),
                 Value<int?> tax = const Value.absent(),
@@ -26871,6 +28535,7 @@ class $$InvoicesTableTableTableManager
                 Value<String?> updatedAt = const Value.absent(),
               }) => InvoicesTableCompanion(
                 id: id,
+                hotelId: hotelId,
                 bookingId: bookingId,
                 amount: amount,
                 tax: tax,
@@ -26886,6 +28551,7 @@ class $$InvoicesTableTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<int?> bookingId = const Value.absent(),
                 Value<int?> amount = const Value.absent(),
                 Value<int?> tax = const Value.absent(),
@@ -26899,6 +28565,7 @@ class $$InvoicesTableTableTableManager
                 Value<String?> updatedAt = const Value.absent(),
               }) => InvoicesTableCompanion.insert(
                 id: id,
+                hotelId: hotelId,
                 bookingId: bookingId,
                 amount: amount,
                 tax: tax,
@@ -26939,6 +28606,7 @@ typedef $$InvoicesTableTableProcessedTableManager =
 typedef $$PaymentsTableTableCreateCompanionBuilder =
     PaymentsTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<int?> invoiceId,
       Value<int?> amount,
       Value<String?> status,
@@ -26946,10 +28614,12 @@ typedef $$PaymentsTableTableCreateCompanionBuilder =
       Value<String?> transactionId,
       Value<String?> processedAt,
       Value<String?> createdAt,
+      Value<String?> updatedAt,
     });
 typedef $$PaymentsTableTableUpdateCompanionBuilder =
     PaymentsTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<int?> invoiceId,
       Value<int?> amount,
       Value<String?> status,
@@ -26957,6 +28627,7 @@ typedef $$PaymentsTableTableUpdateCompanionBuilder =
       Value<String?> transactionId,
       Value<String?> processedAt,
       Value<String?> createdAt,
+      Value<String?> updatedAt,
     });
 
 class $$PaymentsTableTableFilterComposer
@@ -26970,6 +28641,11 @@ class $$PaymentsTableTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -27007,6 +28683,11 @@ class $$PaymentsTableTableFilterComposer
     column: $table.createdAt,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnFilters<String> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
 class $$PaymentsTableTableOrderingComposer
@@ -27020,6 +28701,11 @@ class $$PaymentsTableTableOrderingComposer
   });
   ColumnOrderings<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -27057,6 +28743,11 @@ class $$PaymentsTableTableOrderingComposer
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$PaymentsTableTableAnnotationComposer
@@ -27070,6 +28761,9 @@ class $$PaymentsTableTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get hotelId =>
+      $composableBuilder(column: $table.hotelId, builder: (column) => column);
 
   GeneratedColumn<int> get invoiceId =>
       $composableBuilder(column: $table.invoiceId, builder: (column) => column);
@@ -27095,6 +28789,9 @@ class $$PaymentsTableTableAnnotationComposer
 
   GeneratedColumn<String> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 }
 
 class $$PaymentsTableTableTableManager
@@ -27129,6 +28826,7 @@ class $$PaymentsTableTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<int?> invoiceId = const Value.absent(),
                 Value<int?> amount = const Value.absent(),
                 Value<String?> status = const Value.absent(),
@@ -27136,8 +28834,10 @@ class $$PaymentsTableTableTableManager
                 Value<String?> transactionId = const Value.absent(),
                 Value<String?> processedAt = const Value.absent(),
                 Value<String?> createdAt = const Value.absent(),
+                Value<String?> updatedAt = const Value.absent(),
               }) => PaymentsTableCompanion(
                 id: id,
+                hotelId: hotelId,
                 invoiceId: invoiceId,
                 amount: amount,
                 status: status,
@@ -27145,10 +28845,12 @@ class $$PaymentsTableTableTableManager
                 transactionId: transactionId,
                 processedAt: processedAt,
                 createdAt: createdAt,
+                updatedAt: updatedAt,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<int?> invoiceId = const Value.absent(),
                 Value<int?> amount = const Value.absent(),
                 Value<String?> status = const Value.absent(),
@@ -27156,8 +28858,10 @@ class $$PaymentsTableTableTableManager
                 Value<String?> transactionId = const Value.absent(),
                 Value<String?> processedAt = const Value.absent(),
                 Value<String?> createdAt = const Value.absent(),
+                Value<String?> updatedAt = const Value.absent(),
               }) => PaymentsTableCompanion.insert(
                 id: id,
+                hotelId: hotelId,
                 invoiceId: invoiceId,
                 amount: amount,
                 status: status,
@@ -27165,6 +28869,7 @@ class $$PaymentsTableTableTableManager
                 transactionId: transactionId,
                 processedAt: processedAt,
                 createdAt: createdAt,
+                updatedAt: updatedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -27194,6 +28899,7 @@ typedef $$PaymentsTableTableProcessedTableManager =
 typedef $$ChargesTableTableCreateCompanionBuilder =
     ChargesTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<int?> bookingId,
       Value<int?> invoiceId,
       Value<String?> chargeType,
@@ -27214,6 +28920,7 @@ typedef $$ChargesTableTableCreateCompanionBuilder =
 typedef $$ChargesTableTableUpdateCompanionBuilder =
     ChargesTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<int?> bookingId,
       Value<int?> invoiceId,
       Value<String?> chargeType,
@@ -27243,6 +28950,11 @@ class $$ChargesTableTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -27341,6 +29053,11 @@ class $$ChargesTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get bookingId => $composableBuilder(
     column: $table.bookingId,
     builder: (column) => ColumnOrderings(column),
@@ -27433,6 +29150,9 @@ class $$ChargesTableTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get hotelId =>
+      $composableBuilder(column: $table.hotelId, builder: (column) => column);
 
   GeneratedColumn<int> get bookingId =>
       $composableBuilder(column: $table.bookingId, builder: (column) => column);
@@ -27527,6 +29247,7 @@ class $$ChargesTableTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<int?> bookingId = const Value.absent(),
                 Value<int?> invoiceId = const Value.absent(),
                 Value<String?> chargeType = const Value.absent(),
@@ -27545,6 +29266,7 @@ class $$ChargesTableTableTableManager
                 Value<String?> updatedAt = const Value.absent(),
               }) => ChargesTableCompanion(
                 id: id,
+                hotelId: hotelId,
                 bookingId: bookingId,
                 invoiceId: invoiceId,
                 chargeType: chargeType,
@@ -27565,6 +29287,7 @@ class $$ChargesTableTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<int?> bookingId = const Value.absent(),
                 Value<int?> invoiceId = const Value.absent(),
                 Value<String?> chargeType = const Value.absent(),
@@ -27583,6 +29306,7 @@ class $$ChargesTableTableTableManager
                 Value<String?> updatedAt = const Value.absent(),
               }) => ChargesTableCompanion.insert(
                 id: id,
+                hotelId: hotelId,
                 bookingId: bookingId,
                 invoiceId: invoiceId,
                 chargeType: chargeType,
@@ -27628,6 +29352,7 @@ typedef $$ChargesTableTableProcessedTableManager =
 typedef $$HousekeepingsTableTableCreateCompanionBuilder =
     HousekeepingsTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<int?> roomId,
       Value<String?> status,
       Value<int?> assigneeId,
@@ -27640,6 +29365,7 @@ typedef $$HousekeepingsTableTableCreateCompanionBuilder =
 typedef $$HousekeepingsTableTableUpdateCompanionBuilder =
     HousekeepingsTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<int?> roomId,
       Value<String?> status,
       Value<int?> assigneeId,
@@ -27661,6 +29387,11 @@ class $$HousekeepingsTableTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -27719,6 +29450,11 @@ class $$HousekeepingsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get roomId => $composableBuilder(
     column: $table.roomId,
     builder: (column) => ColumnOrderings(column),
@@ -27771,6 +29507,9 @@ class $$HousekeepingsTableTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get hotelId =>
+      $composableBuilder(column: $table.hotelId, builder: (column) => column);
 
   GeneratedColumn<int> get roomId =>
       $composableBuilder(column: $table.roomId, builder: (column) => column);
@@ -27844,6 +29583,7 @@ class $$HousekeepingsTableTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<int?> roomId = const Value.absent(),
                 Value<String?> status = const Value.absent(),
                 Value<int?> assigneeId = const Value.absent(),
@@ -27854,6 +29594,7 @@ class $$HousekeepingsTableTableTableManager
                 Value<String?> updatedAt = const Value.absent(),
               }) => HousekeepingsTableCompanion(
                 id: id,
+                hotelId: hotelId,
                 roomId: roomId,
                 status: status,
                 assigneeId: assigneeId,
@@ -27866,6 +29607,7 @@ class $$HousekeepingsTableTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<int?> roomId = const Value.absent(),
                 Value<String?> status = const Value.absent(),
                 Value<int?> assigneeId = const Value.absent(),
@@ -27876,6 +29618,7 @@ class $$HousekeepingsTableTableTableManager
                 Value<String?> updatedAt = const Value.absent(),
               }) => HousekeepingsTableCompanion.insert(
                 id: id,
+                hotelId: hotelId,
                 roomId: roomId,
                 status: status,
                 assigneeId: assigneeId,
@@ -27917,6 +29660,7 @@ typedef $$HousekeepingsTableTableProcessedTableManager =
 typedef $$MaintenancesTableTableCreateCompanionBuilder =
     MaintenancesTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<int?> roomId,
       Value<String?> description,
       Value<String?> status,
@@ -27938,6 +29682,7 @@ typedef $$MaintenancesTableTableCreateCompanionBuilder =
 typedef $$MaintenancesTableTableUpdateCompanionBuilder =
     MaintenancesTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<int?> roomId,
       Value<String?> description,
       Value<String?> status,
@@ -27968,6 +29713,11 @@ class $$MaintenancesTableTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -28071,6 +29821,11 @@ class $$MaintenancesTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get roomId => $composableBuilder(
     column: $table.roomId,
     builder: (column) => ColumnOrderings(column),
@@ -28168,6 +29923,9 @@ class $$MaintenancesTableTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get hotelId =>
+      $composableBuilder(column: $table.hotelId, builder: (column) => column);
 
   GeneratedColumn<int> get roomId =>
       $composableBuilder(column: $table.roomId, builder: (column) => column);
@@ -28280,6 +30038,7 @@ class $$MaintenancesTableTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<int?> roomId = const Value.absent(),
                 Value<String?> description = const Value.absent(),
                 Value<String?> status = const Value.absent(),
@@ -28299,6 +30058,7 @@ class $$MaintenancesTableTableTableManager
                 Value<String?> updatedAt = const Value.absent(),
               }) => MaintenancesTableCompanion(
                 id: id,
+                hotelId: hotelId,
                 roomId: roomId,
                 description: description,
                 status: status,
@@ -28320,6 +30080,7 @@ class $$MaintenancesTableTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<int?> roomId = const Value.absent(),
                 Value<String?> description = const Value.absent(),
                 Value<String?> status = const Value.absent(),
@@ -28339,6 +30100,7 @@ class $$MaintenancesTableTableTableManager
                 Value<String?> updatedAt = const Value.absent(),
               }) => MaintenancesTableCompanion.insert(
                 id: id,
+                hotelId: hotelId,
                 roomId: roomId,
                 description: description,
                 status: status,
@@ -32409,6 +34171,7 @@ typedef $$PosShiftsTableTableCreateCompanionBuilder =
       Value<String?> notes,
       Value<String?> status,
       Value<String?> createdAt,
+      Value<String?> updatedAt,
     });
 typedef $$PosShiftsTableTableUpdateCompanionBuilder =
     PosShiftsTableCompanion Function({
@@ -32428,6 +34191,7 @@ typedef $$PosShiftsTableTableUpdateCompanionBuilder =
       Value<String?> notes,
       Value<String?> status,
       Value<String?> createdAt,
+      Value<String?> updatedAt,
     });
 
 class $$PosShiftsTableTableFilterComposer
@@ -32516,6 +34280,11 @@ class $$PosShiftsTableTableFilterComposer
 
   ColumnFilters<String> get createdAt => $composableBuilder(
     column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -32608,6 +34377,11 @@ class $$PosShiftsTableTableOrderingComposer
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$PosShiftsTableTableAnnotationComposer
@@ -32680,6 +34454,9 @@ class $$PosShiftsTableTableAnnotationComposer
 
   GeneratedColumn<String> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 }
 
 class $$PosShiftsTableTableTableManager
@@ -32731,6 +34508,7 @@ class $$PosShiftsTableTableTableManager
                 Value<String?> notes = const Value.absent(),
                 Value<String?> status = const Value.absent(),
                 Value<String?> createdAt = const Value.absent(),
+                Value<String?> updatedAt = const Value.absent(),
               }) => PosShiftsTableCompanion(
                 id: id,
                 hotelId: hotelId,
@@ -32748,6 +34526,7 @@ class $$PosShiftsTableTableTableManager
                 notes: notes,
                 status: status,
                 createdAt: createdAt,
+                updatedAt: updatedAt,
               ),
           createCompanionCallback:
               ({
@@ -32767,6 +34546,7 @@ class $$PosShiftsTableTableTableManager
                 Value<String?> notes = const Value.absent(),
                 Value<String?> status = const Value.absent(),
                 Value<String?> createdAt = const Value.absent(),
+                Value<String?> updatedAt = const Value.absent(),
               }) => PosShiftsTableCompanion.insert(
                 id: id,
                 hotelId: hotelId,
@@ -32784,6 +34564,7 @@ class $$PosShiftsTableTableTableManager
                 notes: notes,
                 status: status,
                 createdAt: createdAt,
+                updatedAt: updatedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -33399,6 +35180,7 @@ typedef $$PosOrdersTableTableProcessedTableManager =
 typedef $$PosOrderItemsTableTableCreateCompanionBuilder =
     PosOrderItemsTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<int?> orderId,
       Value<int?> productId,
       Value<String?> productName,
@@ -33413,10 +35195,12 @@ typedef $$PosOrderItemsTableTableCreateCompanionBuilder =
       Value<String?> voidedAt,
       Value<String?> sentAt,
       Value<String?> createdAt,
+      Value<String?> updatedAt,
     });
 typedef $$PosOrderItemsTableTableUpdateCompanionBuilder =
     PosOrderItemsTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<int?> orderId,
       Value<int?> productId,
       Value<String?> productName,
@@ -33431,6 +35215,7 @@ typedef $$PosOrderItemsTableTableUpdateCompanionBuilder =
       Value<String?> voidedAt,
       Value<String?> sentAt,
       Value<String?> createdAt,
+      Value<String?> updatedAt,
     });
 
 class $$PosOrderItemsTableTableFilterComposer
@@ -33444,6 +35229,11 @@ class $$PosOrderItemsTableTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -33516,6 +35306,11 @@ class $$PosOrderItemsTableTableFilterComposer
     column: $table.createdAt,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnFilters<String> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
 class $$PosOrderItemsTableTableOrderingComposer
@@ -33529,6 +35324,11 @@ class $$PosOrderItemsTableTableOrderingComposer
   });
   ColumnOrderings<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -33601,6 +35401,11 @@ class $$PosOrderItemsTableTableOrderingComposer
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$PosOrderItemsTableTableAnnotationComposer
@@ -33614,6 +35419,9 @@ class $$PosOrderItemsTableTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get hotelId =>
+      $composableBuilder(column: $table.hotelId, builder: (column) => column);
 
   GeneratedColumn<int> get orderId =>
       $composableBuilder(column: $table.orderId, builder: (column) => column);
@@ -33660,6 +35468,9 @@ class $$PosOrderItemsTableTableAnnotationComposer
 
   GeneratedColumn<String> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 }
 
 class $$PosOrderItemsTableTableTableManager
@@ -33703,6 +35514,7 @@ class $$PosOrderItemsTableTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<int?> orderId = const Value.absent(),
                 Value<int?> productId = const Value.absent(),
                 Value<String?> productName = const Value.absent(),
@@ -33717,8 +35529,10 @@ class $$PosOrderItemsTableTableTableManager
                 Value<String?> voidedAt = const Value.absent(),
                 Value<String?> sentAt = const Value.absent(),
                 Value<String?> createdAt = const Value.absent(),
+                Value<String?> updatedAt = const Value.absent(),
               }) => PosOrderItemsTableCompanion(
                 id: id,
+                hotelId: hotelId,
                 orderId: orderId,
                 productId: productId,
                 productName: productName,
@@ -33733,10 +35547,12 @@ class $$PosOrderItemsTableTableTableManager
                 voidedAt: voidedAt,
                 sentAt: sentAt,
                 createdAt: createdAt,
+                updatedAt: updatedAt,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<int?> orderId = const Value.absent(),
                 Value<int?> productId = const Value.absent(),
                 Value<String?> productName = const Value.absent(),
@@ -33751,8 +35567,10 @@ class $$PosOrderItemsTableTableTableManager
                 Value<String?> voidedAt = const Value.absent(),
                 Value<String?> sentAt = const Value.absent(),
                 Value<String?> createdAt = const Value.absent(),
+                Value<String?> updatedAt = const Value.absent(),
               }) => PosOrderItemsTableCompanion.insert(
                 id: id,
+                hotelId: hotelId,
                 orderId: orderId,
                 productId: productId,
                 productName: productName,
@@ -33767,6 +35585,7 @@ class $$PosOrderItemsTableTableTableManager
                 voidedAt: voidedAt,
                 sentAt: sentAt,
                 createdAt: createdAt,
+                updatedAt: updatedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -33800,6 +35619,7 @@ typedef $$PosOrderItemsTableTableProcessedTableManager =
 typedef $$PosPaymentsTableTableCreateCompanionBuilder =
     PosPaymentsTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<int?> orderId,
       Value<int?> shiftId,
       Value<String?> method,
@@ -33811,6 +35631,7 @@ typedef $$PosPaymentsTableTableCreateCompanionBuilder =
 typedef $$PosPaymentsTableTableUpdateCompanionBuilder =
     PosPaymentsTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<int?> orderId,
       Value<int?> shiftId,
       Value<String?> method,
@@ -33831,6 +35652,11 @@ class $$PosPaymentsTableTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -33884,6 +35710,11 @@ class $$PosPaymentsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get orderId => $composableBuilder(
     column: $table.orderId,
     builder: (column) => ColumnOrderings(column),
@@ -33931,6 +35762,9 @@ class $$PosPaymentsTableTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get hotelId =>
+      $composableBuilder(column: $table.hotelId, builder: (column) => column);
 
   GeneratedColumn<int> get orderId =>
       $composableBuilder(column: $table.orderId, builder: (column) => column);
@@ -33994,6 +35828,7 @@ class $$PosPaymentsTableTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<int?> orderId = const Value.absent(),
                 Value<int?> shiftId = const Value.absent(),
                 Value<String?> method = const Value.absent(),
@@ -34003,6 +35838,7 @@ class $$PosPaymentsTableTableTableManager
                 Value<String?> createdAt = const Value.absent(),
               }) => PosPaymentsTableCompanion(
                 id: id,
+                hotelId: hotelId,
                 orderId: orderId,
                 shiftId: shiftId,
                 method: method,
@@ -34014,6 +35850,7 @@ class $$PosPaymentsTableTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<int?> orderId = const Value.absent(),
                 Value<int?> shiftId = const Value.absent(),
                 Value<String?> method = const Value.absent(),
@@ -34023,6 +35860,7 @@ class $$PosPaymentsTableTableTableManager
                 Value<String?> createdAt = const Value.absent(),
               }) => PosPaymentsTableCompanion.insert(
                 id: id,
+                hotelId: hotelId,
                 orderId: orderId,
                 shiftId: shiftId,
                 method: method,
@@ -34937,6 +36775,7 @@ typedef $$PosWastageLogsTableTableProcessedTableManager =
 typedef $$NotificationsTableTableCreateCompanionBuilder =
     NotificationsTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<String?> type,
       Value<int?> guestId,
       Value<int?> userId,
@@ -34945,12 +36784,14 @@ typedef $$NotificationsTableTableCreateCompanionBuilder =
       Value<String?> status,
       Value<int?> relatedEntityId,
       Value<String?> entityType,
+      Value<String?> readAt,
       Value<String?> createdAt,
       Value<String?> updatedAt,
     });
 typedef $$NotificationsTableTableUpdateCompanionBuilder =
     NotificationsTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<String?> type,
       Value<int?> guestId,
       Value<int?> userId,
@@ -34959,6 +36800,7 @@ typedef $$NotificationsTableTableUpdateCompanionBuilder =
       Value<String?> status,
       Value<int?> relatedEntityId,
       Value<String?> entityType,
+      Value<String?> readAt,
       Value<String?> createdAt,
       Value<String?> updatedAt,
     });
@@ -34974,6 +36816,11 @@ class $$NotificationsTableTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -35017,6 +36864,11 @@ class $$NotificationsTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get readAt => $composableBuilder(
+    column: $table.readAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnFilters(column),
@@ -35039,6 +36891,11 @@ class $$NotificationsTableTableOrderingComposer
   });
   ColumnOrderings<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -35082,6 +36939,11 @@ class $$NotificationsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get readAt => $composableBuilder(
+    column: $table.readAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -35104,6 +36966,9 @@ class $$NotificationsTableTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get hotelId =>
+      $composableBuilder(column: $table.hotelId, builder: (column) => column);
 
   GeneratedColumn<String> get type =>
       $composableBuilder(column: $table.type, builder: (column) => column);
@@ -35132,6 +36997,9 @@ class $$NotificationsTableTableAnnotationComposer
     column: $table.entityType,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get readAt =>
+      $composableBuilder(column: $table.readAt, builder: (column) => column);
 
   GeneratedColumn<String> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -35181,6 +37049,7 @@ class $$NotificationsTableTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<String?> type = const Value.absent(),
                 Value<int?> guestId = const Value.absent(),
                 Value<int?> userId = const Value.absent(),
@@ -35189,10 +37058,12 @@ class $$NotificationsTableTableTableManager
                 Value<String?> status = const Value.absent(),
                 Value<int?> relatedEntityId = const Value.absent(),
                 Value<String?> entityType = const Value.absent(),
+                Value<String?> readAt = const Value.absent(),
                 Value<String?> createdAt = const Value.absent(),
                 Value<String?> updatedAt = const Value.absent(),
               }) => NotificationsTableCompanion(
                 id: id,
+                hotelId: hotelId,
                 type: type,
                 guestId: guestId,
                 userId: userId,
@@ -35201,12 +37072,14 @@ class $$NotificationsTableTableTableManager
                 status: status,
                 relatedEntityId: relatedEntityId,
                 entityType: entityType,
+                readAt: readAt,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<String?> type = const Value.absent(),
                 Value<int?> guestId = const Value.absent(),
                 Value<int?> userId = const Value.absent(),
@@ -35215,10 +37088,12 @@ class $$NotificationsTableTableTableManager
                 Value<String?> status = const Value.absent(),
                 Value<int?> relatedEntityId = const Value.absent(),
                 Value<String?> entityType = const Value.absent(),
+                Value<String?> readAt = const Value.absent(),
                 Value<String?> createdAt = const Value.absent(),
                 Value<String?> updatedAt = const Value.absent(),
               }) => NotificationsTableCompanion.insert(
                 id: id,
+                hotelId: hotelId,
                 type: type,
                 guestId: guestId,
                 userId: userId,
@@ -35227,6 +37102,7 @@ class $$NotificationsTableTableTableManager
                 status: status,
                 relatedEntityId: relatedEntityId,
                 entityType: entityType,
+                readAt: readAt,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),
@@ -35262,6 +37138,7 @@ typedef $$NotificationsTableTableProcessedTableManager =
 typedef $$AuditLogsTableTableCreateCompanionBuilder =
     AuditLogsTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<String?> action,
       Value<int?> userId,
       Value<String?> entityType,
@@ -35275,6 +37152,7 @@ typedef $$AuditLogsTableTableCreateCompanionBuilder =
 typedef $$AuditLogsTableTableUpdateCompanionBuilder =
     AuditLogsTableCompanion Function({
       Value<int> id,
+      Value<int?> hotelId,
       Value<String?> action,
       Value<int?> userId,
       Value<String?> entityType,
@@ -35297,6 +37175,11 @@ class $$AuditLogsTableTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -35360,6 +37243,11 @@ class $$AuditLogsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get action => $composableBuilder(
     column: $table.action,
     builder: (column) => ColumnOrderings(column),
@@ -35417,6 +37305,9 @@ class $$AuditLogsTableTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get hotelId =>
+      $composableBuilder(column: $table.hotelId, builder: (column) => column);
 
   GeneratedColumn<String> get action =>
       $composableBuilder(column: $table.action, builder: (column) => column);
@@ -35484,6 +37375,7 @@ class $$AuditLogsTableTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<String?> action = const Value.absent(),
                 Value<int?> userId = const Value.absent(),
                 Value<String?> entityType = const Value.absent(),
@@ -35495,6 +37387,7 @@ class $$AuditLogsTableTableTableManager
                 Value<String?> updatedAt = const Value.absent(),
               }) => AuditLogsTableCompanion(
                 id: id,
+                hotelId: hotelId,
                 action: action,
                 userId: userId,
                 entityType: entityType,
@@ -35508,6 +37401,7 @@ class $$AuditLogsTableTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
                 Value<String?> action = const Value.absent(),
                 Value<int?> userId = const Value.absent(),
                 Value<String?> entityType = const Value.absent(),
@@ -35519,6 +37413,7 @@ class $$AuditLogsTableTableTableManager
                 Value<String?> updatedAt = const Value.absent(),
               }) => AuditLogsTableCompanion.insert(
                 id: id,
+                hotelId: hotelId,
                 action: action,
                 userId: userId,
                 entityType: entityType,
@@ -35552,6 +37447,251 @@ typedef $$AuditLogsTableTableProcessedTableManager =
         BaseReferences<_$AppDatabase, $AuditLogsTableTable, LocalAuditLog>,
       ),
       LocalAuditLog,
+      PrefetchHooks Function()
+    >;
+typedef $$DeviceTokensTableTableCreateCompanionBuilder =
+    DeviceTokensTableCompanion Function({
+      Value<int> id,
+      Value<int?> hotelId,
+      Value<int?> userId,
+      Value<String?> token,
+      Value<String?> platform,
+      Value<String?> createdAt,
+      Value<String?> updatedAt,
+    });
+typedef $$DeviceTokensTableTableUpdateCompanionBuilder =
+    DeviceTokensTableCompanion Function({
+      Value<int> id,
+      Value<int?> hotelId,
+      Value<int?> userId,
+      Value<String?> token,
+      Value<String?> platform,
+      Value<String?> createdAt,
+      Value<String?> updatedAt,
+    });
+
+class $$DeviceTokensTableTableFilterComposer
+    extends Composer<_$AppDatabase, $DeviceTokensTableTable> {
+  $$DeviceTokensTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get token => $composableBuilder(
+    column: $table.token,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get platform => $composableBuilder(
+    column: $table.platform,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$DeviceTokensTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $DeviceTokensTableTable> {
+  $$DeviceTokensTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get hotelId => $composableBuilder(
+    column: $table.hotelId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get token => $composableBuilder(
+    column: $table.token,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get platform => $composableBuilder(
+    column: $table.platform,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DeviceTokensTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DeviceTokensTableTable> {
+  $$DeviceTokensTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get hotelId =>
+      $composableBuilder(column: $table.hotelId, builder: (column) => column);
+
+  GeneratedColumn<int> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+
+  GeneratedColumn<String> get token =>
+      $composableBuilder(column: $table.token, builder: (column) => column);
+
+  GeneratedColumn<String> get platform =>
+      $composableBuilder(column: $table.platform, builder: (column) => column);
+
+  GeneratedColumn<String> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$DeviceTokensTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DeviceTokensTableTable,
+          LocalDeviceToken,
+          $$DeviceTokensTableTableFilterComposer,
+          $$DeviceTokensTableTableOrderingComposer,
+          $$DeviceTokensTableTableAnnotationComposer,
+          $$DeviceTokensTableTableCreateCompanionBuilder,
+          $$DeviceTokensTableTableUpdateCompanionBuilder,
+          (
+            LocalDeviceToken,
+            BaseReferences<
+              _$AppDatabase,
+              $DeviceTokensTableTable,
+              LocalDeviceToken
+            >,
+          ),
+          LocalDeviceToken,
+          PrefetchHooks Function()
+        > {
+  $$DeviceTokensTableTableTableManager(
+    _$AppDatabase db,
+    $DeviceTokensTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DeviceTokensTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DeviceTokensTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DeviceTokensTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
+                Value<int?> userId = const Value.absent(),
+                Value<String?> token = const Value.absent(),
+                Value<String?> platform = const Value.absent(),
+                Value<String?> createdAt = const Value.absent(),
+                Value<String?> updatedAt = const Value.absent(),
+              }) => DeviceTokensTableCompanion(
+                id: id,
+                hotelId: hotelId,
+                userId: userId,
+                token: token,
+                platform: platform,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int?> hotelId = const Value.absent(),
+                Value<int?> userId = const Value.absent(),
+                Value<String?> token = const Value.absent(),
+                Value<String?> platform = const Value.absent(),
+                Value<String?> createdAt = const Value.absent(),
+                Value<String?> updatedAt = const Value.absent(),
+              }) => DeviceTokensTableCompanion.insert(
+                id: id,
+                hotelId: hotelId,
+                userId: userId,
+                token: token,
+                platform: platform,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$DeviceTokensTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DeviceTokensTableTable,
+      LocalDeviceToken,
+      $$DeviceTokensTableTableFilterComposer,
+      $$DeviceTokensTableTableOrderingComposer,
+      $$DeviceTokensTableTableAnnotationComposer,
+      $$DeviceTokensTableTableCreateCompanionBuilder,
+      $$DeviceTokensTableTableUpdateCompanionBuilder,
+      (
+        LocalDeviceToken,
+        BaseReferences<
+          _$AppDatabase,
+          $DeviceTokensTableTable,
+          LocalDeviceToken
+        >,
+      ),
+      LocalDeviceToken,
       PrefetchHooks Function()
     >;
 typedef $$SyncQueueTableTableCreateCompanionBuilder =
@@ -36036,6 +38176,8 @@ class $AppDatabaseManager {
       $$NotificationsTableTableTableManager(_db, _db.notificationsTable);
   $$AuditLogsTableTableTableManager get auditLogsTable =>
       $$AuditLogsTableTableTableManager(_db, _db.auditLogsTable);
+  $$DeviceTokensTableTableTableManager get deviceTokensTable =>
+      $$DeviceTokensTableTableTableManager(_db, _db.deviceTokensTable);
   $$SyncQueueTableTableTableManager get syncQueueTable =>
       $$SyncQueueTableTableTableManager(_db, _db.syncQueueTable);
   $$SyncMetaTableTableTableManager get syncMetaTable =>

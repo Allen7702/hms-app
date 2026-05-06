@@ -50,12 +50,21 @@ class AuthNotifier extends StateNotifier<AuthState> {
     if (session != null) {
       final authUser = _authRepo.currentAuthUser;
       if (authUser?.email != null) {
-        final appUser = await _authRepo.getAppUser(authUser!.email!);
-        if (appUser != null) {
-          state = AuthState(isAuthenticated: true, user: appUser);
-        } else {
-          state = const AuthState(isAuthenticated: false);
+        try {
+          final appUser = await _authRepo.getAppUser(authUser!.email!);
+          if (appUser != null) {
+            state = AuthState(isAuthenticated: true, user: appUser);
+          } else {
+            // getAppUser returned null — could be a network error on first load.
+            // Trust the existing Supabase session and stay authenticated.
+            state = const AuthState(isAuthenticated: true);
+          }
+        } catch (_) {
+          // Network unavailable — trust the local session, stay authenticated.
+          state = const AuthState(isAuthenticated: true);
         }
+      } else {
+        state = const AuthState(isAuthenticated: false);
       }
     } else {
       state = const AuthState(isAuthenticated: false);
@@ -72,23 +81,46 @@ class AuthNotifier extends StateNotifier<AuthState> {
       } else if (event.event == AuthChangeEvent.tokenRefreshed) {
         // Only handle token refresh if already authenticated
         if (state.isAuthenticated && event.session?.user.email != null) {
-          final appUser = await _authRepo.getAppUser(
-            event.session!.user.email!,
-          );
-          if (appUser != null && appUser.isActive == true) {
-            state = AuthState(isAuthenticated: true, user: appUser);
-          } else {
-            await _authRepo.signOut();
-            state = const AuthState(isAuthenticated: false);
+          try {
+            final appUser = await _authRepo.getAppUser(
+              event.session!.user.email!,
+            );
+            if (appUser != null) {
+              // isActive == false means explicitly deactivated; null/true means active
+              if (appUser.isActive == false) {
+                await _authRepo.signOut();
+                state = const AuthState(isAuthenticated: false);
+              } else {
+                state = AuthState(isAuthenticated: true, user: appUser);
+              }
+            }
+            // If getAppUser returns null (transient network failure),
+            // keep the existing authenticated state — do NOT sign out.
+          } catch (_) {
+            // Network/server error — keep user logged in, will retry next refresh.
           }
         }
       }
     });
   }
 
-  Future<void> signIn(String email, String password) async {
+  Future<void> signIn(String identifier, String password) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
+      // Resolve identifier: if no '@', treat as username and look up email
+      String email = identifier;
+      if (!identifier.contains('@')) {
+        final resolved = await _authRepo.getUserEmailByUsername(identifier);
+        if (resolved == null) {
+          state = const AuthState(
+            isAuthenticated: false,
+            error: 'No account found for that username.',
+          );
+          return;
+        }
+        email = resolved;
+      }
+
       // First validate credentials with Supabase
       final response = await _authRepo.signIn(email: email, password: password);
 

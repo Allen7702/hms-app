@@ -3,12 +3,14 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // ─── Brand palette ────────────────────────────────────────────────────────
-  static const Color navyDeep = Color(0xFF0D1B2A);
-  static const Color navyMid = Color(0xFF1B2A4A);
-  static const Color navyLight = Color(0xFF2C4170);
-  static const Color gold = Color(0xFFC9A84C);
-  static const Color goldLight = Color(0xFFE4C97A);
-  static const Color goldDark = Color(0xFF9E7B2C);
+  static const Color navyDeep = Color(0xFF0A1628);
+  static const Color navyMid = Color(0xFF1A2E5A);
+  static const Color navyLight = Color(0xFF2D4A8A);
+  static const Color navyAccent = Color(0xFF4A6FA5);
+  // Keep gold as an alias so existing references compile without change
+  static const Color gold = navyAccent;
+  static const Color goldLight = Color(0xFF6B8FC0);
+  static const Color goldDark = navyMid;
 
   // ─── Semantic colors ──────────────────────────────────────────────────────
   static const Color successColor = Color(0xFF2E9E60);
@@ -25,7 +27,7 @@ class AppTheme {
 
   // ─── Room status ──────────────────────────────────────────────────────────
   static const Color availableColor = Color(0xFF2E9E60);
-  static const Color occupiedColor = Color(0xFF1B2A4A);
+  static const Color occupiedColor = Color(0xFF1A2E5A);
   static const Color maintenanceColor = Color(0xFFE8A020);
   static const Color dirtyColor = Color(0xFFE03131);
 
@@ -44,7 +46,7 @@ class AppTheme {
   static const Color noneLoyaltyColor = Color(0xFF868E96);
   static const Color bronzeLoyaltyColor = Color(0xFFCD7F32);
   static const Color silverLoyaltyColor = Color(0xFFADB5BD);
-  static const Color goldLoyaltyColor = Color(0xFFC9A84C);
+  static const Color goldLoyaltyColor = navyAccent;
 
   // ─── Light theme ──────────────────────────────────────────────────────────
 
@@ -55,11 +57,11 @@ class AppTheme {
       seedColor: navyMid,
       brightness: Brightness.light,
       primary: navyMid,
-      secondary: gold,
+      secondary: navyAccent,
       tertiary: navyLight,
       error: errorColor,
-      surface: const Color(0xFFFBF9F6),
-      onSurface: const Color(0xFF0D1B2A),
+      surface: Colors.white,
+      onSurface: navyDeep,
       onPrimary: Colors.white,
       onSecondary: Colors.white,
     ),
@@ -70,20 +72,20 @@ class AppTheme {
       elevation: 0,
       scrolledUnderElevation: 0,
       backgroundColor: Colors.transparent,
-      foregroundColor: const Color(0xFF0D1B2A),
+      foregroundColor: navyDeep,
       titleTextStyle: GoogleFonts.playfairDisplay(
         fontSize: 22,
         fontWeight: FontWeight.w700,
-        color: const Color(0xFF0D1B2A),
+        color: navyDeep,
       ),
     ),
     cardTheme: CardThemeData(
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Colors.white.withValues(alpha: 0.6)),
+        side: BorderSide(color: const Color(0xFFDDE4F0)),
       ),
-      color: Colors.white.withValues(alpha: 0.6),
+      color: Colors.white,
       margin: EdgeInsets.zero,
     ),
     inputDecorationTheme: InputDecorationTheme(
@@ -91,11 +93,11 @@ class AppTheme {
       fillColor: Colors.white,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Color(0xFFDDE1E7)),
+        borderSide: const BorderSide(color: Color(0xFFCCD6E8)),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Color(0xFFDDE1E7)),
+        borderSide: const BorderSide(color: Color(0xFFCCD6E8)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
@@ -151,15 +153,15 @@ class AppTheme {
     ),
     chipTheme: ChipThemeData(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      side: const BorderSide(color: Color(0xFFE2E6ED)),
+      side: const BorderSide(color: Color(0xFFCCD6E8)),
       labelStyle: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500),
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: gold,
+      backgroundColor: navyMid,
       foregroundColor: Colors.white,
     ),
     dividerTheme: const DividerThemeData(
-      color: Color(0xFFEAECF0),
+      color: Color(0xFFE2E8F4),
       thickness: 1,
     ),
     bottomSheetTheme: const BottomSheetThemeData(
@@ -170,7 +172,7 @@ class AppTheme {
     tabBarTheme: TabBarThemeData(
       labelColor: navyMid,
       unselectedLabelColor: const Color(0xFF9099A6),
-      indicatorColor: gold,
+      indicatorColor: navyMid,
       indicatorSize: TabBarIndicatorSize.label,
       labelStyle: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
       unselectedLabelStyle:
@@ -194,14 +196,14 @@ class AppTheme {
     useMaterial3: true,
     brightness: Brightness.dark,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: gold,
+      seedColor: navyMid,
       brightness: Brightness.dark,
-      primary: gold,
-      secondary: navyLight,
+      primary: Colors.white,
+      secondary: navyAccent,
       tertiary: goldLight,
       error: errorColor,
-      surface: const Color(0xFF111827),
-      onSurface: const Color(0xFFE2E8F0),
+      surface: const Color(0xFF0D1628),
+      onSurface: const Color(0xFFE8EDF5),
       onPrimary: navyDeep,
       onSecondary: Colors.white,
     ),
@@ -212,36 +214,36 @@ class AppTheme {
       elevation: 0,
       scrolledUnderElevation: 0,
       backgroundColor: Colors.transparent,
-      foregroundColor: const Color(0xFFE2E8F0),
+      foregroundColor: Colors.white,
       titleTextStyle: GoogleFonts.playfairDisplay(
         fontSize: 22,
         fontWeight: FontWeight.w700,
-        color: const Color(0xFFE2E8F0),
+        color: Colors.white,
       ),
     ),
     cardTheme: CardThemeData(
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.10)),
       ),
-      color: Colors.white.withValues(alpha: 0.06),
+      color: const Color(0xFF152040),
       margin: EdgeInsets.zero,
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: const Color(0xFF1E2A3B),
+      fillColor: const Color(0xFF1A2B45),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Color(0xFF2D3A4F)),
+        borderSide: const BorderSide(color: Color(0xFF2D3F5C)),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Color(0xFF2D3A4F)),
+        borderSide: const BorderSide(color: Color(0xFF2D3F5C)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: gold, width: 2),
+        borderSide: const BorderSide(color: Colors.white, width: 2),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
@@ -259,7 +261,7 @@ class AppTheme {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: gold,
+        backgroundColor: Colors.white,
         foregroundColor: navyDeep,
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
@@ -269,7 +271,7 @@ class AppTheme {
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        backgroundColor: gold,
+        backgroundColor: Colors.white,
         foregroundColor: navyDeep,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -278,8 +280,8 @@ class AppTheme {
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: gold,
-        side: const BorderSide(color: gold),
+        foregroundColor: Colors.white,
+        side: const BorderSide(color: Colors.white),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         textStyle: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
@@ -287,33 +289,33 @@ class AppTheme {
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        foregroundColor: goldLight,
+        foregroundColor: Colors.white,
         textStyle: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
       ),
     ),
     chipTheme: ChipThemeData(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      side: const BorderSide(color: Color(0xFF2D3A4F)),
+      side: const BorderSide(color: Color(0xFF2D3F5C)),
       labelStyle: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500),
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: gold,
+      backgroundColor: Colors.white,
       foregroundColor: navyDeep,
     ),
     dividerTheme: const DividerThemeData(
-      color: Color(0xFF1E2A3B),
+      color: Color(0xFF1E2E45),
       thickness: 1,
     ),
     bottomSheetTheme: const BottomSheetThemeData(
-      backgroundColor: Color(0xFF111827),
+      backgroundColor: Color(0xFF0D1628),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
     ),
     tabBarTheme: TabBarThemeData(
-      labelColor: gold,
+      labelColor: Colors.white,
       unselectedLabelColor: const Color(0xFF8899B0),
-      indicatorColor: gold,
+      indicatorColor: Colors.white,
       indicatorSize: TabBarIndicatorSize.label,
       labelStyle: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
       unselectedLabelStyle:
@@ -324,8 +326,8 @@ class AppTheme {
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       type: BottomNavigationBarType.fixed,
-      backgroundColor: Color(0xFF111827),
-      selectedItemColor: gold,
+      backgroundColor: Color(0xFF0D1628),
+      selectedItemColor: Colors.white,
       unselectedItemColor: Color(0xFF8899B0),
       elevation: 0,
     ),
@@ -334,9 +336,9 @@ class AppTheme {
   // ─── Text theme ───────────────────────────────────────────────────────────
 
   static TextTheme _buildTextTheme({required bool isDark}) {
-    final headingColor = isDark ? const Color(0xFFE2E8F0) : const Color(0xFF0D1B2A);
-    final bodyColor = isDark ? const Color(0xFFB0BEC5) : const Color(0xFF374151);
-    final subtleColor = isDark ? const Color(0xFF8899B0) : const Color(0xFF6B7280);
+    final headingColor = isDark ? Colors.white : navyDeep;
+    final bodyColor = isDark ? const Color(0xFFCDD5E0) : const Color(0xFF2D3E56);
+    final subtleColor = isDark ? const Color(0xFF8899B0) : const Color(0xFF5A6D85);
 
     final base = isDark
         ? GoogleFonts.interTextTheme(ThemeData.dark().textTheme)

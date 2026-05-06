@@ -14,10 +14,11 @@ class HousekeepingRepository {
 
   HousekeepingRepository(this._db, this._connectivity);
 
-  Future<List<Housekeeping>> getAll({String? status}) async {
+  Future<List<Housekeeping>> getAll({int? hotelId, String? status}) async {
     var rows = status != null
         ? await _db.operationsDao.getHousekeepingByStatus(status)
         : await _db.operationsDao.getAllHousekeeping();
+    if (hotelId != null) rows = rows.where((r) => r.hotelId == hotelId).toList();
     rows.sort((a, b) => (b.createdAt ?? '').compareTo(a.createdAt ?? ''));
     return rows.map((r) => r.toModel()).toList();
   }

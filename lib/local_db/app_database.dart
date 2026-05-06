@@ -90,6 +90,7 @@ part 'app_database.g.dart';
     // Notifications & Audit
     NotificationsTable,
     AuditLogsTable,
+    DeviceTokensTable,
     // Sync
     SyncQueueTable,
     SyncMetaTable,

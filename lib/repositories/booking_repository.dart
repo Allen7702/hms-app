@@ -16,8 +16,9 @@ class BookingRepository {
 
   static const _selectWithRelations = '*, guests(*), rooms(*, room_types(*))';
 
-  Future<List<Booking>> getAll({String? status, String? search}) async {
+  Future<List<Booking>> getAll({int? hotelId, String? status, String? search}) async {
     var rows = await _db.bookingDao.getAllBookings();
+    if (hotelId != null) rows = rows.where((b) => b.hotelId == hotelId).toList();
     if (status != null && status != 'All') {
       rows = rows.where((b) => b.status == status).toList();
     }

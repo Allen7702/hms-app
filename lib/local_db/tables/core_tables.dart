@@ -10,6 +10,7 @@ class UsersTable extends Table {
   Set<Column> get primaryKey => {id};
 
   IntColumn get id => integer()();
+  IntColumn get hotelId => integer().nullable().named('hotel_id')();
   TextColumn get fullName => text().nullable().named('full_name')();
   TextColumn get username => text().nullable()();
   TextColumn get email => text().nullable()();
@@ -53,6 +54,7 @@ class RoomTypesTable extends Table {
   Set<Column> get primaryKey => {id};
 
   IntColumn get id => integer()();
+  IntColumn get hotelId => integer().nullable().named('hotel_id')();
   TextColumn get name => text().nullable()();
   TextColumn get description => text().nullable()();
   IntColumn get capacity => integer().nullable()();
@@ -72,6 +74,7 @@ class RoomsTable extends Table {
   Set<Column> get primaryKey => {id};
 
   IntColumn get id => integer()();
+  IntColumn get hotelId => integer().nullable().named('hotel_id')();
   TextColumn get roomNumber => text().nullable().named('room_number')();
   TextColumn get floor => text().nullable()();
   IntColumn get roomTypeId => integer().nullable().named('room_type_id')();
@@ -92,6 +95,7 @@ class GuestsTable extends Table {
   Set<Column> get primaryKey => {id};
 
   IntColumn get id => integer()();
+  IntColumn get hotelId => integer().nullable().named('hotel_id')();
   TextColumn get name => text().nullable()();
   TextColumn get email => text().nullable()();
   TextColumn get phone => text().nullable()();
@@ -105,7 +109,8 @@ class GuestsTable extends Table {
   IntColumn get totalStays => integer().nullable().named('total_stays')();
   IntColumn get totalSpent => integer().nullable().named('total_spent')();
   TextColumn get lastStayDate => text().nullable().named('last_stay_date')();
-  TextColumn get preferredRoomType => text().nullable().named('preferred_room_type')();
+  TextColumn get preferredRoomType =>
+      text().nullable().named('preferred_room_type')();
   TextColumn get notes => text().nullable()();
   IntColumn get userId => integer().nullable().named('user_id')();
   TextColumn get createdAt => text().nullable().named('created_at')();

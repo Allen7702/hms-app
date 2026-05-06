@@ -14,7 +14,7 @@ class MaintenanceRepository {
 
   MaintenanceRepository(this._db, this._connectivity);
 
-  Future<List<Maintenance>> getAll({String? status, String? priority}) async {
+  Future<List<Maintenance>> getAll({int? hotelId, String? status, String? priority}) async {
     List<LocalMaintenance> rows;
     if (status != null) {
       rows = await _db.operationsDao.getMaintenanceByStatus(status);
@@ -23,6 +23,7 @@ class MaintenanceRepository {
     } else {
       rows = await _db.operationsDao.getAllMaintenance();
     }
+    if (hotelId != null) rows = rows.where((r) => r.hotelId == hotelId).toList();
     rows.sort((a, b) => (b.createdAt ?? '').compareTo(a.createdAt ?? ''));
     return rows.map((r) => r.toModel()).toList();
   }

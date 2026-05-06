@@ -8,6 +8,7 @@ part of 'housekeeping.dart';
 
 Housekeeping _$HousekeepingFromJson(Map<String, dynamic> json) => Housekeeping(
   id: (json['id'] as num).toInt(),
+  hotelId: (json['hotel_id'] as num?)?.toInt(),
   roomId: (json['room_id'] as num?)?.toInt(),
   status: json['status'] as String?,
   assigneeId: (json['assignee_id'] as num?)?.toInt(),
@@ -21,6 +22,7 @@ Housekeeping _$HousekeepingFromJson(Map<String, dynamic> json) => Housekeeping(
 Map<String, dynamic> _$HousekeepingToJson(Housekeeping instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'hotel_id': instance.hotelId,
       'room_id': instance.roomId,
       'status': instance.status,
       'assignee_id': instance.assigneeId,

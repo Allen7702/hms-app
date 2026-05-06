@@ -8,6 +8,7 @@ part of 'guest.dart';
 
 Guest _$GuestFromJson(Map<String, dynamic> json) => Guest(
   id: (json['id'] as num).toInt(),
+  hotelId: (json['hotel_id'] as num?)?.toInt(),
   name: json['name'] as String?,
   email: json['email'] as String?,
   phone: json['phone'] as String?,
@@ -30,6 +31,7 @@ Guest _$GuestFromJson(Map<String, dynamic> json) => Guest(
 
 Map<String, dynamic> _$GuestToJson(Guest instance) => <String, dynamic>{
   'id': instance.id,
+  'hotel_id': instance.hotelId,
   'name': instance.name,
   'email': instance.email,
   'phone': instance.phone,

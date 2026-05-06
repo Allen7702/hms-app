@@ -7,4 +7,6 @@ mixin _$NotificationDaoMixin on DatabaseAccessor<AppDatabase> {
   $NotificationsTableTable get notificationsTable =>
       attachedDatabase.notificationsTable;
   $AuditLogsTableTable get auditLogsTable => attachedDatabase.auditLogsTable;
+  $DeviceTokensTableTable get deviceTokensTable =>
+      attachedDatabase.deviceTokensTable;
 }

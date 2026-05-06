@@ -8,6 +8,7 @@ part of 'pos_order_item.dart';
 
 PosOrderItem _$PosOrderItemFromJson(Map<String, dynamic> json) => PosOrderItem(
   id: (json['id'] as num).toInt(),
+  hotelId: (json['hotel_id'] as num?)?.toInt(),
   orderId: (json['order_id'] as num?)?.toInt(),
   productId: (json['product_id'] as num?)?.toInt(),
   productName: json['product_name'] as String?,
@@ -27,6 +28,7 @@ PosOrderItem _$PosOrderItemFromJson(Map<String, dynamic> json) => PosOrderItem(
 Map<String, dynamic> _$PosOrderItemToJson(PosOrderItem instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'hotel_id': instance.hotelId,
       'order_id': instance.orderId,
       'product_id': instance.productId,
       'product_name': instance.productName,

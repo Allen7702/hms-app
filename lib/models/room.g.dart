@@ -8,6 +8,7 @@ part of 'room.dart';
 
 Room _$RoomFromJson(Map<String, dynamic> json) => Room(
   id: (json['id'] as num).toInt(),
+  hotelId: (json['hotel_id'] as num?)?.toInt(),
   roomNumber: Room._stringFromAny(json['room_number']),
   floor: Room._stringFromAny(json['floor']),
   roomTypeId: (json['room_type_id'] as num?)?.toInt(),
@@ -23,6 +24,7 @@ Room _$RoomFromJson(Map<String, dynamic> json) => Room(
 
 Map<String, dynamic> _$RoomToJson(Room instance) => <String, dynamic>{
   'id': instance.id,
+  'hotel_id': instance.hotelId,
   'room_number': instance.roomNumber,
   'floor': instance.floor,
   'room_type_id': instance.roomTypeId,

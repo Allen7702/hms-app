@@ -5,6 +5,8 @@ part 'housekeeping.g.dart';
 @JsonSerializable()
 class Housekeeping {
   final int id;
+  @JsonKey(name: 'hotel_id')
+  final int? hotelId;
   @JsonKey(name: 'room_id')
   final int? roomId;
   final String? status;
@@ -22,6 +24,7 @@ class Housekeeping {
 
   const Housekeeping({
     required this.id,
+    this.hotelId,
     this.roomId,
     this.status,
     this.assigneeId,
@@ -32,6 +35,7 @@ class Housekeeping {
     this.updatedAt,
   });
 
-  factory Housekeeping.fromJson(Map<String, dynamic> json) => _$HousekeepingFromJson(json);
+  factory Housekeeping.fromJson(Map<String, dynamic> json) =>
+      _$HousekeepingFromJson(json);
   Map<String, dynamic> toJson() => _$HousekeepingToJson(this);
 }

@@ -17,8 +17,9 @@ class RoomRepository {
 
   static const _selectWithRelations = '*, room_types(*)';
 
-  Future<List<Room>> getAll({String? status, String? floor, int? roomTypeId}) async {
+  Future<List<Room>> getAll({int? hotelId, String? status, String? floor, int? roomTypeId}) async {
     var rows = await _db.coreDao.getAllRooms();
+    if (hotelId != null) rows = rows.where((r) => r.hotelId == hotelId).toList();
     if (status != null) rows = rows.where((r) => r.status == status).toList();
     if (floor != null) rows = rows.where((r) => r.floor == floor).toList();
     if (roomTypeId != null) rows = rows.where((r) => r.roomTypeId == roomTypeId).toList();
@@ -61,8 +62,9 @@ class RoomRepository {
     return counts;
   }
 
-  Future<List<RoomType>> getRoomTypes() async {
-    final rows = await _db.coreDao.getAllRoomTypes();
+  Future<List<RoomType>> getRoomTypes({int? hotelId}) async {
+    var rows = await _db.coreDao.getAllRoomTypes();
+    if (hotelId != null) rows = rows.where((r) => r.hotelId == hotelId).toList();
     if (rows.isNotEmpty) return rows.map((r) => r.toModel()).toList();
     // fallback to network on first load
     final response = await _client.from('room_types').select().order('name');

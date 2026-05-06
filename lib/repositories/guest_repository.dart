@@ -14,8 +14,9 @@ class GuestRepository {
 
   GuestRepository(this._db, this._connectivity);
 
-  Future<List<Guest>> getAll({String? search}) async {
+  Future<List<Guest>> getAll({int? hotelId, String? search}) async {
     var rows = await _db.coreDao.getAllGuests();
+    if (hotelId != null) rows = rows.where((g) => g.hotelId == hotelId).toList();
     if (search != null && search.isNotEmpty) {
       final q = search.toLowerCase();
       rows = rows.where((g) =>

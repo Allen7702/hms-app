@@ -8,6 +8,7 @@ part of 'charge.dart';
 
 Charge _$ChargeFromJson(Map<String, dynamic> json) => Charge(
   id: (json['id'] as num).toInt(),
+  hotelId: (json['hotel_id'] as num?)?.toInt(),
   bookingId: (json['booking_id'] as num?)?.toInt(),
   invoiceId: (json['invoice_id'] as num?)?.toInt(),
   chargeType: json['charge_type'] as String?,
@@ -23,10 +24,12 @@ Charge _$ChargeFromJson(Map<String, dynamic> json) => Charge(
   serviceDate: json['service_date'] as String?,
   notes: json['notes'] as String?,
   createdAt: json['created_at'] as String?,
+  updatedAt: json['updated_at'] as String?,
 );
 
 Map<String, dynamic> _$ChargeToJson(Charge instance) => <String, dynamic>{
   'id': instance.id,
+  'hotel_id': instance.hotelId,
   'booking_id': instance.bookingId,
   'invoice_id': instance.invoiceId,
   'charge_type': instance.chargeType,
@@ -42,4 +45,5 @@ Map<String, dynamic> _$ChargeToJson(Charge instance) => <String, dynamic>{
   'service_date': instance.serviceDate,
   'notes': instance.notes,
   'created_at': instance.createdAt,
+  'updated_at': instance.updatedAt,
 };

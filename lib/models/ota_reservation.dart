@@ -5,6 +5,8 @@ part 'ota_reservation.g.dart';
 @JsonSerializable()
 class OtaReservation {
   final int id;
+  @JsonKey(name: 'hotel_id')
+  final int? hotelId;
   @JsonKey(name: 'booking_id')
   final int? bookingId;
   @JsonKey(name: 'ota_id')
@@ -18,6 +20,7 @@ class OtaReservation {
 
   const OtaReservation({
     required this.id,
+    this.hotelId,
     this.bookingId,
     this.otaId,
     this.otaName,

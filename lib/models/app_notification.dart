@@ -5,6 +5,8 @@ part 'app_notification.g.dart';
 @JsonSerializable()
 class AppNotification {
   final int id;
+  @JsonKey(name: 'hotel_id')
+  final int? hotelId;
   final String? type;
   @JsonKey(name: 'guest_id')
   final int? guestId;
@@ -17,11 +19,14 @@ class AppNotification {
   final int? relatedEntityId;
   @JsonKey(name: 'entity_type')
   final String? entityType;
+  @JsonKey(name: 'read_at')
+  final String? readAt;
   @JsonKey(name: 'created_at')
   final String? createdAt;
 
   const AppNotification({
     required this.id,
+    this.hotelId,
     this.type,
     this.guestId,
     this.userId,
@@ -30,9 +35,11 @@ class AppNotification {
     this.status,
     this.relatedEntityId,
     this.entityType,
+    this.readAt,
     this.createdAt,
   });
 
-  factory AppNotification.fromJson(Map<String, dynamic> json) => _$AppNotificationFromJson(json);
+  factory AppNotification.fromJson(Map<String, dynamic> json) =>
+      _$AppNotificationFromJson(json);
   Map<String, dynamic> toJson() => _$AppNotificationToJson(this);
 }

@@ -12,16 +12,17 @@ class NotificationRepository {
 
   NotificationRepository(this._db, this._connectivity);
 
-  Future<List<AppNotification>> getByUserId(int userId) async {
+  Future<List<AppNotification>> getByUserId(int userId, {int? hotelId}) async {
     final rows = await _db.notificationDao.getAll();
     return rows
-        .where((r) => r.userId == userId)
+        .where((r) => r.userId == userId && (hotelId == null || r.hotelId == hotelId))
         .map((r) => r.toModel())
         .toList();
   }
 
-  Future<List<AppNotification>> getAll() async {
-    final rows = await _db.notificationDao.getAll();
+  Future<List<AppNotification>> getAll({int? hotelId}) async {
+    var rows = await _db.notificationDao.getAll();
+    if (hotelId != null) rows = rows.where((r) => r.hotelId == hotelId).toList();
     return rows.map((r) => r.toModel()).toList();
   }
 

@@ -26,8 +26,6 @@ class DashboardScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      extendBodyBehindAppBar: false,
-      appBar: _buildGlassAppBar(context, theme, user),
       body: RefreshIndicator(
         color: theme.colorScheme.primary,
         backgroundColor: theme.colorScheme.surface,
@@ -43,7 +41,7 @@ class DashboardScreen extends ConsumerWidget {
             children: [
               // Hero Welcome Banner
               _WelcomeBanner(user: user),
-            
+
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                 child: Column(
@@ -59,8 +57,11 @@ class DashboardScreen extends ConsumerWidget {
                             ? (occupied / total * 100)
                             : 0.0;
 
-                        return GridView.count(
-                          crossAxisCount: 2,
+                        return LayoutBuilder(
+                          builder: (context, constraints) {
+                            final cols = constraints.maxWidth >= 600 ? 4 : 2;
+                            return GridView.count(
+                          crossAxisCount: cols,
                           mainAxisSpacing: 12,
                           crossAxisSpacing: 12,
                           shrinkWrap: true,
@@ -93,6 +94,8 @@ class DashboardScreen extends ConsumerWidget {
                               color: AppTheme.occupiedColor,
                             ),
                           ],
+                        );
+                          },
                         );
                       },
                       loading: () => const SkeletonGrid(itemCount: 4),
@@ -299,87 +302,6 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  PreferredSizeWidget _buildGlassAppBar(
-    BuildContext context,
-    ThemeData theme,
-    dynamic user,
-  ) {
-    final isDark = theme.brightness == Brightness.dark;
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(kToolbarHeight),
-      child: ClipRRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            decoration: BoxDecoration(
-              color: isDark
-                  ? Colors.black.withValues(alpha: 0.3)
-                  : Colors.white.withValues(alpha: 0.5),
-              border: Border(
-                bottom: BorderSide(
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.08)
-                      : Colors.white.withValues(alpha: 0.6),
-                  width: 0.5,
-                ),
-              ),
-            ),
-            child: AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              scrolledUnderElevation: 0,
-              title: Row(
-                children: [
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [AppTheme.navyMid, AppTheme.navyLight],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: AppTheme.gold.withValues(alpha: 0.5),
-                        width: 1,
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.hotel_rounded,
-                      color: AppTheme.gold,
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'HMS',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.notifications_outlined),
-                  onPressed: () => context.push('/notifications'),
-                ),
-                const SizedBox(width: 4),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Color _getRoomStatusColor(String? status) => switch (status) {
     'Available' => AppTheme.availableColor,
     'Occupied' => AppTheme.occupiedColor,
@@ -397,9 +319,8 @@ class _WelcomeBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final statusBarHeight = MediaQuery.of(context).padding.top;
     final now = DateTime.now();
-    final dateStr = DateFormat('EEEE, d MMMM yyyy').format(now);
+    final dateStr = DateFormat('EEE, d MMM yyyy').format(now);
     final hour = now.hour;
     final greeting = hour < 12
         ? 'Good Morning'
@@ -411,161 +332,100 @@ class _WelcomeBanner extends StatelessWidget {
 
     return Container(
       width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
       decoration: BoxDecoration(
-        gradient: isDark
-            ? const LinearGradient(
-                colors: [Color(0xFF0D1B2A), Color(0xFF1B2A4A)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              )
-            : const LinearGradient(
-                colors: [AppTheme.navyDeep, AppTheme.navyMid],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+        color: isDark ? const Color(0xFF152040) : AppTheme.navyMid,
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.white.withValues(alpha: 0.10),
+            width: 1,
+          ),
+        ),
       ),
-      child: Stack(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Gold shimmer orb — top right
-          Positioned(
-            right: -50,
-            top: -50,
-            child: Container(
-              width: 200,
-              height: 200,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppTheme.gold.withValues(alpha: 0.08),
+          // Avatar initial
+          Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              (name.isNotEmpty ? name[0] : 'U').toUpperCase(),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
-          Positioned(
-            right: 30,
-            top: 20,
-            child: Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppTheme.gold.withValues(alpha: 0.05),
-              ),
-            ),
-          ),
-          Positioned(
-            left: -20,
-            bottom: -30,
-            child: Container(
-              width: 140,
-              height: 140,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppTheme.navyLight.withValues(alpha: 0.4),
-              ),
-            ),
-          ),
-          // Gold accent line at bottom
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: 2,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.transparent,
-                    AppTheme.gold.withValues(alpha: 0.6),
-                    AppTheme.goldLight.withValues(alpha: 0.8),
-                    AppTheme.gold.withValues(alpha: 0.6),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
-          ),
-          // Content
-          Padding(
-            padding: EdgeInsets.fromLTRB(20, statusBarHeight + 20, 20, 30),
+          const SizedBox(width: 14),
+          // Greeting text
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppTheme.gold.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: AppTheme.gold.withValues(alpha: 0.35),
-                          width: 0.8,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.circle,
-                            size: 7,
-                            color: AppTheme.gold,
-                          ),
-                          const SizedBox(width: 5),
-                          Text(
-                            dateStr,
-                            style: const TextStyle(
-                              color: AppTheme.goldLight,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
                 Text(
-                  '$greeting,',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.65),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    letterSpacing: 0.2,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  name,
-                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                  '$greeting, $name',
+                  style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 28,
-                    letterSpacing: 0,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.1,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 3),
                 Row(
                   children: [
-                    Container(
-                      width: 24,
-                      height: 2,
-                      decoration: const BoxDecoration(
-                        color: AppTheme.gold,
-                        borderRadius: BorderRadius.all(Radius.circular(1)),
-                      ),
+                    const Icon(
+                      Icons.calendar_today_outlined,
+                      size: 11,
+                      color: Colors.white60,
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 4),
                     Text(
-                      "Hotel overview for today",
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.6),
+                      dateStr,
+                      style: const TextStyle(
+                        color: Colors.white60,
                         fontSize: 12,
-                        letterSpacing: 0.3,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
                   ],
+                ),
+              ],
+            ),
+          ),
+          // Hotel badge
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.20),
+                width: 1,
+              ),
+            ),
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.hotel_rounded, color: Colors.white, size: 18),
+                SizedBox(height: 2),
+                Text(
+                  'HMS',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
                 ),
               ],
             ),

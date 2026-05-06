@@ -5,6 +5,8 @@ part 'payment.g.dart';
 @JsonSerializable()
 class Payment {
   final int id;
+  @JsonKey(name: 'hotel_id')
+  final int? hotelId;
   @JsonKey(name: 'invoice_id')
   final int? invoiceId;
   final num? amount;
@@ -16,9 +18,12 @@ class Payment {
   final String? processedAt;
   @JsonKey(name: 'created_at')
   final String? createdAt;
+  @JsonKey(name: 'updated_at')
+  final String? updatedAt;
 
   const Payment({
     required this.id,
+    this.hotelId,
     this.invoiceId,
     this.amount,
     this.status,
@@ -26,8 +31,10 @@ class Payment {
     this.transactionId,
     this.processedAt,
     this.createdAt,
+    this.updatedAt,
   });
 
-  factory Payment.fromJson(Map<String, dynamic> json) => _$PaymentFromJson(json);
+  factory Payment.fromJson(Map<String, dynamic> json) =>
+      _$PaymentFromJson(json);
   Map<String, dynamic> toJson() => _$PaymentToJson(this);
 }

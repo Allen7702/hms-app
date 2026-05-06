@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -9,24 +8,36 @@ class MoreScreen extends StatelessWidget {
   static const _items = <_MenuItem>[
     _MenuItem(icon: Icons.people_outlined, label: 'Guests', route: '/guests'),
     _MenuItem(
-        icon: Icons.receipt_long_outlined, label: 'Billing', route: '/billing'),
+      icon: Icons.receipt_long_outlined,
+      label: 'Billing',
+      route: '/billing',
+    ),
     _MenuItem(
-        icon: Icons.inventory_2_outlined,
-        label: 'Inventory',
-        route: '/inventory'),
+      icon: Icons.inventory_2_outlined,
+      label: 'Inventory',
+      route: '/inventory',
+    ),
     _MenuItem(
-        icon: Icons.calendar_month_outlined,
-        label: 'Calendar',
-        route: '/calendar'),
+      icon: Icons.calendar_month_outlined,
+      label: 'Calendar',
+      route: '/calendar',
+    ),
     _MenuItem(
-        icon: Icons.bar_chart_outlined, label: 'Reports', route: '/reports'),
+      icon: Icons.bar_chart_outlined,
+      label: 'Reports',
+      route: '/reports',
+    ),
     _MenuItem(icon: Icons.history, label: 'Audit Trail', route: '/audit'),
     _MenuItem(
-        icon: Icons.notifications_outlined,
-        label: 'Notifications',
-        route: '/notifications'),
+      icon: Icons.notifications_outlined,
+      label: 'Notifications',
+      route: '/notifications',
+    ),
     _MenuItem(
-        icon: Icons.settings_outlined, label: 'Settings', route: '/settings'),
+      icon: Icons.settings_outlined,
+      label: 'Settings',
+      route: '/settings',
+    ),
   ];
 
   @override
@@ -35,36 +46,6 @@ class MoreScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      extendBodyBehindAppBar: true,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: ClipRRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.black.withValues(alpha: 0.3)
-                    : Colors.white.withValues(alpha: 0.5),
-                border: Border(
-                  bottom: BorderSide(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white.withValues(alpha: 0.08)
-                        : Colors.white.withValues(alpha: 0.6),
-                    width: 0.5,
-                  ),
-                ),
-              ),
-              child: AppBar(
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                scrolledUnderElevation: 0,
-                title: const Text('More'),
-              ),
-            ),
-          ),
-        ),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -72,8 +53,9 @@ class MoreScreen extends StatelessWidget {
           children: [
             Text(
               'All Features',
-              style: theme.textTheme.titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w600),
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 16),
             Expanded(
